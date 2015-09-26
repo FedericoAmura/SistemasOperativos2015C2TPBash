@@ -51,6 +51,7 @@ rechazar() {
 	
 }
 
+
 numero_ciclo=0
 while [ true ]
 do
@@ -66,14 +67,17 @@ find "./nov" -type f | while read file; do
 	echo $nombre_archivo	
 	tipo_archivo_ok=$(validarTipoArchivo $nombre_archivo)
 	if [ $tipo_archivo_ok -eq 0 ]; then
-     	 echo es de texto
+     	 #echo es de texto
 	 formato_nombre_archivo_ok=$(validarFormatoNombreArchivo $nombre_archivo)
 	 if [ $formato_nombre_archivo_ok -eq 0 ]; then
-     	   echo el formato esta bien
+     	   #echo el formato esta bien
 	   nombre_archivo_ok=$(validarNombreArchivo $nombre_archivo)
 	   if [ $nombre_archivo_ok -eq 0 ]; then
-     	     echo el nombre esta bien
-	     #TODO 6- invocar a moverA
+     	     #echo el nombre esta bien
+	     #TODO 6- invocar a moverA para aceptar
+	     origen="./nov/"$nombre_archivo
+	     echo Intento mover $origen	a ./acep
+	     source MoverA.sh $origen "./acep"
     	   else
              echo $(rechazar $nombre_archivo)
 	   fi
@@ -93,7 +97,7 @@ else
     echo ""./acep" esta vacio"
 fi
 
-sleep 10 #cada 10 segundos se repite; se puede cancelar con: ctrl+c
+sleep 30 #cada 30 segundos se repite; se puede cancelar con: ctrl+c
 done
 
 
