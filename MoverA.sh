@@ -1,10 +1,10 @@
 #!/bin/bash
-#notas
-#recordar: "source MoverA.sh" para obtener las funciones en el ambiente
+#Notas generales
+#Para obtener las funciones en el ambiente "source MoverA.sh" y despues para usar la funcion "MoverA origen destino [comandollamador]"
 #con "echo $?" veo el return value de la ultima llamada, util para testing
 #si hay que distinguir los pipes y cosas asi que no son files realmente, cambiar los -e por -f
 
-#return values
+#Return values
 #1: funcion mal llamada
 #2: origen = destino
 #3: origen no existe
