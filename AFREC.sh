@@ -51,6 +51,7 @@ rechazar() {
 	
 }
 
+source MoverA.sh
 
 numero_ciclo=0
 while [ true ]
@@ -77,7 +78,7 @@ find "./nov" -type f | while read file; do
 	     #TODO 6- invocar a moverA para aceptar
 	     origen="./nov/"$nombre_archivo
 	     echo Intento mover $origen	a ./acep
-	     source MoverA.sh $origen "./acep"
+	     MoverA $origen "./acep"
     	   else
              echo $(rechazar $nombre_archivo)
 	   fi

@@ -16,6 +16,7 @@ CMD_INSTALL=$1
 #GRUPO="/home/freddy/Workspace/TPSisOp" #Esto estaria hardcodeado, seria la ruta donde esta mi local, asi uso eso directamente, hay que ver como seria en caso de una maquina distinta
 #Por el momento, tomo como path para instalar AFRA-J el direcorio definido en compose.sh 
 GRUPO="AFRA-J"
+GRUPO=$(pwd) #Esto estaria hardcodeado, seria la ruta donde esta mi local, asi uso eso directamente, hay que ver como seria en caso de una maquina distinta
 CONFDIR="$GRUPO/conf" #aca van el log AFINSTAL.lg y el de configuracion AFINSTAL.cnfg
 BINDIR="$GRUPO/bin"
 MAEDIR="$GRUPO/mae"
