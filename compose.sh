@@ -11,6 +11,7 @@
 
 #Set Name
 NOMBRE_PAQUETE_ZIP="AFRA-J.zip"
+#Variable de entorno para usar en AFINSTAL.sh
 PAQUETE="AFRA-J"
 
 #Set Archivos
@@ -47,7 +48,14 @@ then
 	
 fi
 
+if [ "$1" == "-mvHome" ]
+then
+	#mkdir $HOME/tmp
+	unzip $NOMBRE_PAQUETE_ZIP
+	mv $PAQUETE $HOME/tmp/
+	rm $NOMBRE_PAQUETE_ZIP
 
+fi
 
 
 

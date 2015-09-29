@@ -1,11 +1,21 @@
 #!/bin/bash
 #Notas generales
 
+#Parametros de entrada
+
+CMD_INSTALL=$1
+
+
+
+
+
 #Return Values
 #0: Todo ok
 #1: Paquete ya instalado
 
-GRUPO="/home/freddy/Workspace/TPSisOp" #Esto estaria hardcodeado, seria la ruta donde esta mi local, asi uso eso directamente, hay que ver como seria en caso de una maquina distinta
+#GRUPO="/home/freddy/Workspace/TPSisOp" #Esto estaria hardcodeado, seria la ruta donde esta mi local, asi uso eso directamente, hay que ver como seria en caso de una maquina distinta
+#Por el momento, tomo como path para instalar AFRA-J el direcorio definido en compose.sh 
+GRUPO="AFRA-J"
 CONFDIR="$GRUPO/conf" #aca van el log AFINSTAL.lg y el de configuracion AFINSTAL.cnfg
 BINDIR="$GRUPO/bin"
 MAEDIR="$GRUPO/mae"
@@ -40,3 +50,21 @@ then
 	echo "El paquete ya fue instalado, no es necesario seguir."
 	exit 1
 fi
+
+#Inicio de la instalacion.
+if [ "$CMD_INSTALL" == "-start" ]
+then
+	echo -e "Creando arbol de directorios y archivos \n \t * AFINSTAL.lg \n \t * AFINSTAL.cnfg"
+
+	> $CONFDIR/AFINSTAL.lg
+	> $CONFDIR/AFINSTAL.cnfg
+fi
+
+
+
+
+
+
+
+
+
