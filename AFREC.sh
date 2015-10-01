@@ -21,13 +21,16 @@ validarTipoArchivo() {
 # Devuelve 1 si el formato del nombre del archivo NO es correcto.
 # Recibe el nombre del archivo.
 validarFormatoNombreArchivo() {
-  # TODO echo validarformato!
-  #file_name=$(echo "$1" | egrep '^..*_[0-9]{4}-[0-9]{2}-[0-9]{2}$')
-  echo 0
-	
+  nombre_archivo=$(echo "$1" | egrep '^[A-Z]{3}_[0-9]{4}[0-9]{2}[0-9]{2}$')
+  if [ "$nombre_archivo" == "$1" ]
+  	then
+   	 echo "0"
+  	else
+  	 echo "1"
+  	fi		
 }
 
-#5- Valida que el nombre del archivo.
+#5- Valida el nombre del archivo.
 # COD_CENTRAL debe existir en el maestro de materiales
 # ANIOMESDIA debe ser una fecha valida
 # ANIOMESDIA debe ser a lo sumo de un año de antiguedad
@@ -36,22 +39,35 @@ validarFormatoNombreArchivo() {
 # Devuelve 1 si el nombre del archivo es invalido.
 # Recibe el nombre del archivo.
 validarNombreArchivo() {
-  # TODO echo validar nombre
-  nombre_archivo=$1
+  cod_central=$(echo "$1" | cut -d '_' -f 1)
+  fecha=$(echo "$1" | cut -d '_' -f 2)
+  $printf $cod_central
+  $printf $fecha
+  anio=${fecha:0:4}
+  $printf $anio
+  mes=${fecha:4:2}
+  $printf $mes
+  dia=${fecha:6:7}
+  $printf $dia
   echo 0
 	
 }
 
-#7- Rechazar.
+#7- TODO Rechazar.
 # Rechaza el archivo
 rechazar() {
-  # TODO
   nombre_archivo=$1
+  origen="./nov/"$nombre_archivo
+  
+  #invocar a moverA para rechazar
+  #source MoverA.sh
+  #MoverA $origen "./acep"
+  #mv "$origen" "./rech"
   echo 0
 	
 }
 
-source MoverA.sh
+
 
 numero_ciclo=0
 while [ true ]
@@ -74,11 +90,13 @@ find "./nov" -type f | while read file; do
      	   #echo el formato esta bien
 	   nombre_archivo_ok=$(validarNombreArchivo $nombre_archivo)
 	   if [ $nombre_archivo_ok -eq 0 ]; then
-     	     #echo el nombre esta bien
-	     #TODO 6- invocar a moverA para aceptar
+     	     echo el nombre esta bien
 	     origen="./nov/"$nombre_archivo
-	     echo Intento mover $origen	a ./acep
-	     MoverA $origen "./acep"
+
+	     #6-TODO invocar a moverA para aceptar
+	     #source MoverA.sh
+	     #MoverA $origen "./acep"
+	     #mv "$origen" "./acep"
     	   else
              echo $(rechazar $nombre_archivo)
 	   fi
@@ -98,7 +116,7 @@ else
     echo ""./acep" esta vacio"
 fi
 
-sleep 30 #cada 30 segundos se repite; se puede cancelar con: ctrl+c
+sleep 120 #cada 30 segundos se repite; se puede cancelar con: ctrl+c
 done
 
 
