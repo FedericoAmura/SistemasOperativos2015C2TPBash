@@ -41,15 +41,44 @@ validarFormatoNombreArchivo() {
 validarNombreArchivo() {
   cod_central=$(echo "$1" | cut -d '_' -f 1)
   fecha=$(echo "$1" | cut -d '_' -f 2)
-  $printf $cod_central
-  $printf $fecha
+  #$printf $cod_central
+  #$printf $fecha
   anio=${fecha:0:4}
-  $printf $anio
+  #$printf $anio
   mes=${fecha:4:2}
-  $printf $mes
+  #$printf $mes
   dia=${fecha:6:7}
-  $printf $dia
-  echo 0
+  #$printf $dia
+
+  #Valida el numero de dia y mes
+  if [ $mes -gt 12 ] || [ $mes -lt 1 ] ; then
+     echo "1"
+  fi
+
+  if [ $dia -gt 31 ] || [ $dia -lt 1 ] ; then
+     echo "1"
+  fi
+
+  diaActual=$(date +%d)
+  mesActual=$(date +%m)
+  anioActual=$(date +%Y)
+  hoy=$anioActual$mesActual$diaActual
+  $printf $hoy
+  $printf $fecha
+  #Valida que sea menor o igual a la fecha del dia
+  #if [ $hoy -gt $fecha ]; then
+  #   echo "1"
+  #fi
+   
+
+  #Valida que la fecha tenga a lo sumo un anio de antiguedad
+  #anioActual=$(($anioActual-1))
+  #hoymenosanio=$anioActual$mesActual$diaActual
+
+  #if [ $hoymenosanio -gt $fecha ]; then
+  #   echo "1"
+  #fi
+  echo "0"
 	
 }
 
