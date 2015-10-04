@@ -8,12 +8,12 @@ validarTipoArchivo() {
   nombre_archivo=$1
 
     tipo_archivo=$(file -b --mime-type "./nov/$nombre_archivo")
-    if [ "$tipo_archivo" == "text/plain" ]
+    if [ "$tipo_archivo" = "text/plain" ]
   	then
-   	 echo "0"
+   	 echo 0
   	else
-  	 echo "1"
-  	fi
+  	 echo 1
+    fi
 }
 
 #4- Valida que el formato del nombre del archivo sea: <cod_central>_<aniomesdia>
@@ -22,12 +22,12 @@ validarTipoArchivo() {
 # Recibe el nombre del archivo.
 validarFormatoNombreArchivo() {
   nombre_archivo=$(echo "$1" | egrep '^[A-Z]{3}_[0-9]{4}[0-9]{2}[0-9]{2}$')
-  if [ "$nombre_archivo" == "$1" ]
+  if [ "$nombre_archivo" = "$1" ]
   	then
-   	 echo "0"
+   	 echo 0
   	else
-  	 echo "1"
-  	fi		
+  	 echo 1
+  fi		
 }
 
 #5- Valida el nombre del archivo.
@@ -39,6 +39,7 @@ validarFormatoNombreArchivo() {
 # Devuelve 1 si el nombre del archivo es invalido.
 # Recibe el nombre del archivo.
 validarNombreArchivo() {
+  
   cod_central=$(echo "$1" | cut -d '_' -f 1)
   fecha=$(echo "$1" | cut -d '_' -f 2)
   #$printf $cod_central
@@ -52,33 +53,55 @@ validarNombreArchivo() {
 
   #Valida el numero de dia y mes
   if [ $mes -gt 12 ] || [ $mes -lt 1 ] ; then
-     echo "1"
+     echo 1
+     return 
   fi
 
   if [ $dia -gt 31 ] || [ $dia -lt 1 ] ; then
-     echo "1"
+     echo 1
+     return 
   fi
 
   diaActual=$(date +%d)
   mesActual=$(date +%m)
   anioActual=$(date +%Y)
-  hoy=$anioActual$mesActual$diaActual
-  $printf $hoy
-  $printf $fecha
-  #Valida que sea menor o igual a la fecha del dia
-  #if [ $hoy -gt $fecha ]; then
-  #   echo "1"
-  #fi
-   
+  #hoy=$anioActual$mesActual$diaActual 
 
+  #Valida que la fecha no sea mayor a la fecha actual
+ 
+  hoy=$(date +%Y%m%d)	
+  fechaendate=$(date -d $fecha +%Y%m%d)
+  #$printf $hoy
+  #$printf $fechaendate
+  
+  if [ "$fechaendate" -gt "$hoy" ]; then
+     echo 1
+     return 
+  fi
+  
   #Valida que la fecha tenga a lo sumo un anio de antiguedad
-  #anioActual=$(($anioActual-1))
-  #hoymenosanio=$anioActual$mesActual$diaActual
+  anioActual=$(($anioActual-1))
+  hoymenosanio=$anioActual$mesActual$diaActual
+  
+  #$printf $anioActual
+  #$printf $hoymenosanio
+  if [ "$hoymenosanio" -gt "$fecha" ]; then
+     echo 1
+     return 
+  fi
 
-  #if [ $hoymenosanio -gt $fecha ]; then
-  #   echo "1"
-  #fi
-  echo "0"
+  #Valida que el cod_central exista en el maestro de centrales
+  existe=$(grep "$cod_central" "./master/CdC")
+  #existe=$(grep "zsds" "./master/CdC")
+  cod_obtenido=$(echo "$existe" | cut -d ';' -f 1)
+  #$printf $cod_obtenido
+  #$printf $cod_central
+  if [ $cod_central != $cod_obtenido ] ; then
+     return 1
+  fi
+  
+  #todo ok  
+  echo 0
 	
 }
 
@@ -89,10 +112,10 @@ rechazar() {
   origen="./nov/"$nombre_archivo
   
   #invocar a moverA para rechazar
-  #source MoverA.sh
-  #MoverA $origen "./acep"
+  source MoverA.sh
+  MoverA $origen "./acep"
   #mv "$origen" "./rech"
-  echo 0
+  return
 	
 }
 
@@ -111,20 +134,22 @@ find "./nov" -type f | while read file; do
     nombre_archivo="$( echo "$file" | grep '[^/]*$' -o )"
 	
 	echo $nombre_archivo	
-	tipo_archivo_ok=$(validarTipoArchivo $nombre_archivo)
+        tipo_archivo_ok=$(validarTipoArchivo $nombre_archivo)
 	if [ $tipo_archivo_ok -eq 0 ]; then
      	 #echo es de texto
 	 formato_nombre_archivo_ok=$(validarFormatoNombreArchivo $nombre_archivo)
 	 if [ $formato_nombre_archivo_ok -eq 0 ]; then
      	   #echo el formato esta bien
 	   nombre_archivo_ok=$(validarNombreArchivo $nombre_archivo)
-	   if [ $nombre_archivo_ok -eq 0 ]; then
-     	     echo el nombre esta bien
+
+           if [ $nombre_archivo_ok -eq 0 ]; then
+
+             #echo el nombre esta bien
 	     origen="./nov/"$nombre_archivo
 
 	     #6-TODO invocar a moverA para aceptar
-	     #source MoverA.sh
-	     #MoverA $origen "./acep"
+	     source MoverA.sh
+	     MoverA $origen "./acep"
 	     #mv "$origen" "./acep"
     	   else
              echo $(rechazar $nombre_archivo)
