@@ -9,7 +9,6 @@
 #
 
 
-# Crea archivo .zip (paquete a descargar por el usuario)
 # Directorio:
 #
 #├── AFRA-J
@@ -21,8 +20,6 @@
 #│   │   ├── movera_old.sh
 #│   │   └── MoverA.sh
 #│   ├── conf
-#│   │   ├── AFINSTAL.cnfg
-#│   │   └── AFINSTAL.lg
 #│   └── data
 #│       ├── agentes.csv
 #│       ├── BEL_20150703.csv
@@ -45,7 +42,8 @@
 
 #Set Name
 NOMBRE_PAQUETE_ZIP="AFRA-J.zip"
-#Variable de entorno para usar en AFINSTAL.sh
+
+#Variable de entorno para usar en AFINSTAL.sh 
 GRUPO="AFRA-J"
 
 #Set Archivos
@@ -61,7 +59,6 @@ then
 	mkdir $GRUPO/bin
 	mkdir $GRUPO/data
 
-
 	#Agrega todos los scripts para la instalacion.
 	cp AFINSTALL.sh $GRUPO/
 	#Agrego el resto de los *.sh al direcorio /bin	
@@ -71,18 +68,11 @@ then
 	cp GraLog.sh $GRUPO/bin/
 	cp MoverA.sh $GRUPO/bin/
 
-
 	#Agrego el archivo readme
 	cp README.md $GRUPO/
 
 	#Agrego el resto de los documentos a /data
 	cp -R data $GRUPO/
-
-	
-	#Agrego arhivos de configuracion en /conf
-	> $GRUPO/conf/AFINSTAL.cnfg
-	> $GRUPO/conf/AFINSTAL.lg
-
 
 	#Crea archivo .zip
 	zip -r $NOMBRE_PAQUETE_ZIP $GRUPO 	
@@ -93,7 +83,6 @@ then
 
 	echo -e "Se creo el paquete de instalacion \n \t PATH: $PWD/$NOMBRE_PAQUETE_ZIP"
 	
-		
 fi
 
 #Eliminar archivo .zip
@@ -112,17 +101,6 @@ then
 	rm $NOMBRE_PAQUETE_ZIP
 
 fi
-
-
-
-
-
-
-
-
-
-
-
 
 
 
