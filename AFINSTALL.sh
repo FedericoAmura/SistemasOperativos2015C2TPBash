@@ -89,7 +89,7 @@
 #Return Values
 #0: Todo ok
 #1: Paquete ya instalado
-
+#2: Instalacion abortada por el usuario
 
 
 ###################### variables de entorno ##########################
@@ -128,11 +128,12 @@ RECHDIR="$GRUPO/rechazadas"
 
 
 # Variables para interactuar con el Usuario
-INPUT_USUARIO
+#INPUT_USUARIO no se tienen que declarar las variables, directamente se asignan
 
-#Verificamos si perl esta instalado y guardo en una variable si estaba o no (0 si esta, 1 si no segun dpkg)
-dpkg -s perl #TODO habria que evitar lo que imprime esto y evitamos el clear en 2 lineas, ademas seria mas limpio
+#Verificamos si perl 5 al menos esta instalado y guardo en una variable si estaba o no (0 si esta, 1 si no segun dpkg)
+dpkg -s perl
 PERL_INSTALLED=$?
+PERL_VERSION="$(dpkg --status perl | grep ^Version)"
 clear 
 
 #######################################################################
@@ -165,16 +166,29 @@ clear
 function setPath(){
 
 	echo "(logInfo) step 6: Definir el direcorio de los ejecutables"
-	#Por el momento, no interactua con el usuario.
-	echo "(aLog) Defina el directorio de instalacion de los ejecutables  ($GRUPO/bin):"
- 	echo "(aLog) Defina el directorio de instalacion de los archivos maestros y tablas ($GRUPO/mae):"
- 	echo "(aLog) Defina el directorio de input del proceso AFREC ($GRUPO/novedades):"
- 	echo "(aLog) Defina el directorio de input del proceso AFUMB ($GRUPO/aceptadas):"
- 	echo "(aLog) Defina el directorio de output del proceso AFUMB ($GRUPO/sospechosas):"
- 	echo "(aLog) Defina el directorio de trabajo principal del proceso AFLIST ($GRUPO/reportes):"
- 	echo "(aLog) Defina el directorio para depositar los archovos de log de los comandos ($GRUPO/log):"
- 	echo "(aLog) Defina el repositorio de archivos rechazados ($GRUPO/rechazadas):"
-
+	echo "Defina el directorio de instalación de los ejecutables ($GRUPO/bin):"
+	read BINDIR
+	echo "Defina directorio para maestros y tablas ($GRUPO/mae):"
+	read MAEDIR
+	echo "Defina el Directorio de recepción de archivos de llamadas ($GRUPO/novedades):"
+	read NOVEDIR
+	echo "Defina espacio mínimo libre para la recepción de archivos de llamadas en Mbytes (100):"
+	read DATASIZE
+	#verificarEspacioEnDisco
+	echo "Defina el directorio de grabación de los archivos de llamadas aceptadas ($GRUPO/aceptadas):"
+	read ACEPDIR
+	echo "Defina el directorio de grabación de los registros de llamadas sospechosas ($GRUPO/sospechosas):"
+	read PROCDIR
+	echo "Defina el directorio de grabación de los reportes ($GRUPO/reportes):"
+	read REPODIR
+	echo "Defina el directorio para los archivos de log ($GRUPO/log):"
+	read LOGDIR
+	echo "Defina el nombre para la extensión de los archivos de log (lg):"
+	read LOGEXT
+	echo "Defina el tamaño máximo para cada archivo de log en Kbytes (400):"
+	read LOGSIZE
+	echo "Defina el directorio de grabación de Archivos rechazados ($GRUPO/rechazadas):"
+	read RECHDIR
 }	
 
 # Crea las estructuras de directorio requeridas
@@ -194,7 +208,8 @@ function instalacion(){
 	# Creacion de los directorios.
 	# $CONFDIR se crea por defecto al descomprimir el paquete de instalacion.
 	# $BINDIR  por el momento dejo que se cree por defecto este direcorio.
-	mkdir $MAEDIR $NOVEDIR $ACEPDIR $PROCDIR $REPODIR $LOGDIR $RECHDIR	
+	mkdir $MAEDIR $NOVEDIR $ACEPDIR $PROCDIR $REPODIR $LOGDIR $RECHDIR
+	#despues hay que crear el file de configuracion y ver si tmb uno extra donde esta afini para que ese lo levante y pueda llegar al cnfg	
 
 }
 
@@ -213,7 +228,7 @@ function instalacion(){
 
 # Detectar si el paquete AFRA-J o algunos de sus componentes ya esta instalado.
 #
-function step1(){
+function detectarInstalacion(){
 
 	echo "(logInfo) step 1: Verificando si el sistema AFRA-J se encuentra instalado"
 	#Verifico si el paquete ya esta instalado
@@ -221,15 +236,15 @@ function step1(){
 	then
 		echo "Existe una version instalada de AFRA-J."
 		# Verificar si la instalacion esta completa.
-		step2		
+		verificarInstalacionCompleta		
 	fi
 	#Chequear que Perl este instalado.
-	step4
+	verificarPerl
 }
 
 # verificar si la instalacion esta completa.
 # 
-function step2(){
+function verificarInstalacionCompleta(){
 
 	echo "(logInfo) step 2: Verificar si la instalacion esta completa"
 	exit 1
@@ -243,7 +258,7 @@ function step3(){
 
 # verificar si Perl esta instaldo en el SO.
 # 
-function step4(){
+function verificarPerl(){
 
 	echo "(logInfo) step 4: Verificando que Perl este instaldo."
 	#Hacemos instalar perl si no estaba
@@ -258,7 +273,7 @@ function step4(){
 
 # Aceptacion de terminos y condiciones. 
 #
-function step5(){
+function terminosYCondiciones(){
 	echo "***************************************************************"
 	echo "*"
 	echo "*			Proceso de Instalacion \"AFRA-J\" 		 "
@@ -273,7 +288,7 @@ function step5(){
 
 # Mostrar los valores de los parametros configurados y preguntar para continuar o voler atrás. 
 #
-function step18(){
+function imprimirConfiguracion(){
 	echo "(logInfo) step 18: Parametros configurados."
 
 	echo "Detalles de instalacion:"
@@ -300,17 +315,17 @@ function step18(){
 #Inicio de la instalacion.
 if [ "$CMD_INSTALL" == "-start" ]
 then	
-	echo -e "loading..."
+	echo -e "loading..." #para que este loading?
 	# Confirmo si el paquete ya esta instalado.
-	step1
+	detectarInstalacion
 	
 	# Aceptar terminos y condiciones.
-	step5
+	terminosYCondiciones
 
 	# Interaccion con el usuario.	
 	echo "Acepta? Si - No (Si/No)"	
 	read INPUT_USUARIO
-	echo "(logInfo) $INPUT_USUARIO"
+	echo "(logInfo) Input usuario: $INPUT_USUARIO"	
 
 	if [ "$INPUT_USUARIO" == "n" ] #Validar con una expresion regular.
 	then
@@ -323,12 +338,12 @@ then
 	setPath
 
 	# Mostrar como quedo configurada la instalacion.
-	step18
+	imprimirConfiguracion
 
 	# Interaccion con el usuario.	
 	echo "Desea continuar con la instalación? (Si-No)"
 	read INPUT_USUARIO
-	echo "(logInfo) $INPUT_USUARIO"
+	echo "(logInfo) Input usuario: $INPUT_USUARIO"
 
 	if [ "$INPUT_USUARIO" == "n" ] #Validar con una expresion regular.
 	then 
