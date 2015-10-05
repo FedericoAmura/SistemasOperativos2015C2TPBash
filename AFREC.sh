@@ -113,7 +113,7 @@ rechazar() {
   
   #invocar a moverA para rechazar
   source MoverA.sh
-  MoverA $origen "./acep"
+  MoverA $origen "./rech"
   #mv "$origen" "./rech"
   return
 	
