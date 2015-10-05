@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#retorno de valores
+# valores de retorno
 # 0: Inicialización OK
 # 1: No existe archivo de configuración (AFINSTAL.cnfg)
 # 2: El archivo de configuración AFINSTAL.cnfg no tiene permisos de lectura
@@ -73,7 +73,7 @@ function inicializarAmbiente {
 	return 0
 }
 
-#retorno de valores
+# valores de retorno
 # 0: Instalación Completa
 # 1: Faltante de Archivos (Scripts, Maestros, Tablas, etc.)
 function instalacionCompleta {
@@ -102,7 +102,7 @@ function instalacionCompleta {
 	return 0
 }
 
-#retorno de valores
+# valores de retorno
 # 0: Existen todos los scripts correspondientes
 # 1: Faltante de algún script
 function existenScripts {
@@ -125,7 +125,7 @@ function existenScripts {
 	return $todoOk	
 }
 
-#retorno de valores
+# valores de retorno
 # 0: Todos los archivos existen
 # 1: Si falta algún archivo (Maestro o Tabla)
 function existenMaestrosYTablas {
@@ -183,18 +183,59 @@ function listarArchivosDir {
 		for file in *
 		do
 			if [ -f $file ]; then
-				echo "  $file"
+				echo -e "\t$file"
 			fi
 		done
 		cd ..
 	fi	
 }
 
-
+# valores de retorno
+# 0: Todos los archivos tienen los permisos seteados correctamente
+# 1: Exiten archivos que no están seteados correctamente
 function verificarPermisos {
-	dir=$MAEDIR
+	ok=0
 	echo "Verificando permisos..."
 	sleep 1
+	dir=$MAEDIR
+	cd $dir
+	echo "Verificando permisos de archivos maestros..."
+	sleep 1
+	for file in *
+	do
+		if [ ! -r $file ]; then
+			chmod +r $file
+			if [ ! -r $file ]; then
+				ok=1
+				echo "No se pudo setear correctamente los permisos de lectura del archivo $file"
+				bash ./GraLog AFINI E "El archivo $file no tiene permisos de lectura."
+			fi	
+		fi
+	done
+	cd ..
+	
+	dir=$BINDIR
+	cd $dir
+	echo "Verificando permisos de archivos ejecutables..."
+	sleep 1
+	for file in *
+	do
+		if [ ! -x $file ]; then
+			chmod +x $file
+			if [ ! -x $file ]; then
+				ok=1
+				echo "No se pudo setear correctamente los permisos de ejecución del archivo $file"
+				bash ./GraLog AFINI E "El archivo $file no tiene permisos de ejecución."
+			fi	
+		fi
+	done 
+	cd ..	
+
+	if [ $ok -eq 1 ];then
+		echo "No puede continuar sin los permisos adecuados de los archivos necesarios."
+		return 1
+	fi
+
 	return 0
 }
 
