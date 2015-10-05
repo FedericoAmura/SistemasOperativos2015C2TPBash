@@ -170,7 +170,7 @@ else
     echo ""./acep" esta vacio"
 fi
 
-sleep 120 #cada 30 segundos se repite; se puede cancelar con: ctrl+c
+sleep 120 #cada 30 segundos se repite; se  puede cancelar con: ctrl+c
 done
 
 
