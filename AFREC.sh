@@ -1,5 +1,5 @@
 #!/bin/bash
-
+source MoverA.sh
 #3- Valida que sea un archivo de texto.
 # Devuelve 0 si el tipo de archivo es texto.
 # Devuelve 1 si el tipo de archivo NO es texto.
@@ -112,8 +112,7 @@ rechazar() {
   origen="./nov/"$nombre_archivo
   
   #invocar a moverA para rechazar
-  source MoverA.sh
-  MoverA $origen "./rech"
+  MoverA $origen "./rech/"$nombre_archivo
   #mv "$origen" "./rech"
   return
 	
@@ -148,8 +147,8 @@ find "./nov" -type f | while read file; do
 	     origen="./nov/"$nombre_archivo
 
 	     #6-TODO invocar a moverA para aceptar
-	     source MoverA.sh
-	     MoverA $origen "./acep"
+	     
+	     MoverA $origen "./acep/"$nombre_archivo
 	     #mv "$origen" "./acep"
     	   else
              echo $(rechazar $nombre_archivo)
