@@ -1,79 +1,4 @@
 #!/bin/bash
-#Notas generales
-
-#Parametros de entrada
-
-#CMD_INSTALL=$1
-
-
-
-
-
-#Return Values
-#0: Todo ok
-#1: Paquete ya instalado
-#2: Instalacion abortada por el usuario
-
-#GRUPO="/home/freddy/Workspace/TPSisOp" #Esto estaria hardcodeado, seria la ruta donde esta mi local, asi uso eso directamente, hay que ver como seria en caso de una maquina distinta
-#Por el momento, tomo como path para instalar AFRA-J el direcorio definido en compose.sh 
-#GRUPO="AFRA-J"
-#GRUPO=$(pwd) #Esto estaria hardcodeado, seria la ruta donde esta mi local, asi uso eso directamente, hay que ver como seria en caso de una maquina distinta
-#CONFDIR="$GRUPO/conf" #aca van el log AFINSTAL.lg y el de configuracion AFINSTAL.cnfg
-#BINDIR="$GRUPO/bin"
-#MAEDIR="$GRUPO/mae"
-#NOVEDIR="$GRUPO/novedades"
-#ACEPDIR="$GRUPO/aceptadas"
-#PROCDIR="$GRUPO/sospechosas"
-#REPODIR="$GRUPO/reportes"
-#LOGDIR="$GRUPO/log"
-#RECHDIR="$GRUPO/rechazadas"
-
-#Verificamos si perl esta instalado y guardo en una variable si estaba o no (0 si esta, 1 si no segun dpkg)
-#dpkg -s perl #TODO habria que conseguir la version de perl y que esta sea al menos la 5
-#PERL_INSTALLED=$?
-#clear
-
-
-#echo "Bienvenido al programa de instalacion de AFRA-J."
-#echo "Mediante unos pasos vamos a definir la configuracion del programa, luego procederemos con la instalacion."
-#echo "Una vez terminado podra arrancar el demonio para correr el sistema."
-#echo "Puede interrumpir la instalacion en cualquier momento ingresando un 0 como opcion, regresando al inicio de la instalacion para realizar cualquier correccion, tambien puede salir del instalador si hiciera falta, no se van a aplicar los cambios hasta el final."
-
-#Hacemos instalar perl si no estaba
-#if [ $PERL_INSTALLED != 0 ]
-#then
-#	echo "El programa necesita de Perl para poder generar reportes, se va a proceder a instalarlo. Por favor ingrese la contrasena cuando se le solicite"
-#	sudo apt-get --force-yes --yes install perl
-#fi
-
-#1_Verifico si el paquete ya esta instalado
-#if [ -e "$CONFDIR/AFINSTAL.cnfg" ]
-#then
-#	echo "El paquete ya fue instalado, no es necesario seguir."
-	#FIXEARINSTALACION=verificarInstalacion
-	#si todo esta bien, no hacer nada y salir con 1
-#	exit 1
-	#si faltan cosas, ofrecer completar, si no quiere, salir con 2, si no, completar la instalacion
-#fi
-
-#2_Inicio de la instalacion.
-#if [ "$CMD_INSTALL" == "-start" ]
-#then
-	#mostrar terminos y condiciones, si no acepta, salir con 2, si acepta, seguir
-	#definir directorios
-	#mostrar configuracion y ofrecer cambiar alguno, si quiere, volver a definir directorios, si no, seguir
-	#verificar que quiere instalar todo como dice, si no quiere, salir con 2, si quiere, seguir
-	#crear directorios
-	#mover ejecutables, funciones, maestros, tablas
-	#actualizar archivo de configuracion de instalacion $CONFDIR/AFINSTAL.cnfg y estamo
-#	echo -e "Creando arbol de directorios y archivos \n \t * AFINSTAL.lg \n \t * AFINSTAL.cnfg"
-
-#	> $CONFDIR/AFINSTAL.lg
-#	> $CONFDIR/AFINSTAL.cnfg
-#fi
-
-
-
 #
 #----------------  AFINSTALL.sh  ----------------
 #	
@@ -91,12 +16,16 @@
 #1: Paquete ya instalado
 #2: Instalacion abortada por el usuario
 
+############################# sources ###############################
+
+source ./bin/MoverA.sh
+#source ./bin/GraLog.sh #TODO revisar esta implementacion, me parece que lo hizo para que se invoque haciendo source
+
 
 ###################### variables de entorno ##########################
 
 # Direcorio donde se va a instalar el sistema AFRA-J
 GRUPO="$PWD"
-
 CMD_INSTALL=$1
 
 
@@ -131,10 +60,9 @@ RECHDIR="$GRUPO/rechazadas"
 #INPUT_USUARIO no se tienen que declarar las variables, directamente se asignan
 
 #Verificamos si perl 5 al menos esta instalado y guardo en una variable si estaba o no (0 si esta, 1 si no segun dpkg)
-dpkg -s perl
-PERL_INSTALLED=$?
+#TODO en vez de usar el installed tengo que quedarme con la version y verificar que esta sea igual o mayor a 5
 PERL_VERSION="$(dpkg --status perl | grep ^Version)"
-clear 
+PERL_INSTALLED=$?
 
 #######################################################################
 
@@ -172,9 +100,6 @@ function setPath(){
 	read MAEDIR
 	echo "Defina el Directorio de recepción de archivos de llamadas ($GRUPO/novedades):"
 	read NOVEDIR
-	echo "Defina espacio mínimo libre para la recepción de archivos de llamadas en Mbytes (100):"
-	read DATASIZE
-	#verificarEspacioEnDisco
 	echo "Defina el directorio de grabación de los archivos de llamadas aceptadas ($GRUPO/aceptadas):"
 	read ACEPDIR
 	echo "Defina el directorio de grabación de los registros de llamadas sospechosas ($GRUPO/sospechosas):"
@@ -183,18 +108,21 @@ function setPath(){
 	read REPODIR
 	echo "Defina el directorio para los archivos de log ($GRUPO/log):"
 	read LOGDIR
-	echo "Defina el nombre para la extensión de los archivos de log (lg):"
-	read LOGEXT
-	echo "Defina el tamaño máximo para cada archivo de log en Kbytes (400):"
-	read LOGSIZE
 	echo "Defina el directorio de grabación de Archivos rechazados ($GRUPO/rechazadas):"
 	read RECHDIR
+	echo "Defina espacio mínimo libre para la recepción de archivos de llamadas en Mbytes (100):"
+	read DATASIZE
+	#verificarEspacioEnDisco #TODO implementar este procedimiento
+	echo "Defina el tamaño máximo para cada archivo de log en Kbytes (400):"
+	read LOGSIZE
+	echo "Defina el nombre para la extensión de los archivos de log (lg):"
+	read LOGEXT
 }	
 
 # Crea las estructuras de directorio requeridas
 #
 function instalacion(){ 
-	echo "Creando Extructuras de directorio..."
+	echo "Iniciando instalacion..."
 	echo -e "\t $CONFDIR"
 	echo -e "\t $BINDIR"
 	echo -e "\t $MAEDIR"
@@ -205,12 +133,35 @@ function instalacion(){
 	echo -e "\t $LOGDIR"
 	echo -e "\t $RECHDIR"
 
-	# Creacion de los directorios.
+	echo "-Creacion de los directorios..."
 	# $CONFDIR se crea por defecto al descomprimir el paquete de instalacion.
 	# $BINDIR  por el momento dejo que se cree por defecto este direcorio.
-	mkdir $MAEDIR $NOVEDIR $ACEPDIR $PROCDIR $REPODIR $LOGDIR $RECHDIR
+	mkdir --parents "$BINDIR" "$MAEDIR" "$NOVEDIR" "$ACEPDIR" "$PROCDIR" "$REPODIR" "$LOGDIR" "$RECHDIR"
 	#despues hay que crear el file de configuracion y ver si tmb uno extra donde esta afini para que ese lo levante y pueda llegar al cnfg	
+	generateFileConfiguracion
+	moverFiles
+}
 
+function generateFileConfiguracion(){
+	echo "-Guardando configuracion del sistema..."
+	echo "GRUPO=$GRUPO=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
+	echo "BINDIR=$BINDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
+	echo "MAEDIR=$MAEDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
+	echo "NOVEDIR=$NOVEDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
+	echo "ACEPDIR=$ACEPDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
+	echo "PROCDIR=$PROCDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
+	echo "REPODIR=$REPODIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
+	echo "LOGDIR=$LOGDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
+	echo "RECHDIR=$RECHDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
+	echo "DATASIZE=$DATASIZE=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
+	echo "LOGSIZE=$LOGSIZE=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
+	echo "LOGEXT=$LOGEXT=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
+	echo "-Configuracion guardada."
+}
+
+function moverFiles(){
+	echo "-Moviendo archivos..."
+	echo "-Archivos todavia no movidos" #TODO eso, lo del comentario, mover todo a donde corresponde
 }
 
 
@@ -247,6 +198,7 @@ function detectarInstalacion(){
 function verificarInstalacionCompleta(){
 
 	echo "(logInfo) step 2: Verificar si la instalacion esta completa"
+	#TODO aca deberia levantar las cosas como estan y seguir con la instalacion normal, no cambia el proceso creo, ver desp
 	exit 1
 }
 
@@ -265,6 +217,7 @@ function verificarPerl(){
 	if [ $PERL_INSTALLED != 0 ]
 	then
 		echo "El programa necesita de Perl para poder generar reportes, se va a proceder a instalarlo. Por favor ingrese la contrasena cuando se le solicite"
+		echo "De no instalarlo no podra generar los reportes. Sin embargo, puede instalarlo por su cuenta cuando desee mas tarde."
 		sudo apt-get --force-yes --yes install perl
 	fi
 	echo "Perl instalado"
@@ -293,7 +246,6 @@ function imprimirConfiguracion(){
 
 	echo "Detalles de instalacion:"
 	echo -e "\t Directorio de Ejecutables: $BINDIR"
-
 	echo -e "\t Directorio de Maestros y Tablas: $MAEDIR"
 	echo -e "\t Directorio de recepcion de archivos de llamadas: $NOVEDIR"	
 	echo -e "\t Espacio minimo libre para aribos: $DATASIZE mb" 
@@ -365,6 +317,8 @@ then
 	instalacion 
 	
 	exit 1
+else
+	echo "Ingrese el parametro \"-start\" para inicializar la instalacion"
 fi
 
 
