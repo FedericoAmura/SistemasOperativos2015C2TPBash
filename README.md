@@ -22,7 +22,15 @@ Instrucciones de instalacion
   5.
 
   ------------------------------------------------------------------------------
-  
+
+Instrucciones de inicialización de ambiente
+===============================================================================  
+  1. Abrir la terminal y dirigirse al directorio donde se encuentran los 
+     ejecutables.
+
+  2. Ejecutar ./AFINI.sh
+
+  ------------------------------------------------------------------------------
 Enjoy!
 
 -AFRA-J Development Team

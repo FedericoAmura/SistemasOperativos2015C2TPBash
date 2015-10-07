@@ -95,7 +95,7 @@ function GraLog {
 	NOMBRE_COMANDO="$1"
 
 	#Tipo de MENSAJE #de minusculas a mayusculas
-	tipo="`echo $3 | tr "[:lower:]" "[:upper:]"`"
+	tipo="`echo $2 | tr "[:lower:]" "[:upper:]"`"
 
 	if [ "$tipo" = "INFO" -o "$tipo" = "WAR" -o "$tipo" = "ERR" -o "$tipo" = "EF" ]
 	then
@@ -106,7 +106,7 @@ function GraLog {
 	fi
 
 	#Mensaje
-	MENSAJE="$2"
+	MENSAJE="$3"
 
 	# Valido que el directorio de logs sea una ruta válida (no vacía)
 	if [ -z "$LOGDIR" ]
