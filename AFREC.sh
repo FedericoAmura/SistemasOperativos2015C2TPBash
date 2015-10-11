@@ -1,5 +1,9 @@
 #!/bin/bash
 source MoverA.sh
+source GraLog.sh
+LOGDIR="./log"
+LOGSIZE=50
+LOGEXT=log
 #3- Valida que sea un archivo de texto.
 # Devuelve 0 si el tipo de archivo es texto.
 # Devuelve 1 si el tipo de archivo NO es texto.
@@ -105,7 +109,7 @@ validarNombreArchivo() {
 	
 }
 
-#7- TODO Rechazar.
+#7- Rechazar.
 # Rechaza el archivo
 rechazar() {
   nombre_archivo=$1
@@ -123,16 +127,17 @@ rechazar() {
 numero_ciclo=0
 while [ true ]
 do
-#1- TODO Log nro de ciclo.
+#1- Log nro de ciclo.
 numero_ciclo=$(($numero_ciclo+1))
-echo Numero de ciclo: $numero_ciclo
+#GraLog AFREC INFO "Ciclo: $numero_ciclo"
+#echo Numero de ciclo: $numero_ciclo
 
 #2- Chequea si hay archivos en NOVEDIR y los valida.
 
 find "./nov" -type f | while read file; do
     nombre_archivo="$( echo "$file" | grep '[^/]*$' -o )"
 	
-	echo $nombre_archivo	
+	#echo $nombre_archivo	
         tipo_archivo_ok=$(validarTipoArchivo $nombre_archivo)
 	if [ $tipo_archivo_ok -eq 0 ]; then
      	 #echo es de texto
@@ -146,7 +151,7 @@ find "./nov" -type f | while read file; do
              #echo el nombre esta bien
 	     origen="./nov/"$nombre_archivo
 
-	     #6-TODO invocar a moverA para aceptar
+	     #6-invocar a moverA para aceptar
 	     
 	     MoverA $origen "./acep/"$nombre_archivo
 	     #mv "$origen" "./acep"
