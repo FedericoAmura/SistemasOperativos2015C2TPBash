@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Switch;
 my $key = '';
+my $file = 0;
 
 #ARCHIVO=AFLIST.pl 
 #USO: AFLIST.pl ARGUMENTO_1 [ARGUMENTO_2]"
@@ -43,6 +44,10 @@ if ($num_args == 2)
 	   print "\nArgumento invalido [$arg_1]. ".$uso_prog."\n";
 	   exit;	
 	}
+	else
+	{
+	   $file = 1;
+	}
 }
 
 # muestra el menu
@@ -53,14 +58,14 @@ if ($num_args == 2)
 			print "ejecutando opcion -r...\n";
 			#valida que el segundo argumento no sea distinto a -w
 			menu_r();
-		}
-		case "-s"
-		{
+	}
+	case "-s"
+	{
 			print "ejecutando opcion -s...\n";	
 			menu_s();
-		}
-		case "-h"
-		{
+	}
+	case "-h"
+	{
 			print 
 			       "#AYUDA $0 \n".
 			       "#OBJETIVO=Visualizacion de informes y estadisticas para llamadas sospechosas.\n".	      		
@@ -72,21 +77,81 @@ if ($num_args == 2)
 			       "#".$uso_prog."\n"
 			       
 			       ;			
-	    }
-	    else{
+	}
+	else{
 			print "\nArgumento invalido. ".$uso_prog."\n";
 			exit;
-		 }		
-	}
+	}		
+   }
 
 exit(0);
 
 #MENU PRINCIPAL opcion -r [consultas]
 sub menu_r
 {
-	print "fede aca va todo tu codigo\n";
+my $input = '';
+my $input_opt = '';
+my $filename;
+my $file_reporte;
+my $informe;
+clear_screen();
+print "Bienvenido al generador de informes de llamadas.\n\n";
+while ($input ne 0)
+{
+	$informe = "Prueba\n";
+	print "\n";
+	print "Ingrese sobre que informacion desea generar informes:\n";
+	print "1.Sobre los archivos de llamadas sospechosas.\n";
+	print "2.Sobre los informes previos.\n";
+	print "0.Salir\n";
+
+	print "Ingresar una opcion: ";
+	$input = <STDIN>;
+	chomp($input);
+	
+	if (($input < 0) || ($input > 2))
+	{
+		next;
+	}
+
+	if ($input == 1)
+	{
+		realizar_informe_sobre_llamadas();
+	}
+	if ($input == 2)
+	{
+		realizar_informe_sobre_subllamadas();
+	}
+
+	if ($input != 0)
+	{
+		if ($file)
+		{
+			print "Estadisticas del informe\n";
+			print "Exportando a archivo...\n";
+			$filename = 'subllamada.' . $file;
+			open($file_reporte, '>>', $filename) or die "No se pudo generar el archivo: '$filename' $!" ;
+			print $file_reporte $informe;
+			close $file_reporte;
+			$file += 1;
+			print "Exportado con exito\n";
+		}
+		else
+		{
+			print "Estadisticas y header del informe\n";
+			print $informe;
+		}
+	}
+}
+} #end menu_r
+
+sub realizar_informe_sobre_llamadas
+{
 }
 
+sub realizar_informe_sobre_subllamadas
+{
+}
 
 
 #MENU PRINCIPAL opcion -s [estadisticas]
@@ -95,16 +160,17 @@ sub menu_s
 my $input = '';
 my $input_opt = '';
 
-while ($input ne '6')
+while ($input ne '0')
 {
     clear_screen();
 
-    print "1.Cuál es la central con mayor cantidad de llamadas sospechosas?\n".
+    print  "Ingrese la opcion que desea conocer:\n". 
+	   "1.Cuál es la central con mayor cantidad de llamadas sospechosas?\n".
            "2.Cuál es la oficina con mayor cantidad de llamadas sospechosas?\n". 
            "3.Cuál es el agente con mayor cantidad de llamadas sospechosas?\n". 
            "4.Cuál es el destino con mayor cantidad de llamadas sospechosas?\n". 
            "5.Cuál es el ranking de umbrales?\n".
-           "6.Salir\n";
+           "0.Salir\n";
 
     print "Ingresar una opcion: ";
     $input = <STDIN>;
@@ -171,7 +237,7 @@ while ($input ne '6')
     }
 }
 
-}#end menu
+}#end menu_s
 
 
 
