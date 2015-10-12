@@ -1,32 +1,36 @@
-#!/bin/sh
+#!/bin/bash
+
 
 ### INFO
 # SERVICIO: DETENER.sh
-# USO: $ DETENER.sh {NOMBRE_ARCHIVO}
-# PARAMETRO: -{NOMBRE_ARCHIVO} a detener.            
-# Descripcion: Inicializa un proceso y crea su pid en el directorio
-#              raiz
-# Problemas: -detiene el pid pero no lo borra
-### FINAL 
- 
+# USO: $ DETENER.sh 
+# Descripcion: Detiene el demonio AFREC unicamente si fue inizializado
+#              con ARRANCAR.sh. 
+#              En caso de no haber inicializado el proceso ARRANCAR.sh
+#              muestra un mensaje por pantalla
+# 
+### FINAL
+
 MIBASENAME="$(basename "$1")"
 EXTENSION="${MIBASENAME##*.}"
 NAME="${MIBASENAME%.*}"
 
-#NAME="daemon" #"${MIBASENAME%.*}"
-#EXTENSION="sh"
-#ARG="stop"
- 
-DESC="servicio $NAME.$EXTENSION"
-#PIDFILE="/var/run/g4_tmp_dir/daemon.pid"
-PIDFILE="./${NAME}.pid"
+ARG_0="ARRANCAR.sh" 
 
-#indicamos que vamos a ejecutar un archivo
-DAEMON="/home/cesar/workspace/7508-SSOO/sistemasOperativos2015C2"
-test -x $DAEMON || exit 0
-set -e
- 
-echo "deteniendo ${DESC}: "
-start-stop-daemon --stop --pidfile "$PIDFILE"
-echo "$DESC finalizado"
+function stop {
+    
+    q=`ps -ef |grep /bin/bash |grep $ARG_0 |grep -v "grep"|grep -v $$| wc -l`
+    w=`ps -ef |grep /bin/bash |grep $ARG_0 | grep -v $$ |grep -v "grep"`
+#    echo "linea cerrando $q $w " #imprime la linea del grep
+    if [ $q != "0" ]; then
+    kill `ps -ef |grep /bin/bash |grep $ARG_0|grep -v $$ |grep -v "grep"|awk '{print($2)}'` 
+    echo "Ha finalizado $ARG_0..."   
+    else
+    echo "No existe llamada a $ARG_0. No se pudo completar la operacion"
+    fi
+     
+}
+
+stop;
+
 exit 0

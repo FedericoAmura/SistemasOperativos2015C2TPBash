@@ -1,17 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 
 ### INFO
 # SERVICIO: ARRANCAR.sh
-# USO: $ ARRANCAR.sh {NOMBRE_ARCHIVO} {PARAMETRO}
-# PARAMETRO: -El primer parametro es el nombre del archivo a inicializar. 
-#             Solo acepta un parametro {PARAMETRO} para un 
-#             {NOMBRE_ARCHIVO}
-# Descripcion: Inicializa un proceso y crea su pid en el directorio
-#              raiz
-# Problemas: -no pude crear el pid en el directorio /var/run por no 
-#             tener permisos sobre el directorio. Se probo creando
-#             un directorio temporal pero dio el mismo error.
-#            -no borra el pid 
+# USO: $ ARRANCAR.sh 
+# Descripcion: Inicializa el demonio AFREC con la opcion start
+#              Para detener este proceso usar DETENER.sh
+#              
 ### FINAL
 
 MIBASENAME="$(basename "$1")"
@@ -19,20 +13,25 @@ EXTENSION="${MIBASENAME##*.}"
 NAME="${MIBASENAME%.*}"
 
 
-#NAME="daemon" #"${MIBASENAME%.*}"
-#EXTENSION="sh"
-#ARG="start"
+function sanityCheck {
+    q=`ps -ef |grep /bin/bash |grep $0 |grep -v "grep"|grep -v $$| wc -l`
+    w=`ps -ef |grep /bin/bash |grep $0 |grep -v "grep"|grep -v $$`
+    if [ $q != "0" ]; then
+        #echo "$w" #imprime la linea del grep
+        echo "No se pudo inicializar $0. Ya existe una instancia corriendo."
+        exit 1
+    fi
+}
 
-DESC="servicio $NAME.$EXTENSION"
-PIDFILE="./${NAME}.pid" #"var/run/${NAME}.pid"
+function start {
+    sanityCheck
+    echo "Daemon corriendo desde $0"
+    source ./AFREC.sh start
+}
 
-#indicamos que vamos a ejecutar el archivo
-DAEMON="/home/cesar/workspace/7508-SSOO/sistemasOperativos2015C2"
-test -x $DAEMON || exit 0
-set -e
+#inicializa ARRANCAR.sh
+start
 
-echo "inicializando ${DESC}: "
-start-stop-daemon --start --make-pidfile --pidfile "$PIDFILE" --exec "$DAEMON/$NAME.$EXTENSION" -- $ARG
-echo "$DESC inicializado"
+
 exit 0
 
