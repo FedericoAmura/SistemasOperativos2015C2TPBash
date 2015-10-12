@@ -20,6 +20,12 @@
 #                                                                                                                      #
 ########################################################################################################################
 
+
+# Variables / Constantes
+# ==============================================================================================
+NOVEDIR=$PWD/acep #Modificar por el valor correcto. 
+MAEDIR=$PWD/master
+
 source MoverA.sh
 source GraLog.sh
 LOGDIR="$PWD/log"
@@ -356,6 +362,92 @@ rechazarRegistro() {
 }
 
 
+function determinarLlamadasSospechosas(){
+	# Archivo con llamadas entrantes.	
+	#ARCHIVO_DE_LLAMADAS=$1
+	IFS_OLD=$IFS
+	IFS=";"
+	# Para generar un nombre de un archivo
+	DATE=`date +%Y-%m-%d`
+
+	# Notacion UM: umbral			
+	#	   CO: codigo
+	#	   TI: tipo
+	#      NU: numero
+	#      LL: llamada
+
+	# Leo todos los archivos con llamadas entrantes.
+	LLAMADA=$1 # Registro de una llamada.
+
+	# Get campos de una llamada entrante.
+	LL_ID_AGENTE=${LLAMADA[0]}
+	LL_FECHA=${LLAMADA[1]}	
+	LL_TIEMPO_CONVERSACION=${LLAMADA[2]}
+	LL_NU_AREA=${LLAMADA[3]}
+	LL_NU_LINEA_A=${LLAMADA[4]}
+	LL_CO_PAIS_B=${LLAMADA[5]}
+	LL_CO_AREA_B=${LLAMADA[6]}
+	LL_NU_LINEA_B=${LLAMADA[7]}
+	#echo "$LL_NU_AREA $LL_NU_LINEA_A $LL_CO_PAIS_B $LL_NU_LINEA_B"
+
+	# Por cada llamada. Busco en el umbral y clasifico.
+	#	
+	# Cantidad de registros a procesar.
+	CANT_REGISTROS=$(grep $LL_NU_LINEA_A $MAEDIR/umbral.tab | wc -l) 
+	
+	# Registros a procesar en un archivo temporal.
+	grep $LL_NU_LINEA_A $MAEDIR/umbral.tab >> temporal_umbral #CAmbiar por la linea de arriba.
+	#grep "4314928" $MAEDIR/umbral.tab >> temporal_umbral #TEMP: ELIMINAR.
+
+	echo "cant: $CANT_REGISTROS"
+
+	if [ $CANT_REGISTROS -eq 0  ] 
+	then
+		echo "Contabilizar como sin umbral. FIXME"
+	else
+		#echo "Contabilizar coomo con umbral, Filtrar si es sospechosas."
+		while read line
+		do	
+
+			UMBRAL=($line)
+			UM_ID=${UMBRAL[0]}
+			UM_CO_AREA_ORIGEN=${UMBRAL[1]}
+			UM_NU_ORIGEN=${UMBRAL[2]}
+			UM_TI_LLAMADA=${UMBRAL[3]}
+			UM_CO_DESTINO=${UMBRAL[4]}
+			UM_TOPE=${UMBRAL[5]}
+			UM_ESTADO=${UMBRAL[6]}
+
+			if [ $UM_TI_LLAMADA = "DDI" ]
+			then
+				#echo " $UM_ESTADO = Inactivo  $UM_CO_AREA_ORIGEN = $LL_NU_AREA $UM_NU_ORIGEN = $LL_NU_LINEA_A $UM_CO_DESTINO = $LL_CO_PAIS_B  $UM_CO_DESTINO  $UM_TOPE <= $LL_TIEMPO_CONVERSACION "
+				#if [ "$UM_ESTADO" = "Activo" ] && [ $UM_CO_AREA_ORIGEN = $LL_NU_AREA ] && [ $UM_NU_ORIGEN = $LL_NU_LINEA_A ] && [ -z $UM_CO_DESTINO  ] || [ $UM_CO_DESTINO = $LL_CO_PAIS_B ]  && [ $UM_TOPE -lt $LL_TIEMPO_CONVERSACION ]
+				if [ "$UM_ESTADO" = "Activo" ] && [ $UM_CO_AREA_ORIGEN = $LL_NU_AREA ] && [ $UM_NU_ORIGEN = $LL_NU_LINEA_A ] && [ -z $UM_CO_DESTINO  ] && [ $UM_TOPE -lt $LL_TIEMPO_CONVERSACION ] #FIXME: Falta chequear cuando un valor es nulo $UM_CO_DESTINO
+					then 												
+					# Guardo la llamada como sospechosa.
+					echo "$LL_ID_AGENTE;$LL_FECHA;$LL_TIEMPO_CONVERSACION;$LL_NU_AREA;$LL_NU_LINEA_A; ;$LL_CO_AREA_B;$LL_NU_LINEA_B" >> $NOVEDIR/COS_${DATE}
+				fi
+			fi
+
+			if [ $UM_TI_LLAMADA = "DDN" ] || [ $UM_TI_LLAMADA = "LOC" ]
+			then					
+				#echo " $UM_ESTADO = Inactivo  $UM_CO_AREA_ORIGEN = $LL_NU_AREA $UM_NU_ORIGEN = $LL_NU_LINEA_A $UM_CO_DESTINO = $LL_CO_PAIS_B  $UM_CO_DESTINO  $UM_TOPE -lt $LL_TIEMPO_CONVERSACION "
+				#if [ $UM_ESTADO = "Activo" ] && [ $UM_CO_AREA_ORIGEN = $LL_NU_AREA ] && [ $UM_NU_ORIGEN = $LL_NU_LINEA_A ] && [ $UM_CO_DESTINO = $LL_CO_PAIS_B ] && [ ! -z $UM_CO_DESTINO ] && [ $UM_TOPE -lt $LL_TIEMPO_CONVERSACION ]
+				if [ $UM_ESTADO = "Activo" ] && [ $UM_CO_AREA_ORIGEN = $LL_NU_AREA ] && [ $UM_NU_ORIGEN = $LL_NU_LINEA_A ] && [ -z $UM_CO_DESTINO ] && [ $UM_TOPE -lt $LL_TIEMPO_CONVERSACION ] #FIXME: Como en el caso
+					then
+					# Guardo la llamada como sospechosa.
+					echo "$LL_ID_AGENTE;$LL_FECHA;$LL_TIEMPO_CONVERSACION;$LL_NU_AREA;$LL_NU_LINEA_A;$LL_CO_PAIS_B; ;$LL_NU_LINEA_B" >> $NOVEDIR/COS_${DATE}
+				fi
+			fi
+
+			#Si tengo mas de un umbral a comparar solo me quedo con el primero.			
+			break						
+
+		done < temporal_umbral
+		rm temporal_umbral
+	fi
+}
+
 #grabarLlamadaSospechosa() {
 #}
 
@@ -450,14 +542,16 @@ do
 		validaRegistro=$(validarRegistro "$linea")
 		if [ $validaRegistro -eq  0 ]
 		then
-			echo "registro valido"
+			echo "etc"
+			#LLAMADA=($line) 
+			#determinarLlamadasSospechosas $LLAMADA
+			
 			#CONTINUAR CON EL PROCESO PARA DETERMINAR SI LA LLAMADA ES SOSPECHOSA
 			#GRABAR LLAMADA SOSPECHOSA
 			#grabarLlamadaSospechosa "$linea"	
 
 		else 
-			#SE RECHAZA EL REGISTRO
-			echo "rechazo registro"
+			# Determinar si la llamada debe ser considerada como sospechosa.			
 			GraLog AFUMB INFO "Registro invalido: $linea"
 			#CONTINUAR CON EL PROCESO
 			rechazarRegistro "$linea" "$FILE" "REGISTRO INVALIDO"  #TODO- VER QUE MOTIVO PARA CADA CASO
