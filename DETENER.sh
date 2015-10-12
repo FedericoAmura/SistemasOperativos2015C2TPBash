@@ -1,13 +1,13 @@
 #!/bin/bash
 
-
 ### INFO
-# SERVICIO: DETENER.sh
+# SERVICIO: DETENER.sh ARGUMENTO_1
 # USO: $ DETENER.sh 
-# Descripcion: Detiene el demonio AFREC unicamente si fue inizializado
-#              con ARRANCAR.sh. 
+# ARGUMENTO_1: Obligatorio. Debe ser un proceso bash a detener.
+# Descripcion: Detiene el demonio AFREC unicamente inizializado
+#              con ARRANCAR.sh o desde AFINI.sh. 
 #              En caso de no haber inicializado el proceso ARRANCAR.sh
-#              muestra un mensaje por pantalla
+#              o AFINI.sh muestra un mensaje por pantalla
 # 
 ### FINAL
 
@@ -15,7 +15,8 @@ MIBASENAME="$(basename "$1")"
 EXTENSION="${MIBASENAME##*.}"
 NAME="${MIBASENAME%.*}"
 
-ARG_0="ARRANCAR.sh" 
+CANT_ARGS=$#
+ARG_0=$1
 
 function stop {
     
@@ -27,10 +28,21 @@ function stop {
     echo "Ha finalizado $ARG_0..."   
     else
     echo "No existe llamada a $ARG_0. No se pudo completar la operacion"
+    exit 2
     fi
      
 }
 
-stop;
+function validarArgs {
+if [ "$CANT_ARGS" -ne "1" ]; then
+	echo "Cantidad de argumentos incorrectos. "
+	echo "USO: DETENER.sh ARGUMENTO"
+    exit 1
+fi
+return 0
+}
+
+validarArgs
+stop
 
 exit 0
