@@ -4,6 +4,18 @@ source GraLog.sh
 LOGDIR="./log"
 LOGSIZE=50
 LOGEXT=log
+
+# SERVICIO: AFREC.sh
+# USO: $ ARFREC.sh ARGUMENTO_1
+# ARGUMENTO_1: start|stop|status
+# Descripcion: Detecta la llegada de procesos EN NOVEDIR 
+
+
+#ARGUMENTOS
+ARG_0=$0
+ARG_1=$1
+
+
 #3- Valida que sea un archivo de texto.
 # Devuelve 0 si el tipo de archivo es texto.
 # Devuelve 1 si el tipo de archivo NO es texto.
@@ -123,7 +135,43 @@ rechazar() {
 }
 
 
+function sanityCheck {
+    q=`ps -ef |grep /bin/bash |grep $0 |grep -v "grep"|grep -v $$| wc -l`
+    w=`ps -ef |grep /bin/bash |grep $0 |grep -v "grep"|grep -v $$`
+    if [ $q != "0" ]; then
+        echo "$w" #imprime la linea del grep
+        echo "Existe una instancia de $0 corriendo...$ARG_0 $ARG_1 $MIBASENAME"
+        exit 1
+    fi
+}
 
+
+#manejo de estados para AFREC
+function status {
+    q=`ps -ef |grep /bin/bash |grep $0 |grep -v "grep"|grep -v $$| wc -l`
+    w=`ps -ef |grep /bin/bash |grep $0 |grep -v "grep"|grep -v $$`
+    if [ $q != "0" ]; then
+        echo "$w" #imprime la linea del grep
+        echo "Existe una instancia de $0 corriendo..."
+    fi
+}
+
+function start {
+    sanityCheck
+    echo "Daemon corriendo.. $0"
+    main
+}
+
+function stop {
+    echo "cerrando daemon..$0"
+    w=`ps -ef |grep /bin/bash |grep $0|grep -v $$ |grep -v "grep"`
+    echo "linea cerrando $w" #imprime la linea del grep
+    kill `ps -ef |grep /bin/bash |grep $0|grep -v $$ |grep -v "grep"|awk '{print($2)}'`
+    exit 0
+}
+
+
+function main {
 numero_ciclo=0
 while [ true ]
 do
@@ -176,6 +224,23 @@ fi
 
 sleep 120 #cada 30 segundos se repite; se  puede cancelar con: ctrl+c
 done
+}
 
+
+case $ARG_1 in
+    "start")
+       start
+    ;;
+    "stop")
+        stop
+    ;;  
+    "status")
+        status        
+    ;;
+     *)
+     echo "Uso: $0 {start|stop|status}"
+     exit 1
+     ;;
+esac
 
 
