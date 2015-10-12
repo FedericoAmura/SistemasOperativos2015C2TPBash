@@ -63,6 +63,8 @@ RECHDIR="$GRUPO/rechazadas"
 #TODO en vez de usar el installed tengo que quedarme con la version y verificar que esta sea igual o mayor a 5
 PERL_VERSION="$(dpkg --status perl | grep ^Version)"
 PERL_INSTALLED=$?
+SWITCH_VERSION="$(dpkg --status libswitch-perl | grep ^Version)"
+SWITCH_INSTALLED=$?
 
 #######################################################################
 
@@ -136,15 +138,14 @@ function instalacion(){
 	echo "-Creacion de los directorios..."
 	# $CONFDIR se crea por defecto al descomprimir el paquete de instalacion.
 	# $BINDIR  por el momento dejo que se cree por defecto este direcorio.
-	mkdir --parents "$BINDIR" "$MAEDIR" "$NOVEDIR" "$ACEPDIR" "$PROCDIR" "$REPODIR" "$LOGDIR" "$RECHDIR"
-	#despues hay que crear el file de configuracion y ver si tmb uno extra donde esta afini para que ese lo levante y pueda llegar al cnfg	
+	mkdir --parents "$BINDIR" "$MAEDIR" "$NOVEDIR" "$ACEPDIR" "$PROCDIR" "$REPODIR" "$LOGDIR" "$RECHDIR"	
 	generateFileConfiguracion
 	moverFiles
 }
 
 function generateFileConfiguracion(){
 	echo "-Guardando configuracion del sistema..."
-	echo "GRUPO=$GRUPO=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
+	echo "GRUPO=$GRUPO=$USER=$(date '+%d/%m/%Y %H:%M:%S')" > $CONFDIR/AFINSTALL.cnfg
 	echo "BINDIR=$BINDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
 	echo "MAEDIR=$MAEDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
 	echo "NOVEDIR=$NOVEDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
@@ -214,11 +215,12 @@ function verificarPerl(){
 
 	echo "(logInfo) step 4: Verificando que Perl este instaldo."
 	#Hacemos instalar perl si no estaba
-	if [ $PERL_INSTALLED != 0 ]
+	if [ $PERL_INSTALLED != 0 -o $SWITCH_INSTALLED != 0 ]
 	then
-		echo "El programa necesita de Perl para poder generar reportes, se va a proceder a instalarlo. Por favor ingrese la contrasena cuando se le solicite"
+		echo "El programa necesita de Perl y sus librerias para poder generar reportes, se va a proceder a instalarlo. Por favor ingrese la contrasena cuando se le solicite"
 		echo "De no instalarlo no podra generar los reportes. Sin embargo, puede instalarlo por su cuenta cuando desee mas tarde."
 		sudo apt-get --force-yes --yes install perl
+		sudo apt-get --force-yes --yes install libswitch-perl
 	fi
 	echo "Perl instalado"
 #	exit 1
