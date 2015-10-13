@@ -177,6 +177,7 @@ sub definir_aniomes
 		chomp($input);
 		push(@retval, $input);
 	}
+	pop (@retval);
 	return @retval;
 }
 
@@ -313,36 +314,131 @@ while ($input ne '0')
 #subrutinas opcion -s [estadisticas]
 sub f_1_central_cantidad_llam_sosp
 {
+	my $input_llam_seg = $_[0];
+	my %centrales;
+	print "\n";
 	print "llamando..f_1_central_cantidad_llam_sosp\n";
-	my ($h_central1, $h_central2) = &filtrarCentralPorCantidadDeLlamadasSospechosas;
+	print "Centrales con mayor cantidad de llamadas sospechosas\n";
 	if ($_[0] == "1"){
-		print "con filtro por cantidad de llamadas\n";	
-		print "Central            Cantidad de llamadas\n";	
-		&imprimirFiltroCentral(%{$h_central1});
+		print "con filtro por cantidad de llamadas\n";
 	}
 	if ($_[0] == "2"){
 		print "con filtro por cantidad de segundos\n";
-		print "con filtro por cantidad de segundos\n";
-		print "Central            Cantidad de segundos\n";	
-		&imprimirFiltroCentral(%{$h_central2});	
 	}
+
+	# El usuario puede ingresar uno ó  más períodos
+	my @input_periodos = &definir_aniomes;
+	my @input_periodos_validos;
+	foreach (@input_periodos){
+		if (&validarFecha($_) > 0){
+			push (@input_periodos_validos, $_);
+		}
+	}
+	my @archivos = &getArchivosDir("./proc/");
+
+    foreach (@archivos){
+	 	next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
+	 	print "procesando...". $_ ."\n";
+
+		open (ENT,"<./proc/".$_) || die "Error: No se pudo abrir ".$_ ."\n";
+	    while (my $linea = <ENT>){
+			chomp($linea);	
+			@reg=split(";",$linea);
+			if ($input_llam_seg == "1"){ #filtro por cantidad de llamadas
+				$centrales{$reg[0]}+=1; 
+			}
+			if ($input_llam_seg == "2"){ # filtro por cantidad de segundos
+				$centrales{$reg[0]}+=$reg[4];
+			}
+		}
+        close (ENT);
+    }#foreach
+
+    my $fecha = &getDate;
+    my @rank_centrales = sort { $centrales{$b} <=> $centrales{$a} } keys %centrales;
+    my %id_centrales = cargarCodigosDeCentrales;
+
+    # Se graba o se imprime
+    if ($file eq 1){
+ 		open (SAL,">estad_".$fecha.".csv");
+
+ 		foreach (@rank_centrales){
+ 			print SAL $id_centrales{$_}.";".$centrales{$_}."\n";
+ 		}
+
+ 		print "se genero estad_".$fecha.".csv\n";
+	    close (SAL);
+    }else{
+    	foreach (@rank_centrales){
+			print $id_centrales{$_}.";".$centrales{$_} ."\n";
+ 		}
+    }
 	
 }
 
 sub f_2_ofi_cantidad_llam_sosp
 {
+	my $input_llam_seg = $_[0];
+	my %oficinas;
+	print "\n";
 	print "llamando..f_2_ofi_cantidad_llam_sosp\n";
-	my ($h_oficina1, $h_oficina2) = &filtrarOficinaPorCantidadDeLlamadasSospechosas;
+	print "Oficinas con mayor cantidad de llamadas sospechosas\n";
 	if ($_[0] == "1"){
 		print "con filtro por cantidad de llamadas\n";
-		print "Oficina        Cantidad de llamadas\n";
-		&imprimirFiltroOficina(%{$h_oficina1});	
 	}
 	if ($_[0] == "2"){
 		print "con filtro por cantidad de segundos\n";
-		print "Oficina        Cantidad de segundos\n";
-		&imprimirFiltroOficina(%{$h_oficina2});		
 	}
+
+	# El usuario puede ingresar uno ó  más períodos
+	my @input_periodos = &definir_aniomes;
+	my @input_periodos_validos;
+	foreach (@input_periodos){
+		if (&validarFecha($_) > 0){
+			push @input_periodos_validos, $_;
+		}
+	}
+	my @archivos = &getArchivosDir("./proc/");
+
+    foreach (@archivos){
+	 	next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
+	 	print "procesando...". $_ ."\n";
+		
+		@info_oficina = split("_",$_);
+	 	
+	 	if ($input_llam_seg == "1"){ #filtro por cantidad de llamadas
+			$oficinas{$info_oficina[0]}+=1; 
+			next;
+		}
+
+		open (ENT,"<./proc/".$_) || die "Error: No se pudo abrir ".$_ ."\n";
+	    while (my $linea = <ENT>){
+			chomp($linea);	
+			@reg=split(";",$linea);
+			if ($input_llam_seg == "2"){ # filtro por cantidad de segundos
+				$oficinas{$info_oficina[0]}+=$reg[4]; 	
+			}
+		}
+        close (ENT);
+    }#foreach
+
+    my $fecha = getDate;
+    my @rank_oficinas = sort { $oficinas{$b} <=> $oficinas{$a} } keys %oficinas;
+    
+    if ($file eq 1){
+ 		open (SAL,">estad_".$fecha.".csv");
+
+ 		foreach (@rank_oficinas){
+ 			print SAL $_.";".$oficinas{$_}."\n";
+ 		}
+
+ 		print "se genero estad_".$fecha.".csv\n";
+	    close (SAL);
+    }else{
+    	 foreach (@rank_oficinas){
+ 			print $_.";".$oficinas{$_} ."\n";
+ 		}
+    }
 }
 
 sub f_3_agente_cantidad_llam_sosp
@@ -517,86 +613,47 @@ sub cargarCodigosDeAgentes(){
 	return %hash_agentes;
 }
 
-# Central con mayor cantidad de llamadas sospechosas (cantidad ó tiempo)
-# Devuelve un arreglo con 2 hashes (cantidad ó tiempo)
-sub filtrarCentralPorCantidadDeLlamadasSospechosas(){
-	# 2 hashes para guardar por cantidades(#) y por segundos(tiempo) de llamadas sospechosas.
-	my (%hash_centrales_cant, %hash_centrales_seg);
-	my ($dir) = "proc"; # esta hardcodeado, debería ir $PROCDIR
-
-	if (opendir(DIRH,"$dir")){
-		@archivos=readdir(DIRH);
-		closedir(DIRH);
-	}
-
-	foreach my $file (@archivos){
-		next if ($file eq "." || $file eq "..");
-		open(ARCH,"<$dir/$file") || die "ERROR: No se pudo abrir el archivo $file.\n";
-
-		# Para cada registro del archivo, tomamos el campo "id_central" y "tiempoConversación"
-		# y actualizamos los hashes
-		while (my $registro = <ARCH>) {
-			chomp($registro);
-			my (@a_registro) = split(";",$registro);
-			$hash_centrales_cant{$a_registro[0]} += 1;
-			$hash_centrales_seg{$a_registro[0]} += $a_registro[4];
-		}
-		close(ARCH);
-	}
-	# Se van a devolver los 2 hashes en un vector (por una cuestión de eficiencia)
-	return (\%hash_centrales_cant, \%hash_centrales_seg);
+sub getDate(){
+	my $sec;
+    my $min;
+    my $hora;
+    my $dia;
+    my $mes;
+    my $anio;
+	($sec,$min,$hora,$dia,$mes,$anio)=localtime;    
+    $anio+=1900;
+    $mes++;
+	my $fecha = $anio.$mes.$dia."_".$hora.$min.$sec;
+	return $fecha;
 }
 
-# Oficina con mayor cantidad de llamadas sospechosas (cantidad ó tiempo)
-# Devuelve un arreglo con 2 hashes (cantidad ó tiempo)
-sub filtrarOficinaPorCantidadDeLlamadasSospechosas(){
-	# 2 hashes para guardar por cantidades(#) y por segundos(tiempo) de llamadas sospechosas.
-	my (%hash_oficina_cant, %hash_oficina_seg);
-	my ($dir) = "proc"; # esta hardcodeado, debería ir $PROCDIR
+sub getArchivosDir(){
+	my ($dir) = @_;
 
-	if (opendir(DIRH,"$dir")){
-		@archivos=readdir(DIRH);
-		closedir(DIRH);
-	}
-
-	foreach my $file (@archivos){
-		next if ($file eq "." || $file eq "..");
-		open(ARCH,"<$dir/$file") || die "ERROR: No se pudo abrir el archivo $file.\n";
-		
-		# En el nombre del archivo esta el identificador de la oficina
-		@campos = split("_",$file);
-		$hash_oficina_cant{$campos[0]} += 1;
-
-		# Para todos los registros del archivo, tomo el tiempo de conversación
-		while (my $registro = <ARCH>) {
-			chomp($registro);
-			my @a_registro = split(";",$registro);
-			$hash_oficina_seg{$a_registro[0]} += $a_registro[4];
-		}
-		close(ARCH);
-	}
-	# Se van a devolver los 2 hashes en un vector (por una cuestión de eficiencia)
-	return (\%hash_oficina_cant, \%hash_oficina_seg);
+	opendir (DIR,"$dir") || die "Error el directorio no existe\n";
+	my @files = readdir(DIR);
+	closedir(DIR);
+	return @files;
 }
 
-sub imprimirFiltroCentral(){
-	# El primero hash contiene para cada id un valor acumulado (ej: [id_central, cant_llamadas])
-	# El segundo hash contiene para cada id el valor propiamente dicho (ej: [id_central, central])
-	my (%h_data) = @_;
-	my (@claves) = keys(%h_data);
-	my (%h_info) = cargarCodigosDeCentrales;
+sub validarFecha(){
+	my ($periodo) = @_;
+	my ($fecha_ok) = 1;
 
-	foreach my $key (@claves){
-		print $h_info{$key}."      ".$h_data{$key}."\n";
-	}
+    if ($periodo !~ /(\d{4})(\d\d)/  ||  $periodo !~ /(\d{4})/) {
+	    print "Error al ingresar fecha: $periodo ([YYYY] ó [YYYYMM])\n"; 
+	    $fecha_ok = 0;   
+    }
+    return $fecha_ok;
 }
 
-sub imprimirFiltroOficina(){
-	# El primero hash contiene para cada id un valor acumulado (ej: [id_central, cant_llamadas])
-	my (%h_data) = @_;
-	my (@claves) = keys(%h_data);
-
-	foreach my $key (@claves){
-		print $key."            ".$h_data{$key}."\n";
+sub archivoCorrespondeAPeriodoIngresado(){
+	my ($filename, @periodosIngresados) = @_;
+	my $correspondeAPeriodo = 0;
+	foreach (@periodosIngresados){
+		if ($filename =~ /$_\.csv$/){
+			$correspondeAPeriodo = 1;
+		} 
 	}
+	return $correspondeAPeriodo;
 }
