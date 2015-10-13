@@ -567,7 +567,7 @@ do
 
 	#6 - FIN DEL ARCHIVO	
 	path_destino_proc=$DIRECTORIO_PROC"/"$FILE
-	#MoverA $path_origen $path_destino_proc
+	MoverA $path_origen $path_destino_proc
 	GraLog AFUMB INFO "Archivo procesado: $FILE"
 	
 	#TOTALES A GRABAR
