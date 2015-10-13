@@ -388,7 +388,7 @@ function determinarLlamadasSospechosas(){
 	LL_CO_PAIS_B=${LLAMADA[5]}
 	LL_CO_AREA_B=${LLAMADA[6]}
 	LL_NU_LINEA_B=${LLAMADA[7]}
-	#echo "$LL_NU_AREA $LL_NU_LINEA_A $LL_CO_PAIS_B $LL_NU_LINEA_B"
+	echo "valores de una llamada: $LL_NU_AREA $LL_NU_LINEA_A $LL_CO_PAIS_B $LL_NU_LINEA_B"
 
 	# Por cada llamada. Busco en el umbral y clasifico.
 	#	
@@ -535,6 +535,7 @@ do
 	GraLog AFUMB INFO "Archivo a procesar: $FILE"
 	
 	#4 - PROCESAR UN REGISTRO
+	echo "path: $path_origen"
 	while read linea
 	do
 		CANT_LLAMADAS=$(($CANT_LLAMADAS+1))
@@ -542,9 +543,9 @@ do
 		validaRegistro=$(validarRegistro "$linea")
 		if [ $validaRegistro -eq  0 ]
 		then
-			echo "etc"
-			#LLAMADA=($line) 
-			#determinarLlamadasSospechosas $LLAMADA
+			
+			LLAMADA=($linea) 			
+			determinarLlamadasSospechosas $LLAMADA
 			
 			#CONTINUAR CON EL PROCESO PARA DETERMINAR SI LA LLAMADA ES SOSPECHOSA
 			#GRABAR LLAMADA SOSPECHOSA
@@ -565,7 +566,7 @@ do
 
 	#6 - FIN DEL ARCHIVO	
 	path_destino_proc=$DIRECTORIO_PROC"/"$FILE
-	MoverA $path_origen $path_destino_proc
+	#MoverA $path_origen $path_destino_proc
 	GraLog AFUMB INFO "Archivo procesado: $FILE"
 	
 	#TOTALES A GRABAR
