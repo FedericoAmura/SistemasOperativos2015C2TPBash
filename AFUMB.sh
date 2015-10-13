@@ -132,10 +132,16 @@ validarNumeroLineaB() {
 			then
 				#Como la llamada es DDI no tiene codigo de area
 				#valido la linea
-				#GraLog AFUMB INFO "NUMLINEA: $NUMLINEA"
-				#Agregar expresion regular que valide que sea un numero - TODO
-				echo 0
-				return
+				VALIDA_LINEA=$(echo "$NUMLINEA" | egrep '^[0-9]*')
+				if [ $VALIDA_LINEA -eq $NUMLINEA ]
+				then
+					echo 0
+					return
+				else
+					GraLog AFUMB INFO "Formato linea invalido: $NUMLINEA"
+					echo 1
+					return
+				fi
 			
 			else
 				GraLog AFUMB INFO "Codigo area pais invalido: $COD_AREA_PAIS"
@@ -370,7 +376,7 @@ rechazarRegistro() {
 	MOTIVO=$3
 	COD_CENTRAL=$(echo "$FUENTE" | cut -d '_' -f 1)
 	NOMBRE_ARCHIVO=$COD_CENTRAL".rech"
-	PATH_ARCH_RECHAZADOS="$PWD/rech/Llamadas"
+	PATH_ARCH_RECHAZADOS=$DIRECTORIO_RECH"/Llamadas"
 
 	#VALIDO QUE EL DIRECTORIO DE LLAMADAS RECHAZADAS EXISTA
 	if [ ! -d "$PATH_ARCH_RECHAZADOS" ]
@@ -415,7 +421,7 @@ function determinarLlamadasSospechosas(){
 	LL_FECHA=${LLAMADA[1]}	
 	LL_TIEMPO_CONVERSACION=${LLAMADA[2]}
 	LL_NU_AREA=${LLAMADA[3]}
-	LL_NU_LINEA_A=$(echo "$LLAMADA" | cut -d';' -f5) #parche
+	LL_NU_LINEA_A=${LLAMADA[4]} #$(echo "$LLAMADA" | cut -d';' -f5) #parche
 	LL_CO_PAIS_B=${LLAMADA[5]}
 	LL_CO_AREA_B=${LLAMADA[6]}
 	LL_NU_LINEA_B=${LLAMADA[7]}
@@ -450,6 +456,7 @@ function determinarLlamadasSospechosas(){
 			UM_TOPE=${UMBRAL[5]}
 			UM_ESTADO=${UMBRAL[6]}
 
+			#echo "UM_CO_DESTINO= $UM_CO_DESTINO"
 			if [ $UM_TI_LLAMADA = "DDI" ]
 			then
 				#echo " $UM_ESTADO = Inactivo  $UM_CO_AREA_ORIGEN = $LL_NU_AREA $UM_NU_ORIGEN = $LL_NU_LINEA_A $UM_CO_DESTINO = $LL_CO_PAIS_B  $UM_CO_DESTINO  $UM_TOPE <= $LL_TIEMPO_CONVERSACION "
@@ -499,7 +506,7 @@ GraLog AFUMB INFO "Cantidad de archivos a procesar: $CANT_TOTAL_ARCH"
 
 #1 - PROCESAR ARCHIVOS EN ORDEN CRONOLOGICO, DEL MAS ANTIGUO AL MAS NUEVO
 
-for FILE in `ls $DIRECTORIO_ACEP | sort -t"_" -k2`
+for FILE in `ls $DIRECTORIO_ACEP | sort -t"_" -k1`
 do
 	path_origen=$DIRECTORIO_ACEP"/"$FILE
 	#GraLog AFUMB INFO "Proceso: $FILE"
@@ -547,8 +554,9 @@ do
 		validaRegistro=$(validarRegistro "$linea")
 		if [ $validaRegistro -eq  0 ]
 		then
-			#PROCESO PARA DETERMINAR SI LA LLAMADA ES SOSPECHOSA			
-			determinarLlamadasSospechosas "$linea"
+			#PROCESO PARA DETERMINAR SI LA LLAMADA ES SOSPECHOSA
+			LLAMADA=($linea) 		
+			determinarLlamadasSospechosas $LLAMADA
 
 		else 
 			#PROCESO PARA RECHAZAR REGISTRO
