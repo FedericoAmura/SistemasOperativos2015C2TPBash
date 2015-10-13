@@ -43,6 +43,23 @@ CANT_LLAM_NO_SOSPECHOSAS=0
 CANT_LLAM_RECHAZADAS=0
 
 
+#MAE_COD_PAIS=$2
+MAE_COD_PAIS="../master/CdP" #TODO-BORRAR ES SOLO PARA PROBAR
+#MAE_COD_AREA_ARG=$3
+MAE_COD_AREA_ARG="../master/CdA"  #TODO-BORRAR ES SOLO PARA PROBAR
+#MAE_CENTRAL=$4
+MAE_CENTRAL="../master/CdC"  #TODO-BORRAR ES SOLO PARA PROBAR
+#MAE_AGENTES=$5 
+MAE_AGENTES="../master/agentes"  #TODO-BORRAR ES SOLO PARA PROBAR
+TAB_TIPO_LLAMADAS=$6
+TAB_UMB_CONS=$7
+
+#DIRECTORIO_ACEP=$ACEPDIR #Obtengo el directorio donde se almacenan los archivos aceptados.
+#DIRECTORIO_PROC=$PROCDIR #Obtengo el directorio donde se almacena los archivos procesados
+#DIRECTORIO_RECH=$RECHDIR #Obtnego el directorio de archivos rechazados.
+DIRECTORIO_ACEP="$PWD/acep" #TODO- borrar es solo para probar.
+DIRECTORIO_PROC="$PWD/proc" #TODO- borrar es solo para probar.
+DIRECTORIO_RECH="$PWD/rech" #TODO- borrar es solo para probar.
 
 # Funciones
 #=================================================================================================
@@ -318,7 +335,7 @@ validarRegistro() {
 						echo 0
 						return
 					else
-						GraLog AFUMB INFO "Regisro invalido: $reg"
+						GraLog AFUMB INFO "Registro invalido: $reg"
 						echo 1
 						return
 					fi
@@ -353,7 +370,7 @@ rechazarRegistro() {
 	MOTIVO=$3
 	COD_CENTRAL=$(echo "$FUENTE" | cut -d '_' -f 1)
 	NOMBRE_ARCHIVO=$COD_CENTRAL".rech"
-	PATH_ARCH_RECHAZADOS="$PWD/RECH/Llamadas"
+	PATH_ARCH_RECHAZADOS="$PWD/rech/Llamadas"
 
 	#VALIDO QUE EL DIRECTORIO DE LLAMADAS RECHAZADAS EXISTA
 	if [ ! -d "$PATH_ARCH_RECHAZADOS" ]
@@ -398,7 +415,7 @@ function determinarLlamadasSospechosas(){
 	LL_FECHA=${LLAMADA[1]}	
 	LL_TIEMPO_CONVERSACION=${LLAMADA[2]}
 	LL_NU_AREA=${LLAMADA[3]}
-	LL_NU_LINEA_A=${LLAMADA[4]}
+	LL_NU_LINEA_A=$(echo "$LLAMADA" | cut -d';' -f5) #parche
 	LL_CO_PAIS_B=${LLAMADA[5]}
 	LL_CO_AREA_B=${LLAMADA[6]}
 	LL_NU_LINEA_B=${LLAMADA[7]}
@@ -412,13 +429,13 @@ function determinarLlamadasSospechosas(){
 	# Registros a procesar en un archivo temporal.
 	grep $LL_NU_LINEA_A $MAEDIR/umbral.tab >> temporal_umbral #CAmbiar por la linea de arriba.
 	#grep "4314928" $MAEDIR/umbral.tab >> temporal_umbral #TEMP: ELIMINAR.
-
-	#echo "cant: $CANT_REGISTROS"
+	
 
 	if [ $CANT_REGISTROS -eq 0  ] 
 	then
 		#echo "La llamada $LL_NU_LINEA_A no se encuentra en la lista de umbrales, contabilizar."
 		CANT_LLAM_SIN_UMBRAL=$(($CANT_LLAM_SIN_UMBRAL+1))
+	
 	else
 		CANT_LLAM_CON_UMBRAL=$(($CANT_LLAM_CON_UMBRAL+1))
 		while read line
@@ -467,30 +484,8 @@ function determinarLlamadasSospechosas(){
 	fi
 }
 
-#grabarLlamadaSospechosa() {
-#}
 
 ###PRINCIPAL###
-
-#OBTENGO LOS PARAMETROS DE ENTRADA
-
-#MAE_COD_PAIS=$2
-MAE_COD_PAIS="../master/CdP" #TODO-BORRAR ES SOLO PARA PROBAR
-#MAE_COD_AREA_ARG=$3
-MAE_COD_AREA_ARG="../master/CdA"  #TODO-BORRAR ES SOLO PARA PROBAR
-#MAE_CENTRAL=$4
-MAE_CENTRAL="../master/CdC"  #TODO-BORRAR ES SOLO PARA PROBAR
-#MAE_AGENTES=$5 
-MAE_AGENTES="../master/agentes"  #TODO-BORRAR ES SOLO PARA PROBAR
-TAB_TIPO_LLAMADAS=$6
-TAB_UMB_CONS=$7
-
-#DIRECTORIO_ACEP=$ACEPDIR #Obtengo el directorio donde se almacenan los archivos aceptados.
-#DIRECTORIO_PROC=$PROCDIR #Obtengo el directorio donde se almacena los archivos procesados
-#DIRECTORIO_RECH=$RECHDIR #Obtnego el directorio de archivos rechazados.
-DIRECTORIO_ACEP="$PWD/acep" #TODO- borrar es solo para probar.
-DIRECTORIO_PROC="$PWD/proc" #TODO- borrar es solo para probar.
-DIRECTORIO_RECH="$PWD/rech" #TODO- borrar es solo para probar.
 
 #CALCULO LA CANTIDAD DE ARCHIVOS A PROCESAR
 
@@ -504,7 +499,7 @@ GraLog AFUMB INFO "Cantidad de archivos a procesar: $CANT_TOTAL_ARCH"
 
 #1 - PROCESAR ARCHIVOS EN ORDEN CRONOLOGICO, DEL MAS ANTIGUO AL MAS NUEVO
 
-for FILE in `ls $DIRECTORIO_ACEP`    #TODO - falta agregar que tome el archivo mas antiguo
+for FILE in `ls $DIRECTORIO_ACEP | sort -t"_" -k2`
 do
 	path_origen=$DIRECTORIO_ACEP"/"$FILE
 	#GraLog AFUMB INFO "Proceso: $FILE"
@@ -552,26 +547,16 @@ do
 		validaRegistro=$(validarRegistro "$linea")
 		if [ $validaRegistro -eq  0 ]
 		then
-			
-			LLAMADA=($linea) 			
-			determinarLlamadasSospechosas $LLAMADA
-			
-			#CONTINUAR CON EL PROCESO PARA DETERMINAR SI LA LLAMADA ES SOSPECHOSA
-			#GRABAR LLAMADA SOSPECHOSA
-			#grabarLlamadaSospechosa "$linea"	
+			#PROCESO PARA DETERMINAR SI LA LLAMADA ES SOSPECHOSA			
+			determinarLlamadasSospechosas "$linea"
 
 		else 
-			# Determinar si la llamada debe ser considerada como sospechosa.			
-			GraLog AFUMB INFO "Registro invalido: $linea"
-			#CONTINUAR CON EL PROCESO
-			rechazarRegistro "$linea" "$FILE" "REGISTRO INVALIDO"  #TODO- VER QUE MOTIVO PARA CADA CASO
+			#PROCESO PARA RECHAZAR REGISTRO
+			rechazarRegistro "$linea" "$FILE" "REGISTRO INVALIDO"
 			CANT_LLAM_RECHAZADAS=$(($CANT_LLAM_RECHAZADAS+1))
-		fi		
+		fi	
 				
 	done < $path_origen
-
-	COD_CENTRAL=$(echo "$FILE" | cut -d '_' -f 1)
-	GraLog AFUMB INFO "COD_CENTRAL: $COD_CENTRAL"
 
 	#6 - FIN DEL ARCHIVO	
 	path_destino_proc=$DIRECTORIO_PROC"/"$FILE
