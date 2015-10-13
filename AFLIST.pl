@@ -16,6 +16,12 @@ my $file = 0;
 #ARGUMENTO 2= -w /OPCIONAL. Si existe, escribe en un archivo el resultado
 #USO: AFLIST.pl -r/s/h [-w]"
 
+#verifica si no hay otro AFLIST en ejecucion
+#TODO
+
+#verifica que la inicializacion de ambiente este realizada
+#TODO
+
 # obtiene los comandos desde los argumentos
 my $arg_0=$ARGV[0];
 my $arg_1=$ARGV[1];
@@ -89,68 +95,130 @@ exit(0);
 #MENU PRINCIPAL opcion -r [consultas]
 sub menu_r
 {
-my $input = '';
-my $input_opt = '';
-my $filename;
-my $file_reporte;
-my $informe;
+
+my $origen = "";
+my @oficinas;
+my @aniomes;
+my $subllamadas = 0;
+my @subllamadas;
+
 clear_screen();
 print "Bienvenido al generador de informes de llamadas.\n\n";
-while ($input ne 0)
-{
-	$informe = "Prueba\n";
-	print "\n";
-	print "Ingrese sobre que informacion desea generar informes:\n";
-	print "1.Sobre los archivos de llamadas sospechosas.\n";
-	print "2.Sobre los informes previos.\n";
-	print "0.Salir\n";
+$origen = definir_origen();
+print "Origen".$origen."\n";
+@oficinas = definir_oficinas();
+@aniomes = definir_aniomes();
+@subllamadas = definir_subllamadas_origen();
+#realizar_informe();
 
-	print "Ingresar una opcion: ";
-	$input = <STDIN>;
-	chomp($input);
-	
-	if (($input < 0) || ($input > 2))
-	{
-		next;
-	}
-
-	if ($input == 1)
-	{
-		realizar_informe_sobre_llamadas();
-	}
-	if ($input == 2)
-	{
-		realizar_informe_sobre_subllamadas();
-	}
-
-	if ($input != 0)
-	{
-		if ($file)
-		{
-			print "Estadisticas del informe\n";
-			print "Exportando a archivo...\n";
-			$filename = 'subllamada.' . $file;
-			open($file_reporte, '>>', $filename) or die "No se pudo generar el archivo: '$filename' $!" ;
-			print $file_reporte $informe;
-			close $file_reporte;
-			$file += 1;
-			print "Exportado con exito\n";
-		}
-		else
-		{
-			print "Estadisticas y header del informe\n";
-			print $informe;
-		}
-	}
-}
 } #end menu_r
 
-sub realizar_informe_sobre_llamadas
+sub definir_origen
 {
+	my $input = '';
+
+	while ($input ne '0')
+	{
+		print "\n";
+		print "Ingrese sobre que informacion desea generar informes:\n";
+		print "1.Sobre los archivos de llamadas sospechosas.\n";
+		print "2.Sobre los informes previos.\n";
+		print "0.Salir\n";
+
+		print "Ingresar una opcion: ";
+		$input = <STDIN>;
+		chomp($input);
+
+		switch($input)
+		{
+			case "1"
+			{
+				return($ENV{'PROCDIR'});
+			}
+			case "2"
+			{
+				return($ENV{'REPODIR'});
+			}
+			case "0"
+			{
+				exit;
+			}
+		}
+	}
 }
 
-sub realizar_informe_sobre_subllamadas
+sub definir_oficinas
+{	
+	my @retval;
+	my $input = '';
+	print "Ingrese los codigos de oficina que quiere incluir en su reporte.\n";
+	print "Si no ingresa ninguna, se incluiran todas.\n";
+	print "Para terminar, ingrese 0.\n";
+	while ($input ne "0")
+	{
+		$input = <STDIN>;
+		chomp($input);
+		push(@retval, $input);
+	}
+	return @retval;
+}
+
+sub definir_aniomes
 {
+	my @retval;
+	my $input = '';
+	print "Ingrese los aniomeses que quiere incluir en su reporte.\n";
+	print "Si no ingresa ninguno, se incluiran todos.\n";
+	print "Para terminar, ingrese 0.\n";
+	while ($input ne "0")
+	{
+		$input = <STDIN>;
+		chomp($input);
+		push(@retval, $input);
+	}
+	return @retval;
+}
+
+sub definir_subllamadas_origen
+{
+my @retval;
+	my $input = '';
+	print "Ingrese los reportes de origen que quiere incluir en su reporte.\n";
+	print "Si no ingresa ninguno, se incluiran todos.\n";
+	print "Para terminar, ingrese 0.\n";
+	while ($input ne "0")
+	{
+		$input = <STDIN>;
+		chomp($input);
+		push(@retval, $input);
+	}
+	return @retval;
+}
+
+sub realizar_informe
+{
+	emitir_informe();
+}
+
+sub emitir_informe
+{
+	if ($file)
+	{
+		print "Estadisticas del informe\n";
+		print "Exportando a archivo...\n";
+		my $filename = 'subllamada.' . $file;
+		open(my $file_reporte, '>>', $filename) or die "No se pudo generar el archivo: '$filename' $!" ;
+		print $file_reporte "una cadena de prueba";
+		close $file_reporte;
+		$file += 1;
+		print "Exportado con exito\n";
+	}
+	else
+	{
+		print "Estadisticas y header del informe\n";
+		print "File vale: ".$file."\n";
+		print "una cadena de prueba\n";
+	}
 }
 
 

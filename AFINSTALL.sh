@@ -15,11 +15,12 @@
 #0: Todo ok
 #1: Paquete ya instalado
 #2: Instalacion abortada por el usuario
+#3: No hay suficiente espacio en disco para completar la instalacion
 
 ############################# sources ###############################
 
-source ./bin/MoverA.sh
-#source ./bin/GraLog.sh #TODO revisar esta implementacion, me parece que lo hizo para que se invoque haciendo source
+source ./MoverA.sh
+source ./GraLog.sh
 
 
 ###################### variables de entorno ##########################
@@ -27,8 +28,6 @@ source ./bin/MoverA.sh
 # Direcorio donde se va a instalar el sistema AFRA-J
 GRUPO="$PWD"
 CMD_INSTALL=$1
-
-
 
 # Variables por Default
 
@@ -44,6 +43,7 @@ DEFAULT_RECHDIR="$GRUPO/rechazadas"
 
 
 #GRUPO=$(pwd) #Esto estaria hardcodeado, seria la ruta donde esta mi local, asi uso eso directamente, hay que ver como seria en caso de una maquina distinta
+#TODO estas variables habria que levantarlas desde el archivo cnfg para ver instalaciones a medias
 CONFDIR="$GRUPO/conf" #aca van el log AFINSTAL.lg y el de configuracion AFINSTAL.cnfg
 BINDIR="$GRUPO/bin"
 MAEDIR="$GRUPO/mae"
@@ -65,16 +65,6 @@ PERL_VERSION="$(dpkg --status perl | grep ^Version)"
 PERL_INSTALLED=$?
 SWITCH_VERSION="$(dpkg --status libswitch-perl | grep ^Version)"
 SWITCH_INSTALLED=$?
-
-#######################################################################
-
-
-
-#echo "Bienvenido al programa de instalacion de AFRA-J......."
-#echo "Mediante unos pasos vamos a definir la configuracion del programa, luego procederemos con la instalacion."
-#echo "Una vez terminado podra arrancar el demonio para correr el sistema."
-#echo "Puede interrumpir la instalacion en cualquier momento ingresando un 0 como opcion, regresando al inicio de la instalacion para realizar cualquier correccion, tambien puede salir del instalador si hiciera falta, no se van a aplicar los cambios hasta el final."
-
 
 ###############################################################################
 #					INICIO FUNCIONES AUX
@@ -114,12 +104,12 @@ function setPath(){
 	read RECHDIR
 	echo "Defina espacio mínimo libre para la recepción de archivos de llamadas en Mbytes (100):"
 	read DATASIZE
-	#verificarEspacioEnDisco #TODO implementar este procedimiento
+	verificarEspacioEnDisco
 	echo "Defina el tamaño máximo para cada archivo de log en Kbytes (400):"
 	read LOGSIZE
 	echo "Defina el nombre para la extensión de los archivos de log (lg):"
 	read LOGEXT
-}	
+}
 
 # Crea las estructuras de directorio requeridas
 #
@@ -165,32 +155,17 @@ function moverFiles(){
 	echo "-Archivos todavia no movidos" #TODO eso, lo del comentario, mover todo a donde corresponde
 }
 
-
-###############################################################################
-#					FIN FUNCIONES AUX
-###############################################################################
-
-
-###############################################################################
-#					INICIO STEPS DE INSATALACION
-###############################################################################
-# Pasos de instalacion.
-# cada step, refleja un paso de instalacion (detallado en el enunciado del tp)
-
-
 # Detectar si el paquete AFRA-J o algunos de sus componentes ya esta instalado.
 #
 function detectarInstalacion(){
 
-	echo "(logInfo) step 1: Verificando si el sistema AFRA-J se encuentra instalado"
+	#echo "(logInfo) step 1: Verificando si el sistema AFRA-J se encuentra instalado"
 	#Verifico si el paquete ya esta instalado
 	if [ -e "$CONFDIR/AFINSTAL.cnfg" ]
 	then
-		echo "Existe una version instalada de AFRA-J."
-		# Verificar si la instalacion esta completa.
+		#echo "Existe una version instalada de AFRA-J."
 		verificarInstalacionCompleta		
 	fi
-	#Chequear que Perl este instalado.
 	verificarPerl
 }
 
@@ -198,22 +173,35 @@ function detectarInstalacion(){
 # 
 function verificarInstalacionCompleta(){
 
-	echo "(logInfo) step 2: Verificar si la instalacion esta completa"
-	#TODO aca deberia levantar las cosas como estan y seguir con la instalacion normal, no cambia el proceso creo, ver desp
-	exit 1
+	#echo "(logInfo) step 2: Verificar si la instalacion esta completa"
+	imprimirConfiguracion
+	echo "Desea completar la instalacion? (Si/No)"
+	read INPUT_USUARIO	
+
+	if [ "$INPUT_USUARIO" == "n" ]
+	then
+		#echo "Fin de la instalacion"
+		exit 1
+	fi
 }
 
-function step3(){
-
-	echo "step 3"
-
+#verificar si hay suficiente espacio en disco para las novedades
+#
+function verificarEspacioEnDisco(){
+	ESPACIO_NOVEDIR="$(df -h -k --block-size=MB $NOVEDIR | awk 'NR==2{print$4}' | sed s/MB$//)"
+	if [ "$ESPACIO_NOVEDIR" -lt "$DATASIZE" ]
+	then
+		echo "No hay suficiente espacio en disco para poder completar la instalacion con esa configuracion"
+		echo "Libere espacio en el disco y vuelva a intentarlo"
+		exit 3
+	fi
 }
 
 # verificar si Perl esta instaldo en el SO.
 # 
 function verificarPerl(){
 
-	echo "(logInfo) step 4: Verificando que Perl este instaldo."
+	#echo "(logInfo) step 4: Verificando que Perl este instaldo."
 	#Hacemos instalar perl si no estaba
 	if [ $PERL_INSTALLED != 0 -o $SWITCH_INSTALLED != 0 ]
 	then
@@ -222,8 +210,6 @@ function verificarPerl(){
 		sudo apt-get --force-yes --yes install perl
 		sudo apt-get --force-yes --yes install libswitch-perl
 	fi
-	echo "Perl instalado"
-#	exit 1
 }
 
 # Aceptacion de terminos y condiciones. 
@@ -244,7 +230,7 @@ function terminosYCondiciones(){
 # Mostrar los valores de los parametros configurados y preguntar para continuar o voler atrás. 
 #
 function imprimirConfiguracion(){
-	echo "(logInfo) step 18: Parametros configurados."
+	#echo "(logInfo) step 18: Parametros configurados."
 
 	echo "Detalles de instalacion:"
 	echo -e "\t Directorio de Ejecutables: $BINDIR"
@@ -279,11 +265,11 @@ then
 	# Interaccion con el usuario.	
 	echo "Acepta? Si - No (Si/No)"	
 	read INPUT_USUARIO
-	echo "(logInfo) Input usuario: $INPUT_USUARIO"	
+	#echo "(logInfo) Input usuario: $INPUT_USUARIO"	
 
 	if [ "$INPUT_USUARIO" == "n" ] #Validar con una expresion regular.
 	then
-		echo "Fin de la instalacion"
+		#echo "Fin de la instalacion"
 		exit 1
 	fi
 
@@ -297,12 +283,12 @@ then
 	# Interaccion con el usuario.	
 	echo "Desea continuar con la instalación? (Si-No)"
 	read INPUT_USUARIO
-	echo "(logInfo) Input usuario: $INPUT_USUARIO"
+	#echo "(logInfo) Input usuario: $INPUT_USUARIO"
 
 	if [ "$INPUT_USUARIO" == "n" ] #Validar con una expresion regular.
 	then 
 		clear
-		echo "(logInfo) El usuario no quiere seguir con la instalacion"
+		#echo "(logInfo) El usuario no quiere seguir con la instalacion"
 		exit 1
 	fi
 
@@ -311,7 +297,7 @@ then
 	read INPUT_USUARIO 
 	if [ "$INPUT_USUARIO" == "n" ] #Validar con una expresion regular.
 	then
-		echo "Fin, no se instalo el sistema."
+		#echo "Fin, no se instalo el sistema."
 		exit 1		
 	fi
 
