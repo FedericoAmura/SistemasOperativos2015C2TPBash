@@ -388,7 +388,7 @@ function determinarLlamadasSospechosas(){
 	LL_CO_PAIS_B=${LLAMADA[5]}
 	LL_CO_AREA_B=${LLAMADA[6]}
 	LL_NU_LINEA_B=${LLAMADA[7]}
-	echo "valores de una llamada: $LL_NU_AREA $LL_NU_LINEA_A $LL_CO_PAIS_B $LL_NU_LINEA_B"
+	#echo "valores de una llamada: $LL_NU_AREA $LL_NU_LINEA_A $LL_CO_PAIS_B $LL_NU_LINEA_B"
 
 	# Por cada llamada. Busco en el umbral y clasifico.
 	#	
@@ -399,11 +399,11 @@ function determinarLlamadasSospechosas(){
 	grep $LL_NU_LINEA_A $MAEDIR/umbral.tab >> temporal_umbral #CAmbiar por la linea de arriba.
 	#grep "4314928" $MAEDIR/umbral.tab >> temporal_umbral #TEMP: ELIMINAR.
 
-	echo "cant: $CANT_REGISTROS"
+	#echo "cant: $CANT_REGISTROS"
 
 	if [ $CANT_REGISTROS -eq 0  ] 
 	then
-		echo "Contabilizar como sin umbral. FIXME"
+		echo "La llamada $LL_NU_LINEA_A no se encuentra en la lista de umbrales, contabilizar."
 	else
 		#echo "Contabilizar coomo con umbral, Filtrar si es sospechosas."
 		while read line
