@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 use Switch;
+use Date::Parse;
 my $key = '';
 my $file = 0;
 
@@ -353,6 +354,86 @@ sub f_3_agente_cantidad_llam_sosp
 	if ($_[0] == "2"){
 	print "con filtro por cantidad de segundos\n";	
 	}
+	my %age;
+	my @reg;
+    my $sec;
+    my $min;
+    my $hora;
+    my $dia;
+    my $mes;
+    my $anio;
+	($sec,$min,$hora,$dia,$mes,$anio)=localtime;    
+    $anio+=1900;
+    $mes++;
+	my $fecha = $anio.$mes.$dia."_".$hora.$min.$sec;
+    my $input_periodo='';
+    my $fecha_ok="N";	
+	
+	opendir (DIR,"./proc/") || die "Error el directorio no existe\n";
+	my @indice = readdir(DIR);
+	closedir(DIR);
+
+    while ($input_periodo eq '' && $fecha_ok eq "N")
+    {
+    print "Ingrese el periodo a filtrar YYYY o YYYYMM: ";
+    $input_periodo = <STDIN>;
+    chomp($input_periodo);	
+	    if ($input_periodo !~ /(\d{4})(\d\d)/  ||  $input_periodo !~ /(\d{4})/) {
+	    print "Error al ingresar fecha: [YYYY] o [YYYYMM]\n";    
+	    }
+	    else { 
+		$fecha_ok="S";
+	    }
+    }        
+    
+    foreach my $archivos (@indice)
+	{
+	 next unless ($archivos =~ /$input_periodo\.csv$/);
+	 print "procesando...". $archivos ."\n";
+
+		open (ENT,"<./proc/".$archivos) || die "Error: No se pudo abrir ".$archivos ."\n";
+	    while (<ENT>)
+	    {
+		chomp($_);	
+		@reg=split(";",$_);
+		if ($_[0] == "1"){ #filtro por cantidad de llamadas
+			$age{$reg[1]}+=1; 
+		}
+		if ($_[0] == "2"){ # filtro por cantidad de segundos
+			$age{$reg[1]}+=$reg[5]; 	
+		}
+		}
+        close (ENT);
+    }#foreach
+    
+    
+	if ( $file eq 1 ) #escribe en archivo?
+	{
+	open (SAL,">estad_".$fecha.".csv");
+    }
+	#foreach (keys (%age))
+    #	my $linea;
+    #   foreach $linea (sort { $age{$a} <=> $age{$b} } keys %age)
+    foreach (sort { $age{$a} <=> $age{$b} } keys %age)	
+	{
+		if ( $file eq 1 )
+		{
+		print SAL $_.";".$age{$_} ."\n";
+		#print SAL  $linea .";" . $age{$linea}."\n";
+		} else 
+		{
+		print $_.";".$age{$_} ."\n";
+		}
+	};
+    
+    if ( $file eq 1 )
+	{
+	    print "se genero estad_".$fecha.".csv\n";
+	    close (SAL);
+    } 
+	
+	
+	
 }
 
 
