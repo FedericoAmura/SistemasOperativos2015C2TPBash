@@ -23,8 +23,8 @@
 
 # Variables / Constantes
 # ==============================================================================================
-NOVEDIR=$PWD/acep #Modificar por el valor correcto. 
-MAEDIR=$PWD/master
+#NOVEDIR=$PWD/acep #Modificar por el valor correcto. 
+MAEDIR=$PWD/master #Modificar por el valor correcto. 
 
 source MoverA.sh
 source GraLog.sh
@@ -32,6 +32,20 @@ LOGDIR="$PWD/log"
 LOGSIZE=100
 LOGEXT=log
 
+#CONTADORES
+CANT_ARCH_PROCESADOS=0
+CANT_ARCH_RECHAZADOS=0	
+CANT_LLAMADAS=0	
+CANT_LLAM_CON_UMBRAL=0
+CANT_LLAM_SIN_UMBRAL=0
+CANT_LLAM_SOSPECHOSAS=0
+CANT_LLAM_NO_SOSPECHOSAS=0	
+CANT_LLAM_RECHAZADAS=0
+
+
+
+# Funciones
+#=================================================================================================
 
 validarAgente() {
 
@@ -403,9 +417,10 @@ function determinarLlamadasSospechosas(){
 
 	if [ $CANT_REGISTROS -eq 0  ] 
 	then
-		echo "La llamada $LL_NU_LINEA_A no se encuentra en la lista de umbrales, contabilizar."
+		#echo "La llamada $LL_NU_LINEA_A no se encuentra en la lista de umbrales, contabilizar."
+		CANT_LLAM_SIN_UMBRAL=$(($CANT_LLAM_SIN_UMBRAL+1))
 	else
-		#echo "Contabilizar coomo con umbral, Filtrar si es sospechosas."
+		CANT_LLAM_CON_UMBRAL=$(($CANT_LLAM_CON_UMBRAL+1))
 		while read line
 		do	
 
@@ -425,21 +440,25 @@ function determinarLlamadasSospechosas(){
 				if [ "$UM_ESTADO" = "Activo" ] && [ $UM_CO_AREA_ORIGEN = $LL_NU_AREA ] && [ $UM_NU_ORIGEN = $LL_NU_LINEA_A ] && [ -z $UM_CO_DESTINO  ] && [ $UM_TOPE -lt $LL_TIEMPO_CONVERSACION ] #FIXME: Falta chequear cuando un valor es nulo $UM_CO_DESTINO
 					then 												
 					# Guardo la llamada como sospechosa.
-					echo "$LL_ID_AGENTE;$LL_FECHA;$LL_TIEMPO_CONVERSACION;$LL_NU_AREA;$LL_NU_LINEA_A; ;$LL_CO_AREA_B;$LL_NU_LINEA_B" >> $NOVEDIR/COS_${DATE}
-				fi
-			fi
+					echo "$LL_ID_AGENTE;$LL_FECHA;$LL_TIEMPO_CONVERSACION;$LL_NU_AREA;$LL_NU_LINEA_A; ;$LL_CO_AREA_B;$LL_NU_LINEA_B" >> $DIRECTORIO_PROC/COS_${DATE}
+					CANT_LLAM_SOSPECHOSAS=$(($CANT_LLAM_SOSPECHOSAS+1))
 
-			if [ $UM_TI_LLAMADA = "DDN" ] || [ $UM_TI_LLAMADA = "LOC" ]
-			then					
+				else # No es una llamada sospechosa
+					CANT_LLAM_NO_SOSPECHOSAS=$(($CANT_LLAM_NO_SOSPECHOSAS+1))		
+				fi
+			elif [ $UM_TI_LLAMADA = "DDN" ] || [ $UM_TI_LLAMADA = "LOC" ]
+			then		
 				#echo " $UM_ESTADO = Inactivo  $UM_CO_AREA_ORIGEN = $LL_NU_AREA $UM_NU_ORIGEN = $LL_NU_LINEA_A $UM_CO_DESTINO = $LL_CO_PAIS_B  $UM_CO_DESTINO  $UM_TOPE -lt $LL_TIEMPO_CONVERSACION "
 				#if [ $UM_ESTADO = "Activo" ] && [ $UM_CO_AREA_ORIGEN = $LL_NU_AREA ] && [ $UM_NU_ORIGEN = $LL_NU_LINEA_A ] && [ $UM_CO_DESTINO = $LL_CO_PAIS_B ] && [ ! -z $UM_CO_DESTINO ] && [ $UM_TOPE -lt $LL_TIEMPO_CONVERSACION ]
 				if [ $UM_ESTADO = "Activo" ] && [ $UM_CO_AREA_ORIGEN = $LL_NU_AREA ] && [ $UM_NU_ORIGEN = $LL_NU_LINEA_A ] && [ -z $UM_CO_DESTINO ] && [ $UM_TOPE -lt $LL_TIEMPO_CONVERSACION ] #FIXME: Como en el caso
 					then
 					# Guardo la llamada como sospechosa.
-					echo "$LL_ID_AGENTE;$LL_FECHA;$LL_TIEMPO_CONVERSACION;$LL_NU_AREA;$LL_NU_LINEA_A;$LL_CO_PAIS_B; ;$LL_NU_LINEA_B" >> $NOVEDIR/COS_${DATE}
+					echo "$LL_ID_AGENTE;$LL_FECHA;$LL_TIEMPO_CONVERSACION;$LL_NU_AREA;$LL_NU_LINEA_A;$LL_CO_PAIS_B; ;$LL_NU_LINEA_B" >> $DIRECTORIO_PROC/COS_${DATE}
+					CANT_LLAM_SOSPECHOSAS=$(($CANT_LLAM_SOSPECHOSAS+1))
+				else # No es una llamada sospechosa
+					CANT_LLAM_NO_SOSPECHOSAS=$(($CANT_LLAM_NO_SOSPECHOSAS+1))	
 				fi
-			fi
-
+			fi			
 			#Si tengo mas de un umbral a comparar solo me quedo con el primero.			
 			break						
 
@@ -482,15 +501,6 @@ CANT_TOTAL_ARCH=$(ls $DIRECTORIO_ACEP | wc -l)
 GraLog AFUMB INFO "Inicio de AFUMB"
 GraLog AFUMB INFO "Cantidad de archivos a procesar: $CANT_TOTAL_ARCH"
 
-#CONTADORES
-CANT_ARCH_PROCESADOS=0
-CANT_ARCH_RECHAZADOS=0	
-CANT_LLAMADAS=0	
-CANT_LLAM_CON_UMBRAL=0
-CANT_LLAM_SIN_UMBRAL=0
-CANT_LLAM_SOSPECHOSAS=0
-CANT_LLAM_NO_SOSPECHOSAS=0	
-CANT_LLAM_RECHAZADAS=0
 
 #1 - PROCESAR ARCHIVOS EN ORDEN CRONOLOGICO, DEL MAS ANTIGUO AL MAS NUEVO
 
@@ -535,7 +545,6 @@ do
 	GraLog AFUMB INFO "Archivo a procesar: $FILE"
 	
 	#4 - PROCESAR UN REGISTRO
-	echo "path: $path_origen"
 	while read linea
 	do
 		CANT_LLAMADAS=$(($CANT_LLAMADAS+1))
