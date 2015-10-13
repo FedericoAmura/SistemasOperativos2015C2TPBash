@@ -19,8 +19,8 @@
 
 ############################# sources ###############################
 
-source ./MoverA.sh
-source ./GraLog.sh
+source bin/MoverA.sh
+source bin/GraLog.sh
 
 
 ###################### variables de entorno ##########################
@@ -155,17 +155,72 @@ function moverFiles(){
 	echo "-Archivos todavia no movidos" #TODO eso, lo del comentario, mover todo a donde corresponde
 }
 
+function usuarioContinuar(){
+	INPUT_USUARIO=$1	
+	MSJ_AL_USUARIO=$2
+	case $INPUT_USUARIO in
+		$(echo $INPUT_USUARIO | grep "^[Nn][Oo]*$") ) # "No" "no" "NO" "nO" "n"  
+			echo "Exit "	
+			exit 1
+		;;
+		$(echo $INPUT_USUARIO | grep "^[Ss][Ii]*$") ) # "Si" "si" "sI" "SI" "s"
+			echo $MSJ_AL_USUARIO
+		;;
+ 		*)
+			echo "Opcion Incorrecta.FIN"
+			exit 1
+		;;
+	esac	
+}
+
+# Esta Funcion se encarga de interactuar con el usuario.
+# Pide al usuario que ingrese un valor, este no pued ser vacio.
+#
+function inputBoxString(){
+
+	MSJ_AL_USUARIO=$1
+	for i in `seq 1 3`;
+    do
+        echo $MSJ_AL_USUARIO
+        read INPUT_USUARIO
+		
+		case $INPUT_USUARIO in
+		$(echo $INPUT_USUARIO | grep "[a-zA-Z0-9\s]")) #Falta filtrar los \n o cualquier cosa nula.		
+			exit
+		;;
+		$(echo $INPUT_USUARIO | grep "[^a-zA-Z0-9]") ) 
+			echo "Valor invalido."
+		;;
+		esac	
+    done  
+    VALUE=$INPUT_USUARIO
+    
+}
+
+
+###############################################################################
+#					FIN FUNCIONES AUX
+###############################################################################
+
+
+###############################################################################
+#					INICIO STEPS DE INSATALACION
+###############################################################################
+# Pasos de instalacion.
+# cada step, refleja un paso de instalacion (detallado en el enunciado del tp)
+
+
 # Detectar si el paquete AFRA-J o algunos de sus componentes ya esta instalado.
 #
 function detectarInstalacion(){
 
-	#echo "(logInfo) step 1: Verificando si el sistema AFRA-J se encuentra instalado"
 	#Verifico si el paquete ya esta instalado
 	if [ -e "$CONFDIR/AFINSTAL.cnfg" ]
 	then
 		#echo "Existe una version instalada de AFRA-J."
 		verificarInstalacionCompleta		
 	fi
+	#Chequear que Perl este instalado.
 	verificarPerl
 }
 
@@ -173,7 +228,6 @@ function detectarInstalacion(){
 # 
 function verificarInstalacionCompleta(){
 
-	#echo "(logInfo) step 2: Verificar si la instalacion esta completa"
 	imprimirConfiguracion
 	echo "Desea completar la instalacion? (Si/No)"
 	read INPUT_USUARIO	
@@ -189,7 +243,7 @@ function verificarInstalacionCompleta(){
 #
 function verificarEspacioEnDisco(){
 	ESPACIO_NOVEDIR="$(df -h -k --block-size=MB $NOVEDIR | awk 'NR==2{print$4}' | sed s/MB$//)"
-	if [ "$ESPACIO_NOVEDIR" -lt "$DATASIZE" ]
+	if [ $ESPACIO_NOVEDIR -lt $DATASIZE ]
 	then
 		echo "No hay suficiente espacio en disco para poder completar la instalacion con esa configuracion"
 		echo "Libere espacio en el disco y vuelva a intentarlo"
@@ -255,7 +309,6 @@ function imprimirConfiguracion(){
 #Inicio de la instalacion.
 if [ "$CMD_INSTALL" == "-start" ]
 then	
-	echo -e "loading..." #para que este loading?
 	# Confirmo si el paquete ya esta instalado.
 	detectarInstalacion
 	
@@ -265,15 +318,10 @@ then
 	# Interaccion con el usuario.	
 	echo "Acepta? Si - No (Si/No)"	
 	read INPUT_USUARIO
-	#echo "(logInfo) Input usuario: $INPUT_USUARIO"	
+	
+	# Validar Si el usuario desea continuar. 
+	usuarioContinuar $INPUT_USUARIO "Siguiente..."
 
-	if [ "$INPUT_USUARIO" == "n" ] #Validar con una expresion regular.
-	then
-		#echo "Fin de la instalacion"
-		exit 1
-	fi
-
-	echo "Iniciando instalacion...."
 	# Definir el arbol de directorios
 	setPath
 
@@ -282,25 +330,18 @@ then
 
 	# Interaccion con el usuario.	
 	echo "Desea continuar con la instalación? (Si-No)"
-	read INPUT_USUARIO
-	#echo "(logInfo) Input usuario: $INPUT_USUARIO"
-
-	if [ "$INPUT_USUARIO" == "n" ] #Validar con una expresion regular.
-	then 
-		clear
-		#echo "(logInfo) El usuario no quiere seguir con la instalacion"
-		exit 1
-	fi
-
+	read INPUT_USUARIO		
+	
+	# Validar Si el Usuario desea continuar
+	usuarioContinuar $INPUT_USUARIO "Siguiente..."
+	
 	#Confirmar inicio de instalacion
 	echo "Iniciando Instalacion. Esta Ud. seguro? (Si-No)"
 	read INPUT_USUARIO 
-	if [ "$INPUT_USUARIO" == "n" ] #Validar con una expresion regular.
-	then
-		#echo "Fin, no se instalo el sistema."
-		exit 1		
-	fi
 
+	# Validar Si el Usuario desea continuar
+	usuarioContinuar $INPUT_USUARIO "Iniciando instalacion del sistema AFRA-J"
+	
 	# Instalacion
 	instalacion 
 	
