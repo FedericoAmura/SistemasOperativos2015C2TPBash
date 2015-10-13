@@ -417,14 +417,14 @@ function determinarLlamadasSospechosas(){
 	LLAMADA=$1 # Registro de una llamada.
 
 	# Get campos de una llamada entrante.
-	LL_ID_AGENTE=${LLAMADA[0]}
-	LL_FECHA=${LLAMADA[1]}	
-	LL_TIEMPO_CONVERSACION=${LLAMADA[2]}
-	LL_NU_AREA=${LLAMADA[3]}
-	LL_NU_LINEA_A=${LLAMADA[4]} #$(echo "$LLAMADA" | cut -d';' -f5) #parche
-	LL_CO_PAIS_B=${LLAMADA[5]}
-	LL_CO_AREA_B=${LLAMADA[6]}
-	LL_NU_LINEA_B=${LLAMADA[7]}
+	LL_ID_AGENTE=$(echo "$LLAMADA" | cut -d';' -f1) 
+	LL_FECHA=$(echo "$LLAMADA" | cut -d';' -f2) 	
+	LL_TIEMPO_CONVERSACION=$(echo "$LLAMADA" | cut -d';' -f3) 
+	LL_NU_AREA=$(echo "$LLAMADA" | cut -d';' -f4) 
+	LL_NU_LINEA_A=$(echo "$LLAMADA" | cut -d';' -f5) #parche
+	LL_CO_PAIS_B=$(echo "$LLAMADA" | cut -d';' -f6) 
+	LL_CO_AREA_B=$(echo "$LLAMADA" | cut -d';' -f7) 
+	LL_NU_LINEA_B=$(echo "$LLAMADA" | cut -d';' -f8) 
 	#echo "valores de una llamada: $LL_NU_AREA $LL_NU_LINEA_A $LL_CO_PAIS_B $LL_NU_LINEA_B"
 
 	# Por cada llamada. Busco en el umbral y clasifico.
@@ -554,9 +554,8 @@ do
 		validaRegistro=$(validarRegistro "$linea")
 		if [ $validaRegistro -eq  0 ]
 		then
-			#PROCESO PARA DETERMINAR SI LA LLAMADA ES SOSPECHOSA
-			LLAMADA=($linea) 		
-			determinarLlamadasSospechosas $LLAMADA
+			#PROCESO PARA DETERMINAR SI LA LLAMADA ES SOSPECHOSA			
+			determinarLlamadasSospechosas "$linea"
 
 		else 
 			#PROCESO PARA RECHAZAR REGISTRO
