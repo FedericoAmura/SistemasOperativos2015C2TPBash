@@ -12,13 +12,16 @@
 # Directorio:
 #
 #├── AFRA-J
-#│   ├── AFINSTALL.sh
 #│   ├── bin
+#│   │   ├── AFINSTALL.sh
+#│   │   ├── GraLog.sh
+#│   │   ├── MoverA.sh
+#│   │   ├── ARRANCAR.sh
+#│   │   ├── DETENER.sh
 #│   │   ├── AFINI.sh
 #│   │   ├── AFREC.sh
-#│   │   ├── GraLog.sh
-#│   │   ├── movera_old.sh
-#│   │   └── MoverA.sh
+#│   │   ├── AFUMB.sh
+#│   │   └── AFLIST.sh
 #│   ├── conf
 #│   └── data
 #│       ├── agentes.csv
@@ -60,13 +63,17 @@ then
 	mkdir $GRUPO/data
 
 	#Agrega todos los scripts para la instalacion.
-	cp AFINSTALL.sh $GRUPO/
-	#Agrego el resto de los *.sh al direcorio /bin	
+	cp ./bin/AFINSTALL.sh $GRUPO/bin/
 
-	cp AFINI.sh $GRUPO/bin/
-	cp AFREC.sh $GRUPO/bin/
-	cp GraLog.sh $GRUPO/bin/
-	cp MoverA.sh $GRUPO/bin/
+	#Agrego el resto de los *.sh al direcorio /bin
+	cp ./bin/GraLog.sh $GRUPO/bin/
+	cp ./bin/MoverA.sh $GRUPO/bin/
+	cp ./bin/ARRANCAR.sh $GRUPO/bin/
+	cp ./bin/DETENER.sh $GRUPO/bin/
+	cp ./bin/AFINI.sh $GRUPO/bin/
+	cp ./bin/AFREC.sh $GRUPO/bin/
+	cp ./bin/AFUMB.sh $GRUPO/bin/
+	cp ./bin/AFLIST.pl $GRUPO/bin/
 
 	#Agrego el archivo readme
 	cp README.md $GRUPO/

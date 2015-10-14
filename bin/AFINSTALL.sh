@@ -17,6 +17,9 @@
 #2: Instalacion abortada por el usuario
 #3: No hay suficiente espacio en disco para completar la instalacion
 
+#Salgo de /AFRA-J/bin hacia /AFRA-J
+cd ..
+
 ############################# sources ###############################
 
 source bin/MoverA.sh
@@ -40,10 +43,11 @@ DEFAULT_PROCDIR="$GRUPO/sospechosas"
 DEFAULT_REPODIR="$GRUPO/reportes"
 DEFAULT_LOGDIR="$GRUPO/log"
 DEFAULT_RECHDIR="$GRUPO/rechazadas"
+$DEFAULT_DATASIZE=100
+$DEFAULT_LOGSIZE=400
+$DEFAULT_LOGEXT=lg
 
-
-#GRUPO=$(pwd) #Esto estaria hardcodeado, seria la ruta donde esta mi local, asi uso eso directamente, hay que ver como seria en caso de una maquina distinta
-#TODO estas variables habria que levantarlas desde el archivo cnfg para ver instalaciones a medias
+#TODO estas variables tienen que volar, no tiene sentido definirlas igual que las default
 CONFDIR="$GRUPO/conf" #aca van el log AFINSTAL.lg y el de configuracion AFINSTAL.cnfg
 BINDIR="$GRUPO/bin"
 MAEDIR="$GRUPO/mae"
@@ -59,12 +63,9 @@ RECHDIR="$GRUPO/rechazadas"
 # Variables para interactuar con el Usuario
 #INPUT_USUARIO no se tienen que declarar las variables, directamente se asignan
 
-#Verificamos si perl 5 al menos esta instalado y guardo en una variable si estaba o no (0 si esta, 1 si no segun dpkg)
-#TODO en vez de usar el installed tengo que quedarme con la version y verificar que esta sea igual o mayor a 5
-PERL_VERSION="$(dpkg --status perl | grep ^Version)"
-PERL_INSTALLED=$?
-SWITCH_VERSION="$(dpkg --status libswitch-perl | grep ^Version)"
-SWITCH_INSTALLED=$?
+#Obtenemos las versiones de PERL y del SWITCH
+PERL_VERSION="$(dpkg --status perl | grep ^Version | cut -c 10)"
+SWITCH_VERSION="$(dpkg --status libswitch-perl | grep ^Version | cut -c 10)"
 
 ###############################################################################
 #					INICIO FUNCIONES AUX
@@ -73,42 +74,88 @@ SWITCH_INSTALLED=$?
 # Se encarga de crear el arbol de directorios.
 # Existe un arbol de direcorio por defecto, pero el usuario 
 # tiene la posibilidad de modificar cada uno.
-# 
-# $GRUPO/bin
-# $GRUPO/mae
-# $GRUPO/novedades
-# $GRUPO/aceptadas
-# $GRUPO/sospechosas
-# $GRUPO/reportes
-# $GRUPO/log
-# $GRUPO/rechazadas
-#
+
 function setPath(){
 
 	echo "(logInfo) step 6: Definir el direcorio de los ejecutables"
-	echo "Defina el directorio de instalación de los ejecutables ($GRUPO/bin):"
+
+	echo "Cambie, o deje vacio, el directorio de instalación de los ejecutables ($DEFAULT_BINDIR):"
 	read BINDIR
-	echo "Defina directorio para maestros y tablas ($GRUPO/mae):"
+	if [ $BINDIR == "" ]
+	then
+		BINDIR = $DEFAULT_BINDIR
+	fi
+
+	echo "Cambie, o deje vacio, directorio para maestros y tablas ($DEFAULT_MAEDIR):"
 	read MAEDIR
-	echo "Defina el Directorio de recepción de archivos de llamadas ($GRUPO/novedades):"
+	if [ $MAEDIR == "" ]
+	then
+		MAEDIR = $DEFAULT_MAEDIR
+	fi
+
+	echo "Cambie, o deje vacio, el Directorio de recepción de archivos de llamadas ($DEFAULT_NOVEDIR):"
 	read NOVEDIR
-	echo "Defina el directorio de grabación de los archivos de llamadas aceptadas ($GRUPO/aceptadas):"
+	if [ $NOVEDIR == "" ]
+	then
+		NOVEDIR = $DEFAULT_NOVEDIR
+	fi
+
+	echo "Cambie, o deje vacio, el directorio de grabación de los archivos de llamadas aceptadas ($DEFAULT_ACEPDIR):"
 	read ACEPDIR
-	echo "Defina el directorio de grabación de los registros de llamadas sospechosas ($GRUPO/sospechosas):"
+	if [ $ACEPDIR == "" ]
+	then
+		ACEPDIR = $DEFAULT_ACEPDIR
+	fi
+
+	echo "Cambie, o deje vacio, el directorio de grabación de los registros de llamadas sospechosas ($DEFAULT_PROCDIR):"
 	read PROCDIR
-	echo "Defina el directorio de grabación de los reportes ($GRUPO/reportes):"
+	if [ $PROCDIR == "" ]
+	then
+		PROCDIR = $DEFAULT_PROCDIR
+	fi
+
+	echo "Cambie, o deje vacio, el directorio de grabación de los reportes ($DEFAULT_REPODIR):"
 	read REPODIR
-	echo "Defina el directorio para los archivos de log ($GRUPO/log):"
+	if [ $REPODIR == "" ]
+	then
+		REPODIR = $DEFAULT_REPODIR
+	fi
+
+	echo "Cambie, o deje vacio, el directorio para los archivos de log ($DEFAULT_LOGDIR):"
 	read LOGDIR
-	echo "Defina el directorio de grabación de Archivos rechazados ($GRUPO/rechazadas):"
+	if [ $LOGDIR == "" ]
+	then
+		LOGDIR = $DEFAULT_LOGDIR
+	fi
+
+	echo "Cambie, o deje vacio, el directorio de grabación de Archivos rechazados ($DEFAULT_RECHDIR):"
 	read RECHDIR
-	echo "Defina espacio mínimo libre para la recepción de archivos de llamadas en Mbytes (100):"
+	if [ $RECHDIR == "" ]
+	then
+		RECHDIR = $DEFAULT_RECHDIR
+	fi
+
+	echo "Cambie, o deje vacio, espacio mínimo libre para la recepción de archivos de llamadas en Mbytes ($DEFAULT_DATASIZE):"
 	read DATASIZE
+	if [ $DATASIZE == "" ]
+	then
+		DATASIZE = $DEFAULT_DATASIZE
+	fi
 	verificarEspacioEnDisco
-	echo "Defina el tamaño máximo para cada archivo de log en Kbytes (400):"
+
+	echo "Cambie, o deje vacio, el tamaño máximo para cada archivo de log en Kbytes ($DEFAULT_LOGSIZE):"
 	read LOGSIZE
-	echo "Defina el nombre para la extensión de los archivos de log (lg):"
+	if [ $LOGSIZE == "" ]
+	then
+		LOGSIZE = $DEFAULT_LOGSIZE
+	fi
+
+	echo "Cambie, o deje vacio, el nombre para la extensión de los archivos de log ($DEFAULT_LOGEXT):"
 	read LOGEXT
+	if [ $LOGEXT == "" ]
+	then
+		LOGEXT = $DEFAULT_LOGEXT
+	fi
 }
 
 # Crea las estructuras de directorio requeridas
@@ -126,9 +173,9 @@ function instalacion(){
 	echo -e "\t $RECHDIR"
 
 	echo "-Creacion de los directorios..."
-	# $CONFDIR se crea por defecto al descomprimir el paquete de instalacion.
-	# $BINDIR  por el momento dejo que se cree por defecto este direcorio.
 	mkdir --parents "$BINDIR" "$MAEDIR" "$NOVEDIR" "$ACEPDIR" "$PROCDIR" "$REPODIR" "$LOGDIR" "$RECHDIR"	
+	echo "-Directorios creados"
+
 	generateFileConfiguracion
 	moverFiles
 }
@@ -152,7 +199,19 @@ function generateFileConfiguracion(){
 
 function moverFiles(){
 	echo "-Moviendo archivos..."
-	echo "-Archivos todavia no movidos" #TODO eso, lo del comentario, mover todo a donde corresponde
+	MoverA $DEFAULT_BINDIR/MoverA.sh $BINDIR/MoverA.sh
+	MoverA $DEFAULT_BINDIR/GraLog.sh $BINDIR/GraLog.sh
+	MoverA $DEFAULT_BINDIR/AFREC.sh $BINDIR/AFREC.sh
+	MoverA $DEFAULT_BINDIR/AFINI.sh $BINDIR/AFINI.sh
+	MoverA $GRUPO/data/archivoDeLlamadasSospechosas $MAEDIR/archivoDeLlamadasSospechosas
+	MoverA $GRUPO/data/BEL_20150703 $MAEDIR/BEL_20150703
+	MoverA $GRUPO/data/BEL_20150803 $MAEDIR/BEL_20150803
+	MoverA $GRUPO/data/co_central.rech $MAEDIR/co_central.rech
+	MoverA $GRUPO/data/COS_20150703 $MAEDIR/COS_20150703
+	MoverA $GRUPO/data/COS_20150803 $MAEDIR/COS_20150803
+	MoverA $GRUPO/data/SIS_20150703.csv $MAEDIR/SIS_20150703.csv
+	MoverA $GRUPO/data/SIS_20150803.csv $MAEDIR/SIS_20150803.csv
+	echo "-Archivos movidos" #TODO ajustar a donde hay que mover todos esos archivos
 }
 
 function usuarioContinuar(){
@@ -215,9 +274,10 @@ function inputBoxString(){
 function detectarInstalacion(){
 
 	#Verifico si el paquete ya esta instalado
-	if [ -e "$CONFDIR/AFINSTAL.cnfg" ]
+	if [ -e "$DEFAULT_CONFDIR/AFINSTAL.cnfg" ]
 	then
-		#echo "Existe una version instalada de AFRA-J."
+		echo "Ya existe una version instalada de AFRA-J."
+		#levantarValoresDelCNFG
 		verificarInstalacionCompleta		
 	fi
 	#Chequear que Perl este instalado.
@@ -234,7 +294,7 @@ function verificarInstalacionCompleta(){
 
 	if [ "$INPUT_USUARIO" == "n" ]
 	then
-		#echo "Fin de la instalacion"
+		echo "Fin de la instalacion"
 		exit 1
 	fi
 }
@@ -255,9 +315,9 @@ function verificarEspacioEnDisco(){
 # 
 function verificarPerl(){
 
-	#echo "(logInfo) step 4: Verificando que Perl este instaldo."
+	echo "(logInfo) step 4: Verificando que Perl este instaldo."
 	#Hacemos instalar perl si no estaba
-	if [ $PERL_INSTALLED != 0 -o $SWITCH_INSTALLED != 0 ]
+	if [ $PERL_VERSION -lt "5" -o $SWITCH_VERSION -lt "2" ]
 	then
 		echo "El programa necesita de Perl y sus librerias para poder generar reportes, se va a proceder a instalarlo. Por favor ingrese la contrasena cuando se le solicite"
 		echo "De no instalarlo no podra generar los reportes. Sin embargo, puede instalarlo por su cuenta cuando desee mas tarde."
@@ -284,7 +344,7 @@ function terminosYCondiciones(){
 # Mostrar los valores de los parametros configurados y preguntar para continuar o voler atrás. 
 #
 function imprimirConfiguracion(){
-	#echo "(logInfo) step 18: Parametros configurados."
+	echo "(logInfo) step 18: Parametros configurados."
 
 	echo "Detalles de instalacion:"
 	echo -e "\t Directorio de Ejecutables: $BINDIR"
@@ -347,7 +407,13 @@ then
 	
 	exit 1
 else
-	echo "Ingrese el parametro \"-start\" para inicializar la instalacion"
+	if [ "$CMD_INSTALL" == "--help" || "$CMD_INSTALL" == "-h" ]
+	then
+		echo "TODO aca van las cosas del help y otras yerbas"
+	else
+		echo "Ingrese el parametro \"-start\" para inicializar la instalacion."
+		echo "O el parametro \"-h\" o \"--help\" para ver la ayuda."
+	fi
 fi
 
 
