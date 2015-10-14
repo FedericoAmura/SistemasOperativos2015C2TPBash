@@ -2,9 +2,7 @@
 source MoverA.sh
 source GraLog.sh
 #source AFUMB.sh
-LOGDIR="./log"
-LOGSIZE=50
-LOGEXT=log
+
 echo "PWD: " $PWD
 cd ..
 echo "PWD: " $PWD
@@ -214,16 +212,19 @@ find "./nov" -type f | while read file; do
     	 fi
     	else
           echo $(rechazar $nombre_archivo)
+
     	fi
   
 done
 
 if [ "$(ls -A "./acep")" ]; then
-     # TODO invocar AFUMB
-     echo AFUMB
+
+     #echo AFUMB
+     #GraLog AFREC INFO "AFUMB corriendo"
      bash ./bin/AFUMB.sh
 else
     echo ""./acep" esta vacio"
+    #GraLog AFREC INFO "Invocacion de AFUMB pospuesta para el siguiente ciclo"
 fi
 
 sleep 120 #cada 30 segundos se repite; se  puede cancelar con: ctrl+c
