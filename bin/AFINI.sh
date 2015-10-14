@@ -124,6 +124,13 @@ function existenScripts {
 		todoOk=1
 		echo " Archivo Ejecutable ARRANCAR: NO ENCONTRADO"
 		GraLog AFINI EF "No se encontró el archivo ejecutable ARRANCAR."
+	fi	
+
+		# chequeo si existe archivo ejecutable ARRANCAR.sh
+	if [ ! -f "$BINDIR/AFUMB.sh" ]; then
+		todoOk=1
+		echo " Archivo Ejecutable ARRANCAR: NO ENCONTRADO"
+		GraLog AFINI EF "No se encontró el archivo ejecutable ARRANCAR."
 	fi		
 
     # chequeo si existe archivo ejecutable DETENER.sh
@@ -131,6 +138,13 @@ function existenScripts {
         todoOk=1
         echo " Archivo Ejecutable DETENER: NO ENCONTRADO"
         GraLog AFINI EF "No se encontró el archivo ejecutable DETENER."
+    fi
+
+        # chequeo si existe archivo ejecutable DETENER.sh
+    if [ ! -f "$BINDIR/GraLog.sh" ]; then
+        todoOk=1
+        echo " Archivo Ejecutable GraLog: NO ENCONTRADO"
+        GraLog AFINI EF "No se encontró el archivo ejecutable GraLog."
     fi
 
     # chequeo si existe archivo ejecutable AFLIST.pl
@@ -345,10 +359,12 @@ function arrancarAFREC {
 		if [ -z $afrecActivado ]; then
 			export afrecActivado=1
 			echo "Iniciando AFREC..."
-			GraLog AFINI INFO "El usuario $USER inició AFREC."
+			#GraLog AFINI INFO "El usuario $USER inició AFREC."
 			sleep 1
+			
 			echo "AFREC corriendo bajo el no.: <Process Id de AFREC>"
-			#TODO llamar a AFREC
+			echo "pwd:  $PWD"
+			source ./ARRANCAR.sh
 			#exit
 		else
 			echo "WARNING: Ya hay un proceso AFREC corriendo."

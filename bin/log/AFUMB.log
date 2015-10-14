@@ -1,0 +1,30 @@
+AFUMB.log - 10-13-15 20:31:28 - emanuel - AFUMB - INFO - Inicio de AFUMB
+AFUMB.log - 10-13-15 20:31:28 - emanuel - AFUMB - INFO - Cantidad de archivos a procesar: 0
+AFUMB.log - 10-13-15 20:31:28 - emanuel - AFUMB - INFO - Cantidad de archivos procesados: 0
+AFUMB.log - 10-13-15 20:31:28 - emanuel - AFUMB - INFO - Cantidad de archivos rechazados: 0
+AFUMB.log - 10-13-15 20:31:28 - emanuel - AFUMB - INFO - Fin de AFUMB
+AFUMB.log - 10-13-15 20:34:05 - emanuel - AFUMB - INFO - Inicio de AFUMB
+AFUMB.log - 10-13-15 20:34:05 - emanuel - AFUMB - INFO - Cantidad de archivos a procesar: 6
+AFUMB.log - 10-13-15 20:34:05 - emanuel - AFUMB - INFO - Archivo a procesar: BEL_20150703
+AFUMB.log - 10-13-15 20:34:15 - emanuel - AFUMB - INFO - Archivo procesado: BEL_20150703
+AFUMB.log - 10-13-15 20:34:15 - emanuel - AFUMB - INFO - Cantidad de llamadas= 99: Rechazadas= 0 Con umbral= 44 Sin umbral= 55
+AFUMB.log - 10-13-15 20:34:15 - emanuel - AFUMB - INFO - Cantidad de llamadas sospechosas= 2, No sospechosas= 42
+AFUMB.log - 10-13-15 20:34:15 - emanuel - AFUMB - INFO - Archivo a procesar: BEL_20150803
+AFUMB.log - 10-13-15 20:34:31 - emanuel - AFUMB - INFO - Codigo area invalido: 332
+AFUMB.log - 10-13-15 20:34:31 - emanuel - AFUMB - INFO - Regisro invalido: DANIELANISMAEL 03/08/2015 02:10:04p.m. 28 11 45881031  332 7488884
+AFUMB.log - 10-13-15 20:34:31 - emanuel - AFUMB - INFO - Codigo area invalido: 332
+AFUMB.log - 10-13-15 20:34:31 - emanuel - AFUMB - INFO - Regisro invalido: WAITOLLERMARIO 03/08/2015 02:12:36p.m. 149 11 30540122  332 7488884
+AFUMB.log - 10-13-15 20:34:31 - emanuel - AFUMB - INFO - Archivo procesado: BEL_20150803
+AFUMB.log - 10-13-15 20:34:31 - emanuel - AFUMB - INFO - Cantidad de llamadas= 149: Rechazadas= 2 Con umbral= 57 Sin umbral= 90
+AFUMB.log - 10-13-15 20:34:32 - emanuel - AFUMB - INFO - Cantidad de llamadas sospechosas= 8, No sospechosas= 49
+AFUMB.log - 10-13-15 20:34:32 - emanuel - AFUMB - INFO - Archivo a procesar: COS_20150703
+AFUMB.log - 10-13-15 20:34:52 - emanuel - AFUMB - INFO - Archivo procesado: COS_20150703
+AFUMB.log - 10-13-15 20:34:52 - emanuel - AFUMB - INFO - Cantidad de llamadas= 191: Rechazadas= 0 Con umbral= 81 Sin umbral= 110
+AFUMB.log - 10-13-15 20:34:52 - emanuel - AFUMB - INFO - Cantidad de llamadas sospechosas= 4, No sospechosas= 77
+AFUMB.log - 10-13-15 20:34:52 - emanuel - AFUMB - INFO - Archivo a procesar: COS_20150803
+AFUMB.log - 10-13-15 20:35:20 - emanuel - AFUMB - INFO - Archivo procesado: COS_20150803
+AFUMB.log - 10-13-15 20:35:20 - emanuel - AFUMB - INFO - Cantidad de llamadas= 248: Rechazadas= 0 Con umbral= 83 Sin umbral= 165
+AFUMB.log - 10-13-15 20:35:20 - emanuel - AFUMB - INFO - Cantidad de llamadas sospechosas= 3, No sospechosas= 80
+AFUMB.log - 10-13-15 20:35:20 - emanuel - AFUMB - INFO - Archivo a procesar: SIS_20150703
+AFUMB.log - 10-13-15 20:35:22 - emanuel - AFUMB - INFO - Codigo area invalido: 2234
+AFUMB.log - 10-13-15 20:35:22 - emanuel - AFUMB - INFO - Regisro invalido: BAILLETPATRICIO 03/07/2015 09:05:07a.m. 0 220 7621037  2234 964019

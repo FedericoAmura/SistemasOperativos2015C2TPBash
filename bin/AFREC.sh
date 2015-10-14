@@ -1,10 +1,13 @@
 #!/bin/bash
 source MoverA.sh
 source GraLog.sh
+#source AFUMB.sh
 LOGDIR="./log"
 LOGSIZE=50
 LOGEXT=log
-
+echo "PWD: " $PWD
+cd ..
+echo "PWD: " $PWD
 # SERVICIO: AFREC.sh
 # USO: $ ARFREC.sh ARGUMENTO_1
 # ARGUMENTO_1: start|stop|status
@@ -218,6 +221,7 @@ done
 if [ "$(ls -A "./acep")" ]; then
      # TODO invocar AFUMB
      echo AFUMB
+     bash ./bin/AFUMB.sh
 else
     echo ""./acep" esta vacio"
 fi
