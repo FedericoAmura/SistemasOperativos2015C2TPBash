@@ -182,21 +182,21 @@ function generateFileConfiguracion(){
 function moverFiles(){
 	echo "-Moviendo archivos..."
 	#Movientos de ejecutables
-	MoverA $DEFAULT_BINDIR/MoverA.sh $BINDIR/MoverA.sh
-	MoverA $DEFAULT_BINDIR/GraLog.sh $BINDIR/GraLog.sh
-	MoverA $DEFAULT_BINDIR/AFREC.sh $BINDIR/AFREC.sh
-	MoverA $DEFAULT_BINDIR/AFINI.sh $BINDIR/AFINI.sh
-	MoverA $DEFAULT_BINDIR/AFUMB.sh $BINDIR/AFUMB.sh
-	MoverA $DEFAULT_BINDIR/ARRANCAR.sh $BINDIR/ARRANCAR.sh
-	MoverA $DEFAULT_BINDIR/DETENER.sh $BINDIR/DETENER.sh
-	MoverA $DEFAULT_BINDIR/AFLIST.pl $BINDIR/AFLIST.pl
+	MoverA $DEFAULT_BINDIR/MoverA.sh $BINDIR/MoverA.sh AFINSTAL
+	MoverA $DEFAULT_BINDIR/GraLog.sh $BINDIR/GraLog.sh AFINSTAL
+	MoverA $DEFAULT_BINDIR/AFREC.sh $BINDIR/AFREC.sh AFINSTAL
+	MoverA $DEFAULT_BINDIR/AFINI.sh $BINDIR/AFINI.sh AFINSTAL
+	MoverA $DEFAULT_BINDIR/AFUMB.sh $BINDIR/AFUMB.sh AFINSTAL
+	MoverA $DEFAULT_BINDIR/ARRANCAR.sh $BINDIR/ARRANCAR.sh AFINSTAL
+	MoverA $DEFAULT_BINDIR/DETENER.sh $BINDIR/DETENER.sh AFINSTAL
+	MoverA $DEFAULT_BINDIR/AFLIST.pl $BINDIR/AFLIST.pl AFINSTAL
 	#Moviento de archivos maestros
-	MoverA $GRUPO/master/CdA $MAEDIR/CdA
-	MoverA $GRUPO/master/CdC $MAEDIR/CdC
-	MoverA $GRUPO/master/CdP $MAEDIR/CdP
-	MoverA $GRUPO/master/tllama.tab $MAEDIR/tllama.tab
-	MoverA $GRUPO/master/umbral.tab $MAEDIR/umbral.tab
-	MoverA $GRUPO/master/agentes $MAEDIR/agentes
+	MoverA $GRUPO/master/CdA $MAEDIR/CdA AFINSTAL
+	MoverA $GRUPO/master/CdC $MAEDIR/CdC AFINSTAL
+	MoverA $GRUPO/master/CdP $MAEDIR/CdP AFINSTAL
+	MoverA $GRUPO/master/tllama.tab $MAEDIR/tllama.tab AFINSTAL
+	MoverA $GRUPO/master/umbral.tab $MAEDIR/umbral.tab AFINSTAL
+	MoverA $GRUPO/master/agentes $MAEDIR/agentes AFINSTAL
 	echo "-Archivos movidos"
 }
 
