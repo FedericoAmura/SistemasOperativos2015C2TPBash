@@ -1,7 +1,6 @@
 #!/bin/bash
 #Notas generales
 #Para obtener las funciones en el ambiente "source MoverA.sh" y despues para usar la funcion "MoverA origen destino [comandollamador]"
-#con "echo $?" veo el return value de la ultima llamada, util para testing
 #si hay que distinguir los pipes y cosas asi que no son files realmente, cambiar los -e por -f
 
 #Return values
@@ -10,8 +9,17 @@
 #3: origen no existe
 #4: destino no existe
 
-contador=0
+#definimos la variable contador en cero si es que no esta ya definida
+if [ -z "$contador"]
+then
+	contador=0
+fi
 
+#incorporamos las posibilidades de logear
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source $DIR/GraLog.sh
+
+#definimos la funcion para utilizar afuera
 function MoverA {
 	origen=$1
 	destino=$2

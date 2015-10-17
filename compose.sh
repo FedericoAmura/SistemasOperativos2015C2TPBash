@@ -13,7 +13,7 @@
 #
 #├── AFRA-J
 #│   ├── bin
-#│   │   ├── AFINSTALL.sh
+#│   │   ├── AFINSTAL.sh
 #│   │   ├── GraLog.sh
 #│   │   ├── MoverA.sh
 #│   │   ├── ARRANCAR.sh
@@ -23,6 +23,7 @@
 #│   │   ├── AFUMB.sh
 #│   │   └── AFLIST.sh
 #│   ├── conf
+#│   ├── master
 #│   └── data
 #│       ├── agentes.csv
 #│       ├── BEL_20150703.csv
@@ -63,7 +64,7 @@ then
 	mkdir $GRUPO/data
 
 	#Agrega todos los scripts para la instalacion.
-	cp ./bin/AFINSTALL.sh $GRUPO/bin/
+	cp ./bin/AFINSTAL.sh $GRUPO/bin/
 
 	#Agrego el resto de los *.sh al direcorio /bin
 	cp ./bin/GraLog.sh $GRUPO/bin/
@@ -77,6 +78,9 @@ then
 
 	#Agrego el archivo readme
 	cp README.md $GRUPO/
+
+	#Agrego los documentos maestros a /data
+	cp -R master $GRUPO/
 
 	#Agrego el resto de los documentos a /data
 	cp -R data $GRUPO/

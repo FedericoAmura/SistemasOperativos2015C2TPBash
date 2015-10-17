@@ -1,13 +1,11 @@
 #!/bin/bash
 #
-#----------------  AFINSTALL.sh  ----------------
+#----------------  AFINSTAL.sh  ----------------
 #	
 # Script encargado de la instalacion del sistema AFRA-j
 # Lista de comandos:
 #	*-start:  Inicia la instalacion.
 #
-
-
 
 #########################  Notas generales  #########################
 
@@ -17,13 +15,10 @@
 #2: Instalacion abortada por el usuario
 #3: No hay suficiente espacio en disco para completar la instalacion
 
-#Salgo de /AFRA-J/bin hacia /AFRA-J
-cd ..
-
 ############################# sources ###############################
 
-source bin/MoverA.sh
-source bin/GraLog.sh
+source ./bin/MoverA.sh
+source ./bin/GraLog.sh
 
 
 ###################### variables de entorno ##########################
@@ -43,22 +38,9 @@ DEFAULT_PROCDIR="$GRUPO/sospechosas"
 DEFAULT_REPODIR="$GRUPO/reportes"
 DEFAULT_LOGDIR="$GRUPO/log"
 DEFAULT_RECHDIR="$GRUPO/rechazadas"
-$DEFAULT_DATASIZE=100
-$DEFAULT_LOGSIZE=400
-$DEFAULT_LOGEXT=lg
-
-#TODO estas variables tienen que volar, no tiene sentido definirlas igual que las default
-CONFDIR="$GRUPO/conf" #aca van el log AFINSTAL.lg y el de configuracion AFINSTAL.cnfg
-BINDIR="$GRUPO/bin"
-MAEDIR="$GRUPO/mae"
-NOVEDIR="$GRUPO/novedades"
-ACEPDIR="$GRUPO/aceptadas"
-PROCDIR="$GRUPO/sospechosas"
-REPODIR="$GRUPO/reportes"
-LOGDIR="$GRUPO/log"
-RECHDIR="$GRUPO/rechazadas"
-
-
+DEFAULT_DATASIZE=100
+DEFAULT_LOGSIZE=400
+DEFAULT_LOGEXT=lg
 
 # Variables para interactuar con el Usuario
 #INPUT_USUARIO no se tienen que declarar las variables, directamente se asignan
@@ -81,80 +63,79 @@ function setPath(){
 
 	echo "Cambie, o deje vacio, el directorio de instalación de los ejecutables ($DEFAULT_BINDIR):"
 	read BINDIR
-	if [ $BINDIR == "" ]
+	if [ "$BINDIR" == "" ]
 	then
-		BINDIR = $DEFAULT_BINDIR
+		BINDIR=$DEFAULT_BINDIR
 	fi
 
 	echo "Cambie, o deje vacio, directorio para maestros y tablas ($DEFAULT_MAEDIR):"
 	read MAEDIR
-	if [ $MAEDIR == "" ]
+	if [ "$MAEDIR" == "" ]
 	then
-		MAEDIR = $DEFAULT_MAEDIR
+		MAEDIR=$DEFAULT_MAEDIR
 	fi
 
 	echo "Cambie, o deje vacio, el Directorio de recepción de archivos de llamadas ($DEFAULT_NOVEDIR):"
 	read NOVEDIR
-	if [ $NOVEDIR == "" ]
+	if [ "$NOVEDIR" == "" ]
 	then
-		NOVEDIR = $DEFAULT_NOVEDIR
+		NOVEDIR=$DEFAULT_NOVEDIR
 	fi
 
 	echo "Cambie, o deje vacio, el directorio de grabación de los archivos de llamadas aceptadas ($DEFAULT_ACEPDIR):"
 	read ACEPDIR
-	if [ $ACEPDIR == "" ]
+	if [ "$ACEPDIR" == "" ]
 	then
-		ACEPDIR = $DEFAULT_ACEPDIR
+		ACEPDIR=$DEFAULT_ACEPDIR
 	fi
 
 	echo "Cambie, o deje vacio, el directorio de grabación de los registros de llamadas sospechosas ($DEFAULT_PROCDIR):"
 	read PROCDIR
-	if [ $PROCDIR == "" ]
+	if [ "$PROCDIR" == "" ]
 	then
-		PROCDIR = $DEFAULT_PROCDIR
+		PROCDIR=$DEFAULT_PROCDIR
 	fi
 
 	echo "Cambie, o deje vacio, el directorio de grabación de los reportes ($DEFAULT_REPODIR):"
 	read REPODIR
-	if [ $REPODIR == "" ]
+	if [ "$REPODIR" == "" ]
 	then
-		REPODIR = $DEFAULT_REPODIR
+		REPODIR=$DEFAULT_REPODIR
 	fi
 
 	echo "Cambie, o deje vacio, el directorio para los archivos de log ($DEFAULT_LOGDIR):"
 	read LOGDIR
-	if [ $LOGDIR == "" ]
+	if [ "$LOGDIR" == "" ]
 	then
-		LOGDIR = $DEFAULT_LOGDIR
+		LOGDIR=$DEFAULT_LOGDIR
 	fi
 
 	echo "Cambie, o deje vacio, el directorio de grabación de Archivos rechazados ($DEFAULT_RECHDIR):"
 	read RECHDIR
-	if [ $RECHDIR == "" ]
+	if [ "$RECHDIR" == "" ]
 	then
-		RECHDIR = $DEFAULT_RECHDIR
+		RECHDIR=$DEFAULT_RECHDIR
 	fi
 
 	echo "Cambie, o deje vacio, espacio mínimo libre para la recepción de archivos de llamadas en Mbytes ($DEFAULT_DATASIZE):"
 	read DATASIZE
-	if [ $DATASIZE == "" ]
+	if [ "$DATASIZE" == "" ]
 	then
-		DATASIZE = $DEFAULT_DATASIZE
+		DATASIZE=$DEFAULT_DATASIZE
 	fi
-	verificarEspacioEnDisco
 
 	echo "Cambie, o deje vacio, el tamaño máximo para cada archivo de log en Kbytes ($DEFAULT_LOGSIZE):"
 	read LOGSIZE
-	if [ $LOGSIZE == "" ]
+	if [ "$LOGSIZE" == "" ]
 	then
-		LOGSIZE = $DEFAULT_LOGSIZE
+		LOGSIZE=$DEFAULT_LOGSIZE
 	fi
 
 	echo "Cambie, o deje vacio, el nombre para la extensión de los archivos de log ($DEFAULT_LOGEXT):"
 	read LOGEXT
-	if [ $LOGEXT == "" ]
+	if [ "$LOGEXT" == "" ]
 	then
-		LOGEXT = $DEFAULT_LOGEXT
+		LOGEXT=$DEFAULT_LOGEXT
 	fi
 }
 
@@ -176,42 +157,47 @@ function instalacion(){
 	mkdir --parents "$BINDIR" "$MAEDIR" "$NOVEDIR" "$ACEPDIR" "$PROCDIR" "$REPODIR" "$LOGDIR" "$RECHDIR"	
 	echo "-Directorios creados"
 
+	verificarEspacioEnDisco
 	generateFileConfiguracion
 	moverFiles
 }
 
 function generateFileConfiguracion(){
 	echo "-Guardando configuracion del sistema..."
-	echo "GRUPO=$GRUPO=$USER=$(date '+%d/%m/%Y %H:%M:%S')" > $CONFDIR/AFINSTALL.cnfg
-	echo "BINDIR=$BINDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
-	echo "MAEDIR=$MAEDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
-	echo "NOVEDIR=$NOVEDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
-	echo "ACEPDIR=$ACEPDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
-	echo "PROCDIR=$PROCDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
-	echo "REPODIR=$REPODIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
-	echo "LOGDIR=$LOGDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
-	echo "RECHDIR=$RECHDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
-	echo "DATASIZE=$DATASIZE=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
-	echo "LOGSIZE=$LOGSIZE=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
-	echo "LOGEXT=$LOGEXT=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $CONFDIR/AFINSTALL.cnfg
+	echo "GRUPO=$GRUPO=$USER=$(date '+%d/%m/%Y %H:%M:%S')" > $DEFAULT_CONFDIR/AFINSTAL.cnfg
+	echo "BINDIR=$BINDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $DEFAULT_CONFDIR/AFINSTAL.cnfg
+	echo "MAEDIR=$MAEDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $DEFAULT_CONFDIR/AFINSTAL.cnfg
+	echo "NOVEDIR=$NOVEDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $DEFAULT_CONFDIR/AFINSTAL.cnfg
+	echo "ACEPDIR=$ACEPDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $DEFAULT_CONFDIR/AFINSTAL.cnfg
+	echo "PROCDIR=$PROCDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $DEFAULT_CONFDIR/AFINSTAL.cnfg
+	echo "REPODIR=$REPODIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $DEFAULT_CONFDIR/AFINSTAL.cnfg
+	echo "LOGDIR=$LOGDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $DEFAULT_CONFDIR/AFINSTAL.cnfg
+	echo "RECHDIR=$RECHDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $DEFAULT_CONFDIR/AFINSTAL.cnfg
+	echo "DATASIZE=$DATASIZE=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $DEFAULT_CONFDIR/AFINSTAL.cnfg
+	echo "LOGSIZE=$LOGSIZE=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $DEFAULT_CONFDIR/AFINSTAL.cnfg
+	echo "LOGEXT=$LOGEXT=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $DEFAULT_CONFDIR/AFINSTAL.cnfg
 	echo "-Configuracion guardada."
 }
 
 function moverFiles(){
 	echo "-Moviendo archivos..."
+	#Movientos de ejecutables
 	MoverA $DEFAULT_BINDIR/MoverA.sh $BINDIR/MoverA.sh
 	MoverA $DEFAULT_BINDIR/GraLog.sh $BINDIR/GraLog.sh
 	MoverA $DEFAULT_BINDIR/AFREC.sh $BINDIR/AFREC.sh
 	MoverA $DEFAULT_BINDIR/AFINI.sh $BINDIR/AFINI.sh
-	MoverA $GRUPO/data/archivoDeLlamadasSospechosas $MAEDIR/archivoDeLlamadasSospechosas
-	MoverA $GRUPO/data/BEL_20150703 $MAEDIR/BEL_20150703
-	MoverA $GRUPO/data/BEL_20150803 $MAEDIR/BEL_20150803
-	MoverA $GRUPO/data/co_central.rech $MAEDIR/co_central.rech
-	MoverA $GRUPO/data/COS_20150703 $MAEDIR/COS_20150703
-	MoverA $GRUPO/data/COS_20150803 $MAEDIR/COS_20150803
-	MoverA $GRUPO/data/SIS_20150703.csv $MAEDIR/SIS_20150703.csv
-	MoverA $GRUPO/data/SIS_20150803.csv $MAEDIR/SIS_20150803.csv
-	echo "-Archivos movidos" #TODO ajustar a donde hay que mover todos esos archivos
+	MoverA $DEFAULT_BINDIR/AFUMB.sh $BINDIR/AFUMB.sh
+	MoverA $DEFAULT_BINDIR/ARRANCAR.sh $BINDIR/ARRANCAR.sh
+	MoverA $DEFAULT_BINDIR/DETENER.sh $BINDIR/DETENER.sh
+	MoverA $DEFAULT_BINDIR/AFLIST.pl $BINDIR/AFLIST.pl
+	#Moviento de archivos maestros
+	MoverA $GRUPO/master/CdA $MAEDIR/CdA
+	MoverA $GRUPO/master/CdC $MAEDIR/CdC
+	MoverA $GRUPO/master/CdP $MAEDIR/CdP
+	MoverA $GRUPO/master/tllama.tab $MAEDIR/tllama.tab
+	MoverA $GRUPO/master/umbral.tab $MAEDIR/umbral.tab
+	MoverA $GRUPO/master/agentes $MAEDIR/agentes
+	echo "-Archivos movidos"
 }
 
 function usuarioContinuar(){
@@ -277,11 +263,29 @@ function detectarInstalacion(){
 	if [ -e "$DEFAULT_CONFDIR/AFINSTAL.cnfg" ]
 	then
 		echo "Ya existe una version instalada de AFRA-J."
-		#levantarValoresDelCNFG
-		verificarInstalacionCompleta		
+		levantarValoresDelCNFG
+		LISTA="A Modificar"
+		verificarInstalacionCompleta
+	else
+		LISTA="Pendiente"		
 	fi
 	#Chequear que Perl este instalado.
 	verificarPerl
+}
+
+# cargo los valores del archivo de configuracion
+#
+function levantarValoresDelCNFG(){
+	oldIFS=$IFS
+	IFS=$'\n'
+	# Seteo de variables de ambiente desde el archivo
+	for linea in $(< "conf/AFINSTAL.cnfg")
+	do
+		nombre_var=`echo $linea | cut -d "=" -f1`
+		valor=`echo $linea | cut -d "=" -f2`
+		export $nombre_var=$valor
+	done
+	IFS=$oldIFS
 }
 
 # verificar si la instalacion esta completa.
@@ -289,14 +293,11 @@ function detectarInstalacion(){
 function verificarInstalacionCompleta(){
 
 	imprimirConfiguracion
-	echo "Desea completar la instalacion? (Si/No)"
-	read INPUT_USUARIO	
-
-	if [ "$INPUT_USUARIO" == "n" ]
-	then
-		echo "Fin de la instalacion"
-		exit 1
-	fi
+	echo "Desea modificar la instalacion? (Si/No)"
+	read INPUT_USUARIO
+	
+	# Validar Si el usuario desea continuar. 
+	usuarioContinuar $INPUT_USUARIO "Siguiente..."
 }
 
 #verificar si hay suficiente espacio en disco para las novedades
@@ -316,6 +317,8 @@ function verificarEspacioEnDisco(){
 function verificarPerl(){
 
 	echo "(logInfo) step 4: Verificando que Perl este instaldo."
+	echo "(logInfo) Perl version: " $PERL_VERSION
+	echo "(logInfo) Switch version: " $SWITCH_VERSION
 	#Hacemos instalar perl si no estaba
 	if [ $PERL_VERSION -lt "5" -o $SWITCH_VERSION -lt "2" ]
 	then
@@ -407,7 +410,7 @@ then
 	
 	exit 1
 else
-	if [ "$CMD_INSTALL" == "--help" || "$CMD_INSTALL" == "-h" ]
+	if [ "$CMD_INSTALL" == "--help" ] || [ "$CMD_INSTALL" == "-h" ]
 	then
 		echo "TODO aca van las cosas del help y otras yerbas"
 	else
