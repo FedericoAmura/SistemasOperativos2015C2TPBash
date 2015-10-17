@@ -1,34 +1,13 @@
 #!/bin/bash
 #
-####################################### AFUMB ##########################################################################
-#                                                                                                                      #
-# Parámetros entrada:  (LISTA_ARCH_ACEP, MAE_COD_PAIS, MAE_COD_AREA_ARG, MAE_CENTRAL, MAE_AGENTES, TAB_TIPO_LLAMADAS,  #
-#	                TAB_UMB_CONS)                                                                                  #
-# Parámetros salida:   (ARCH_LLAM_SOSP, ARCH_PROC, ARCH_REG_RECH, ARCH_RECH, LOG_COMANDO                               # #	                                                                                                               #
-# LISTA_ARCH_ACEP: Archivos de llamadas aceptadas                                                                      #
-# MAE_COD_PAIS: Maestro de códigos de país.                                                                            #
-# MAE_COD_AREA_ARG: Maestro de códigos de área de Argentina.                                                           #
-# MAE_CENTRAL: Maestro de centrales.                                                                                   #
-# MAE_AGENTES: Maestro de Agentes.                                                                                     #
-# TAB_TIPO_LLAMADAS: Tabla de tipos de llamadas.                                                                       #
-# TAB_UMB_CONS: Tabla de umbrales de consumo.                                                                          #
-# ARCH_LLAM_SOS: Archivos de llamadas sospechosas.                                                                     #
-# ARCH_PROC: Archivos procesados.                                                                                      #
-# ARCH_REG_RECH: Archivos de registros rechazados.                                                                     #
-# ARCH_RECH: Archivos rechazados.                                                                                      #
-# LOG_COMANDO: Log del comando                                                                                         #
-#                                                                                                                      #
-########################################################################################################################
-
-
 # Variables / Constantes
 # ==============================================================================================
 #NOVEDIR=$PWD/acep #Modificar por el valor correcto. 
 MAEDIR=$PWD/master #Modificar por el valor correcto. 
 
-source ./bin/MoverA.sh
-source ./bin/GraLog.sh
-LOGDIR="$PWD/log"
+source ./MoverA.sh
+source ./GraLog.sh
+LOGDIR="../log"
 LOGSIZE=100
 LOGEXT=log
 
@@ -57,9 +36,9 @@ TAB_UMB_CONS=$7
 #DIRECTORIO_ACEP=$ACEPDIR #Obtengo el directorio donde se almacenan los archivos aceptados.
 #DIRECTORIO_PROC=$PROCDIR #Obtengo el directorio donde se almacena los archivos procesados
 #DIRECTORIO_RECH=$RECHDIR #Obtnego el directorio de archivos rechazados.
-DIRECTORIO_ACEP="$PWD/acep" #TODO- borrar es solo para probar.
-DIRECTORIO_PROC="$PWD/proc" #TODO- borrar es solo para probar.
-DIRECTORIO_RECH="$PWD/rech" #TODO- borrar es solo para probar.
+DIRECTORIO_ACEP="../acep" #TODO- borrar es solo para probar.
+DIRECTORIO_PROC="../proc" #TODO- borrar es solo para probar.
+DIRECTORIO_RECH="../rech" #TODO- borrar es solo para probar.
 
 # Funciones
 #=================================================================================================
@@ -194,7 +173,7 @@ validarCodPais() {
 	
 	EXISTE_COD_AREA_PAIS=$(grep -w "$1" "$MAE_COD_PAIS") 
 	COD_AREA_PAIS_ENC=$(echo "$EXISTE_COD_AREA_PAIS" | cut -d ';' -f1)
-	if [ $COD_AREA_PAIS -ne $COD_AREA_PAIS_ENC ] 
+	if [ "$COD_AREA_PAIS" != "$COD_AREA_PAIS_ENC" ] 
 	then
 		GraLog AFUMB INFO "Codigo pais invalido: $COD_AREA_PAIS"
 		echo 1
@@ -404,8 +383,10 @@ function determinarLlamadasSospechosas(){
 	#ARCHIVO_DE_LLAMADAS=$1
 	IFS_OLD=$IFS
 	IFS=";"
-	# Para generar un nombre de un archivo
-	DATE=`date +%Y-%m-%d`
+	ARCHIVO=$2
+
+	ID_CENTRAL=$(echo "$ARCHIVO" | cut -d '_' -f 1)
+	FECHA_ARCHIVO=$(echo "$ARCHIVO" | cut -d '_' -f 2)
 
 	# Notacion UM: umbral			
 	#	   CO: codigo
@@ -424,8 +405,21 @@ function determinarLlamadasSospechosas(){
 	LL_NU_LINEA_A=$(echo "$LLAMADA" | cut -d';' -f5) #parche
 	LL_CO_PAIS_B=$(echo "$LLAMADA" | cut -d';' -f6) 
 	LL_CO_AREA_B=$(echo "$LLAMADA" | cut -d';' -f7) 
-	LL_NU_LINEA_B=$(echo "$LLAMADA" | cut -d';' -f8) 
-	#echo "valores de una llamada: $LL_NU_AREA $LL_NU_LINEA_A $LL_CO_PAIS_B $LL_NU_LINEA_B"
+	LL_NU_LINEA_B=$(echo "$LLAMADA" | cut -d';' -f8)
+
+
+	#BUSCAR POR CADA LLAMADA LA OFICINA SEGUN EL AGENTE
+	REGISTRO_AGENTE=$(grep "$LL_ID_AGENTE" "$MAE_AGENTES") 
+	OFICINA=$(echo "$REGISTRO_AGENTE" | cut -d';' -f4)  
+	
+	#armar la fecha del nombre del archivo
+	FECHA_LLAMADA=$(echo "$LL_FECHA" | cut -d' ' -f1)
+	#echo "LL_FECHA $LL_FECHA"
+	#echo "FECHA_LLAMADA $FECHA_LLAMADA"
+	ANIOLLAMADA=$(echo "$FECHA_LLAMADA" | cut -d'/' -f3)
+	#echo "ANIOLLAMADA $ANIOLLAMADA"
+	MESLLAMADA=$(echo "$FECHA_LLAMADA" | cut -d'/' -f2)
+	#echo "MESLLAMADA $MESLLAMADA"
 
 	# Por cada llamada. Busco en el umbral y clasifico.
 	#	
@@ -434,9 +428,7 @@ function determinarLlamadasSospechosas(){
 	
 	# Registros a procesar en un archivo temporal.
 	grep $LL_NU_LINEA_A $MAEDIR/umbral.tab >> temporal_umbral #CAmbiar por la linea de arriba.
-	#grep "4314928" $MAEDIR/umbral.tab >> temporal_umbral #TEMP: ELIMINAR.
 	
-
 	if [ $CANT_REGISTROS -eq 0  ] 
 	then
 		#echo "La llamada $LL_NU_LINEA_A no se encuentra en la lista de umbrales, contabilizar."
@@ -464,7 +456,8 @@ function determinarLlamadasSospechosas(){
 				if [ "$UM_ESTADO" = "Activo" ] && [ $UM_CO_AREA_ORIGEN = $LL_NU_AREA ] && [ $UM_NU_ORIGEN = $LL_NU_LINEA_A ] && [ -z $UM_CO_DESTINO  ] && [ $UM_TOPE -lt $LL_TIEMPO_CONVERSACION ] #FIXME: Falta chequear cuando un valor es nulo $UM_CO_DESTINO
 					then 												
 					# Guardo la llamada como sospechosa.
-					echo "$LL_ID_AGENTE;$LL_FECHA;$LL_TIEMPO_CONVERSACION;$LL_NU_AREA;$LL_NU_LINEA_A; ;$LL_CO_AREA_B;$LL_NU_LINEA_B" >> $DIRECTORIO_PROC/COS_${DATE}
+					#echo " AGENTE: $LL_ID_AGENTE OFICINA: $OFICINA"
+					echo $ID_CENTRAL";"$LL_ID_AGENTE";"$UM_ID";"$UM_TI_LLAMADA";"$LL_FECHA";"$LL_TIEMPO_CONVERSACION";"$LL_NU_AREA";"$LL_NU_LINEA_A";"$LL_CO_PAIS_B";"$LL_CO_AREA_B";"$LL_NU_LINEA_B";"$FECHA_ARCHIVO>> $DIRECTORIO_PROC/$OFICINA"_"$ANIOLLAMADA$MESLLAMADA
 					CANT_LLAM_SOSPECHOSAS=$(($CANT_LLAM_SOSPECHOSAS+1))
 
 				else # No es una llamada sospechosa
@@ -477,7 +470,7 @@ function determinarLlamadasSospechosas(){
 				if [ $UM_ESTADO = "Activo" ] && [ $UM_CO_AREA_ORIGEN = $LL_NU_AREA ] && [ $UM_NU_ORIGEN = $LL_NU_LINEA_A ] && [ -z $UM_CO_DESTINO ] && [ $UM_TOPE -lt $LL_TIEMPO_CONVERSACION ] #FIXME: Como en el caso
 					then
 					# Guardo la llamada como sospechosa.
-					echo "$LL_ID_AGENTE;$LL_FECHA;$LL_TIEMPO_CONVERSACION;$LL_NU_AREA;$LL_NU_LINEA_A;$LL_CO_PAIS_B; ;$LL_NU_LINEA_B" >> $DIRECTORIO_PROC/COS_${DATE}
+					echo $ID_CENTRAL";"$LL_ID_AGENTE";"$UM_ID";"$UM_TI_LLAMADA";"$LL_FECHA";"$LL_TIEMPO_CONVERSACION";"$LL_NU_AREA";"$LL_NU_LINEA_A";"$LL_CO_PAIS_B";"$LL_CO_AREA_B";"$LL_NU_LINEA_B";"$FECHA_ARCHIVO>> $DIRECTORIO_PROC/$OFICINA"_"$ANIOLLAMADA$MESLLAMADA
 					CANT_LLAM_SOSPECHOSAS=$(($CANT_LLAM_SOSPECHOSAS+1))
 				else # No es una llamada sospechosa
 					CANT_LLAM_NO_SOSPECHOSAS=$(($CANT_LLAM_NO_SOSPECHOSAS+1))	
@@ -555,7 +548,7 @@ do
 		if [ $validaRegistro -eq  0 ]
 		then
 			#PROCESO PARA DETERMINAR SI LA LLAMADA ES SOSPECHOSA			
-			determinarLlamadasSospechosas "$linea"
+			determinarLlamadasSospechosas "$linea" "$FILE"
 
 		else 
 			#PROCESO PARA RECHAZAR REGISTRO
