@@ -334,13 +334,14 @@ sub f_1_central_cantidad_llam_sosp
 			push (@input_periodos_validos, $_);
 		}
 	}
-	my @archivos = &getArchivosDir("./proc/");
+	my @archivos = &getArchivosDir("$ENV{'PROCDIR'}");
 
     foreach (@archivos){
 	 	next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
 	 	print "procesando...". $_ ."\n";
+	 	sleep 1;
 
-		open (ENT,"<./proc/".$_) || die "Error: No se pudo abrir ".$_ ."\n";
+		open (ENT,"<$ENV{'PROCDIR'}/".$_) || die "Error: No se pudo abrir ".$_ ."\n";
 	    while (my $linea = <ENT>){
 			chomp($linea);	
 			@reg=split(";",$linea);
@@ -348,11 +349,12 @@ sub f_1_central_cantidad_llam_sosp
 				$centrales{$reg[0]}+=1; 
 			}
 			if ($input_llam_seg == "2"){ # filtro por cantidad de segundos
-				$centrales{$reg[0]}+=$reg[4];
+				$centrales{$reg[0]}+=$reg[5];
 			}
 		}
         close (ENT);
     }#foreach
+    print "\n";
 
     my $fecha = &getDate;
     my @rank_centrales = sort { $centrales{$b} <=> $centrales{$a} } keys %centrales;
@@ -364,6 +366,7 @@ sub f_1_central_cantidad_llam_sosp
 
  		foreach (@rank_centrales){
  			print SAL $id_centrales{$_}.";".$centrales{$_}."\n";
+ 			print $id_centrales{$_}.";".$centrales{$_} ."\n";
  		}
 
  		print "se genero estad_".$fecha.".csv\n";
@@ -398,29 +401,31 @@ sub f_2_ofi_cantidad_llam_sosp
 			push @input_periodos_validos, $_;
 		}
 	}
-	my @archivos = &getArchivosDir("./proc/");
+	my @archivos = &getArchivosDir("$ENV{'PROCDIR'}");
 
     foreach (@archivos){
 	 	next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
 	 	print "procesando...". $_ ."\n";
-		
-		@info_oficina = split("_",$_);
-	 	
-	 	if ($input_llam_seg == "1"){ #filtro por cantidad de llamadas
-			$oficinas{$info_oficina[0]}+=1; 
-			next;
-		}
+		sleep 1;
 
-		open (ENT,"<./proc/".$_) || die "Error: No se pudo abrir ".$_ ."\n";
+		@info_oficina = split("_",$_);	 	
+
+		open (ENT,"<$ENV{'PROCDIR'}/".$_) || die "Error: No se pudo abrir ".$_ ."\n";
 	    while (my $linea = <ENT>){
 			chomp($linea);	
 			@reg=split(";",$linea);
+
+			if ($input_llam_seg == "1"){ #filtro por cantidad de llamadas
+				$oficinas{$info_oficina[0]}+=1; 
+				next;
+			}
 			if ($input_llam_seg == "2"){ # filtro por cantidad de segundos
-				$oficinas{$info_oficina[0]}+=$reg[4]; 	
+				$oficinas{$info_oficina[0]}+=$reg[5]; 	
 			}
 		}
         close (ENT);
     }#foreach
+    print "\n";
 
     my $fecha = getDate;
     my @rank_oficinas = sort { $oficinas{$b} <=> $oficinas{$a} } keys %oficinas;
@@ -430,6 +435,7 @@ sub f_2_ofi_cantidad_llam_sosp
 
  		foreach (@rank_oficinas){
  			print SAL $_.";".$oficinas{$_}."\n";
+ 			print $_.";".$oficinas{$_}."\n";
  		}
 
  		print "se genero estad_".$fecha.".csv\n";
@@ -486,6 +492,7 @@ sub f_3_agente_cantidad_llam_sosp
 	{
 	 next unless ($archivos =~ /$input_periodo\.csv$/);
 	 print "procesando...". $archivos ."\n";
+	 sleep 1;
 
 		open (ENT,"<./proc/".$archivos) || die "Error: No se pudo abrir ".$archivos ."\n";
 	    while (<ENT>)
@@ -535,12 +542,146 @@ sub f_3_agente_cantidad_llam_sosp
 
 sub f_4_destino_llam_sospechosa
 {
-	print "llamando..f_4_destino_llam_sospechosa\n";
+	my %destinosInter;
+	my %destinosNac;
+	print "\n";
+	print "llamando..f_4_destino_llam_sosp\n";
+	print "Destino con mayor cantidad de llamadas sospechosas\n";
+
+	# El usuario puede ingresar uno ó  más períodos
+	my @input_periodos = &definir_aniomes;
+	my @input_periodos_validos;
+	foreach (@input_periodos){
+		if (&validarFecha($_) > 0){
+			push (@input_periodos_validos, $_);
+		}
+	}
+	my @archivos = &getArchivosDir("$ENV{'PROCDIR'}");
+
+    foreach (@archivos){
+	 	next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
+	 	print "procesando...". $_ ."\n";
+		sleep 1;
+
+		open (ENT,"<$ENV{'PROCDIR'}/".$_) || die "Error: No se pudo abrir ".$_ ."\n";
+	    while (my $linea = <ENT>){
+			chomp($linea);	
+			my @reg=split(";",$linea);
+			my $tipo_llam = $reg[3];
+			my $cod_pais_dest = $reg[8];
+			my $cod_area_dest = $reg[9];
+			
+			if ($tipo_llam eq "DDI" && $cod_pais_dest ne ""){ 
+				$destinosInter{$cod_pais_dest} += 1;
+			
+			}else{
+				if ($cod_area_dest ne ""){
+					$destinosNac{$cod_area_dest} += 1;
+				}
+			}
+		}
+        close (ENT);
+    }#foreach
+    print "\n";
+
+    my $fecha = &getDate;
+    
+    my @rank_dest_inter = sort { $destinosInter{$b} <=> $destinosInter{$a} } keys %destinosInter;
+    my @rank_dest_nac = sort { $destinosNac{$b} <=> $destinosNac{$a} } keys %destinosNac;
+    
+    my %id_dest_paises = cargarCodigosDePais;
+    my %id_dest_regiones = cargarCodigosDeArea;
+
+
+    if ($file eq 1){
+ 		open (SAL,">estad_".$fecha.".csv");
+
+ 		print SAL "Destinos internacionales con mayor cantidad de llamadas sospechosas:\n";
+ 		foreach (@rank_dest_inter){
+ 			print SAL $_.";".$id_dest_paises{$_}.";".$destinosInter{$_}."\n";
+ 			print $_.";".$id_dest_paises{$_}.";".$destinosInter{$_}."\n";
+ 		}
+
+ 		print SAL "Destinos nacionales con mayor cantidad de llamadas sospechosas:\n";
+ 		foreach (@rank_dest_nac){
+ 			print SAL $_.";".$id_dest_regiones{$_}.";".$destinosNac{$_}."\n";
+ 			print $_.";".$id_dest_regiones{$_}.";".$destinosNac{$_}."\n";
+ 		}
+
+ 		print "se genero estad_".$fecha.".csv\n";
+	    close (SAL);
+    }else{
+
+		print "Destinos internacionales con mayor cantidad de llamadas sospechosas:\n";
+		foreach (@rank_dest_inter){
+			print $_.";".$id_dest_paises{$_}.";".$destinosInter{$_}."\n";
+		}
+		print "\n";
+		print "Destinos nacionales con mayor cantidad de llamadas sospechosas:\n";
+		foreach (@rank_dest_nac){
+			print $_.";".$id_dest_regiones{$_}.";".$destinosNac{$_}."\n";
+		}
+    }
 }
 
+
 sub f_5_ranking_umbrales
-{
+{	
+	my %umbrales;
+	print "\n";
 	print "llamando..f_5_ranking_umbrales\n";
+	print "Umbrales con mayor cantidad de llamadas sospechosas\n";
+
+	# El usuario puede ingresar uno ó  más períodos
+	my @input_periodos = &definir_aniomes;
+	my @input_periodos_validos;
+	foreach (@input_periodos){
+		if (&validarFecha($_) > 0){
+			push (@input_periodos_validos, $_);
+		}
+	}
+	my @archivos = &getArchivosDir("$ENV{'PROCDIR'}");
+
+    foreach (@archivos){
+	 	next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
+	 	print "procesando...". $_ ."\n";
+	 	sleep 1;
+
+		open (ENT,"<$ENV{'PROCDIR'}/".$_) || die "Error: No se pudo abrir ".$_ ."\n";
+	    while (my $linea = <ENT>){
+			chomp($linea);	
+			@reg=split(";",$linea);
+			$umbrales{$reg[2]} += 1;
+		}
+        close (ENT);
+    }#foreach
+    print "\n";
+
+    my $fecha = &getDate;
+    my @rank_umbrales = sort { $umbrales{$b} <=> $umbrales{$a} } keys %umbrales;
+
+
+    if ($file eq 1){
+ 		open (SAL,">estad_".$fecha.".csv");
+
+ 		foreach (@rank_umbrales){
+ 			if ($umbrales{$_} > 1){
+ 				print SAL $_.";".$umbrales{$_}."\n";
+
+ 				print $_.";".$umbrales{$_}."\n";
+ 			}
+ 			
+ 		}
+ 		print "se genero estad_".$fecha.".csv\n";
+	    close (SAL);
+    }else{
+    	foreach (@rank_umbrales){
+    		if ($umbrales{$_} > 1){
+				print $_.";".$umbrales{$_}."\n";
+ 			}
+ 		}
+    }
+
 }
 
 #subrutinas generales
@@ -559,7 +700,7 @@ sub presione_tecla_para_continuar {
 sub cargarCodigosDePais(){
 	my (%hash_CdP);
 	my (@registro);
-	open(ENTRADA,"<master/CdP") || die "ERROR: No se encontró archivo maestro CdP.\n";
+	open(ENTRADA,"<$ENV{'MAEDIR'}/CdP") || die "ERROR: No se encontró archivo maestro CdP.\n";
 
 	while (my $linea = <ENTRADA>){
 		chomp($linea);
@@ -574,7 +715,7 @@ sub cargarCodigosDePais(){
 sub cargarCodigosDeArea(){
 	my (%hash_CdA);
 	my (@registro);
-	open(ENTRADA,"<master/CdA") || die "ERROR: No se encontró archivo maestro CdA.\n";
+	open(ENTRADA,"<$ENV{'MAEDIR'}/CdA") || die "ERROR: No se encontró archivo maestro CdA.\n";
 
 	while (my $linea = <ENTRADA>){
 		chomp($linea);
@@ -589,7 +730,7 @@ sub cargarCodigosDeArea(){
 sub cargarCodigosDeCentrales(){
 	my (%hash_CdC);
 	my (@registro);
-	open(ENTRADA,"<master/CdC") || die "ERROR: No se encontró archivo maestro CdC.\n";
+	open(ENTRADA,"<$ENV{'MAEDIR'}/CdC") || die "ERROR: No se encontró archivo maestro CdC.\n";
 
 	while (my $linea = <ENTRADA>){
 		chomp($linea);
@@ -603,7 +744,7 @@ sub cargarCodigosDeCentrales(){
 sub cargarCodigosDeAgentes(){
 	my (%hash_agentes);
 	my (@info_agentes);
-	open(ENTRADA,"<master/agentes") || die "ERROR: No se encontró archivo maestro agentes.\n";
+	open(ENTRADA,"<$ENV{'MAEDIR'}/agentes") || die "ERROR: No se encontró archivo maestro agentes.\n";
 
 	while (my $linea = <ENTRADA>){
 		chomp($linea);

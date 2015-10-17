@@ -54,7 +54,7 @@ sub cargarCodigosDeAgentes(){
 	while (my $linea = <ENTRADA>){
 		chomp($linea);
 		@info_agentes = split(";",$linea); 
-		$hash_agentes{$info_agentes[0]} = @info_agentes;
+		$hash_agentes{$info_agentes[2]} = @info_agentes;
 	}
 	return %hash_agentes;
 }
@@ -96,7 +96,7 @@ sub f_1_central_cantidad_llam_sosp
 				$centrales{$reg[0]}+=1; 
 			}
 			if ($input_llam_seg == "2"){ # filtro por cantidad de segundos
-				$centrales{$reg[0]}+=$reg[4];
+				$centrales{$reg[0]}+=$reg[5];
 			}
 		}
         close (ENT);
@@ -112,6 +112,7 @@ sub f_1_central_cantidad_llam_sosp
 
  		foreach (@rank_centrales){
  			print SAL $id_centrales{$_}.";".$centrales{$_}."\n";
+ 			print $id_centrales{$_}.";".$centrales{$_} ."\n";
  		}
 
  		print "se genero estad_".$fecha.".csv\n";
@@ -154,21 +155,22 @@ sub f_2_ofi_cantidad_llam_sosp
 
 		@info_oficina = split("_",$_);
 
-	 	if ($input_llam_seg == "1"){ #filtro por cantidad de llamadas
-			$oficinas{$info_oficina[0]}+=1; 
-			next;
-		}
-
 		open (ENT,"<./proc/".$_) || die "Error: No se pudo abrir ".$_ ."\n";
 	    while (my $linea = <ENT>){
 			chomp($linea);	
 			@reg=split(";",$linea);
+
+			if ($input_llam_seg == "1"){ #filtro por cantidad de llamadas
+				$oficinas{$info_oficina[0]}+=1; 
+				next;
+			}
 			if ($input_llam_seg == "2"){ # filtro por cantidad de segundos
-				$oficinas{$info_oficina[0]}+=$reg[4]; 	
+				$oficinas{$info_oficina[0]}+=$reg[5]; 	
 			}
 		}
         close (ENT);
     }#foreach
+    print "\n";
 
     my $fecha = getDate;
     my @rank_oficinas = sort { $oficinas{$b} <=> $oficinas{$a} } keys %oficinas;
@@ -189,12 +191,13 @@ sub f_2_ofi_cantidad_llam_sosp
     }
 }
 
-sub f_4_destino_llam_sospechosa{
+sub f_3_agente_cantidad_llam_sosp
+{
 	my $input_llam_seg = $_[0];
-	my %centrales;
+	my %agentes;
 	print "\n";
-	print "llamando..f_1_central_cantidad_llam_sosp\n";
-	print "Centrales con mayor cantidad de llamadas sospechosas\n";
+	print "llamando..f_3_agente_cantidad_llam_sosp\n";
+	print "Agentes con mayor cantidad de llamadas sospechosas\n";
 	if ($_[0] == "1"){
 		print "con filtro por cantidad de llamadas\n";
 	}
@@ -221,34 +224,178 @@ sub f_4_destino_llam_sospechosa{
 			chomp($linea);	
 			@reg=split(";",$linea);
 			if ($input_llam_seg == "1"){ #filtro por cantidad de llamadas
-				$centrales{$reg[0]}+=1; 
+				$agentes{$reg[1]}+=1; 
 			}
 			if ($input_llam_seg == "2"){ # filtro por cantidad de segundos
-				$centrales{$reg[0]}+=$reg[4];
+				$agentes{$reg[1]}+=$reg[5];
 			}
 		}
         close (ENT);
     }#foreach
+    print "\n";
 
     my $fecha = &getDate;
-    my @rank_centrales = sort { $centrales{$b} <=> $centrales{$a} } keys %centrales;
-    my %id_centrales = cargarCodigosDeCentrales;
+    my @rank_agentes = sort { $agentes{$b} <=> $agentes{$a} } keys %agentes;
+    my %id_agentes = cargarCodigosDeAgentes;
 
+    #foreach (@rank_agentes){
+    print $rank_agentes[0]."\n";
+    print $id_agentes{$rank_agentes[0]}[0]."\n";
+    #}
 
     if ($file eq 1){
  		open (SAL,">estad_".$fecha.".csv");
 
- 		foreach (@rank_centrales){
- 			print SAL $id_centrales{$_}.";".$centrales{$_}."\n";
+ 		foreach (@rank_agentes){
+ 			print SAL $id_agentes{$_}[0].";".$agentes{$_}."\n";
  		}
 
  		print "se genero estad_".$fecha.".csv\n";
 	    close (SAL);
     }else{
-    	foreach (@rank_centrales){
-			print $id_centrales{$_}.";".$centrales{$_} ."\n";
+    	foreach (@rank_agentes){
+			print $id_agentes{$_}[0].";".$agentes{$_} ."\n";
  		}
     }		
+}
+
+sub f_4_destino_llam_sospechosa{
+	my %destinosInter;
+	my %destinosNac;
+	print "\n";
+	print "llamando..f_4_destino_llam_sosp\n";
+	print "Destino con mayor cantidad de llamadas sospechosas\n";
+
+	# El usuario puede ingresar uno ó  más períodos
+	my @input_periodos = &definir_aniomes;
+	my @input_periodos_validos;
+	foreach (@input_periodos){
+		if (&validarFecha($_) > 0){
+			push (@input_periodos_validos, $_);
+		}
+	}
+	my @archivos = &getArchivosDir("./proc/");
+
+    foreach (@archivos){
+	 	next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
+	 	print "procesando...". $_ ."\n";
+
+		open (ENT,"<./proc/".$_) || die "Error: No se pudo abrir ".$_ ."\n";
+	    while (my $linea = <ENT>){
+			chomp($linea);	
+			my @reg=split(";",$linea);
+			my $tipo_llam = $reg[3];
+			my $cod_pais_dest = $reg[8];
+			my $cod_area_dest = $reg[9];
+			
+			if ($tipo_llam eq "DDI" && $cod_pais_dest ne ""){ 
+				$destinosInter{$cod_pais_dest} += 1;
+			
+			}else{
+				if ($cod_area_dest ne ""){
+					$destinosNac{$cod_area_dest} += 1;
+				}
+			}
+		}
+        close (ENT);
+    }#foreach
+    print "\n";
+
+    my $fecha = &getDate;
+    
+    my @rank_dest_inter = sort { $destinosInter{$b} <=> $destinosInter{$a} } keys %destinosInter;
+    my @rank_dest_nac = sort { $destinosNac{$b} <=> $destinosNac{$a} } keys %destinosNac;
+    
+    my %id_dest_paises = cargarCodigosDePais;
+    my %id_dest_regiones = cargarCodigosDeArea;
+
+
+    if ($file eq 1){
+ 		open (SAL,">estad_".$fecha.".csv");
+
+ 		print SAL "Destinos internacionales con mayor cantidad de llamadas sospechosas:\n";
+ 		foreach (@rank_dest_inter){
+ 			print SAL $_.";".$id_dest_paises{$_}.";".$destinosInter{$_}."\n";
+ 		}
+
+ 		print SAL "Destinos nacionales con mayor cantidad de llamadas sospechosas:\n";
+ 		foreach (@rank_dest_nac){
+ 			print SAL $_.";".$id_dest_regiones{$_}.";".$destinosNac{$_}."\n";
+ 		}
+
+ 		print "se genero estad_".$fecha.".csv\n";
+	    close (SAL);
+    }else{
+
+		print "Destinos internacionales con mayor cantidad de llamadas sospechosas:\n";
+		foreach (@rank_dest_inter){
+			print $_.";".$id_dest_paises{$_}.";".$destinosInter{$_}."\n";
+		}
+		print "\n";
+		print "Destinos nacionales con mayor cantidad de llamadas sospechosas:\n";
+		foreach (@rank_dest_nac){
+			print $_.";".$id_dest_regiones{$_}.";".$destinosNac{$_}."\n";
+		}
+    }		
+}
+
+sub f_5_ranking_umbrales
+{	
+	my %umbrales;
+	print "\n";
+	print "llamando..f_5_ranking_umbrales\n";
+	print "Umbrales con mayor cantidad de llamadas sospechosas\n";
+
+	# El usuario puede ingresar uno ó  más períodos
+	my @input_periodos = &definir_aniomes;
+	my @input_periodos_validos;
+	foreach (@input_periodos){
+		if (&validarFecha($_) > 0){
+			push (@input_periodos_validos, $_);
+		}
+	}
+	my @archivos = &getArchivosDir("./proc/");
+
+    foreach (@archivos){
+	 	next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
+	 	print "procesando...". $_ ."\n";
+	 	sleep 1;
+
+		open (ENT,"<./proc/".$_) || die "Error: No se pudo abrir ".$_ ."\n";
+	    while (my $linea = <ENT>){
+			chomp($linea);	
+			@reg=split(";",$linea);
+			$umbrales{$reg[2]} += 1;
+		}
+        close (ENT);
+    }#foreach
+    print "\n";
+
+    my $fecha = &getDate;
+    my @rank_umbrales = sort { $umbrales{$b} <=> $umbrales{$a} } keys %umbrales;
+
+
+    if ($file eq 1){
+ 		open (SAL,">estad_".$fecha.".csv");
+
+ 		foreach (@rank_umbrales){
+ 			if ($umbrales{$_} > 1){
+ 				print SAL $_.";".$umbrales{$_}."\n";
+
+ 				print $_.";".$umbrales{$_}."\n";
+ 			}
+ 			
+ 		}
+ 		print "se genero estad_".$fecha.".csv\n";
+	    close (SAL);
+    }else{
+    	foreach (@rank_umbrales){
+    		if ($umbrales{$_} > 1){
+				print $_.";".$umbrales{$_}."\n";
+ 			}
+ 		}
+    }
+
 }
 
 
@@ -314,5 +461,8 @@ sub definir_aniomes
 	return @retval;
 }
 
-&f_1_central_cantidad_llam_sosp(2);
-&f_2_ofi_cantidad_llam_sosp(2);
+&f_1_central_cantidad_llam_sosp(1);
+#&f_2_ofi_cantidad_llam_sosp(1);
+#&f_3_agente_cantidad_llam_sosp(1);
+#&f_4_destino_llam_sospechosa;
+#&f_5_ranking_umbrales;
