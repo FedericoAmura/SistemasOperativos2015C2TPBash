@@ -8,41 +8,34 @@
 #	-Arbol de directorio inicial
 #
 
+#  AL EXTRAER EL PAQUETE PARA LA INSTALACION
+# =============================================================================================
 
-# Directorio:
-#
-#├── AFRA-J
-#│   ├── bin
-#│   │   ├── AFINSTAL.sh
-#│   │   ├── GraLog.sh
-#│   │   ├── MoverA.sh
-#│   │   ├── ARRANCAR.sh
-#│   │   ├── DETENER.sh
-#│   │   ├── AFINI.sh
-#│   │   ├── AFREC.sh
-#│   │   ├── AFUMB.sh
-#│   │   └── AFLIST.sh
-#│   ├── conf
-#│   ├── master
-#│   └── data
-#│       ├── agentes.csv
-#│       ├── BEL_20150703.csv
-#│       ├── BEL_20150803.csv
-#│       ├── CdA.csv
-#│       ├── CdP.csv
-#│       ├── centrales.csv
-#│       ├── COS_20150703.csv
-#│       ├── COS_20150803.csv
-#│       ├── SIS_20150703.csv
-#│       ├── SIS_20150803.csv
-#│       └── umbrales.csv
-# 
-#
-
-#MUY IMPORTANTE, MODIFICAR ESTE SIMPRE SCRIPT A GUSTO,
-#SI VEN QUE ES NECESARIO OTRA FUNCIONALIDAD, SERIA IDEAL AGREGARLA
-#
-
+# Crea el siguiente arbol de directorio:
+	#├── AFRA-J
+	#│   ├── AFINI.sh
+	#│   ├── AFINSTAL.sh
+	#│   ├── AFLIST.pl
+	#│   ├── AFREC.sh
+	#│   ├── AFUMB.sh
+	#│   ├── ARRANCAR.sh
+	#│   ├── DETENER.sh
+	#│   ├── GraLog.sh
+	#│   ├── MoverA.sh
+	#│   └── README.md
+	#│   ├── conf  #INFO: este path el usuario no lo puede modificar
+	#│   ├── data  #INFO: todos los archivos que luego de la instalacion, se mueven a $MAEDIR, $NOVEDIR, etc.
+	#│   │   ├── archivoDeLlamadasSospechosas
+	#│   │   ├── BEL_20150703
+	#│   │   ├── BEL_20150803
+	#│   │   ├── co_central.rech
+	#│   │   ├── COS_20150703
+	#│   │   ├── COS_20150803
+	#│   │   ├── SIS_20150703.csv
+	#│   │   └── SIS_20150803.csv
+	
+# INICIO SCRIPT
+# =====================================================================================
 
 #Set Name
 NOMBRE_PAQUETE_ZIP="AFRA-J.zip"
@@ -52,37 +45,35 @@ GRUPO="AFRA-J"
 
 #Set Archivos
 
-
-
 if [ "$1" == "-pack" ]
 then
 	
 	#Carpeta par contener el paquete y arbol de directorio por defecto.
 	mkdir $GRUPO
 	mkdir $GRUPO/conf
-	mkdir $GRUPO/bin
-	mkdir $GRUPO/data
+	
 
 	#Agrega todos los scripts para la instalacion.
-	cp ./bin/AFINSTAL.sh $GRUPO/bin/
+	cp ./bin/AFINSTAL.sh $GRUPO/
 
-	#Agrego el resto de los *.sh al direcorio /bin
-	cp ./bin/GraLog.sh $GRUPO/bin/
-	cp ./bin/MoverA.sh $GRUPO/bin/
-	cp ./bin/ARRANCAR.sh $GRUPO/bin/
-	cp ./bin/DETENER.sh $GRUPO/bin/
-	cp ./bin/AFINI.sh $GRUPO/bin/
-	cp ./bin/AFREC.sh $GRUPO/bin/
-	cp ./bin/AFUMB.sh $GRUPO/bin/
-	cp ./bin/AFLIST.pl $GRUPO/bin/
+	#Agrego el resto de los *.sh $GRUPO/
+	cp ./bin/AFINI.sh $GRUPO/
+	cp ./bin/AFINSTAL.sh $GRUPO/
+	cp ./bin/AFREC.sh $GRUPO/
+	cp ./bin/AFUMB.sh $GRUPO/
+	cp ./bin/ARRANCAR.sh $GRUPO/
+	cp ./bin/DETENER.sh $GRUPO/
+	cp ./bin/GraLog.sh $GRUPO/
+	cp ./bin/MoverA.sh $GRUPO/
+
+	# Archivos .pl
+	cp ./bin/aflist.pl $GRUPO/
+	cp ./bin/AFLIST.pl $GRUPO/
 
 	#Agrego el archivo readme
 	cp README.md $GRUPO/
 
-	#Agrego los documentos maestros a /data
-	cp -R master $GRUPO/
-
-	#Agrego el resto de los documentos a /data
+	# Copio toda la carpeta data
 	cp -R data $GRUPO/
 
 	#Crea archivo .zip
@@ -112,6 +103,3 @@ then
 	rm $NOMBRE_PAQUETE_ZIP
 
 fi
-
-
-

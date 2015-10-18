@@ -87,6 +87,16 @@
 # DE LAS SIGUIENTAS VARIABLES:
 	# $BINDIR, $MAEDIR, $NOVEDIR, $ACEPDIR, $PROCDIR, $REPODIR, $LOGDIR, $RECHDIR, 
 
+
+# Archivos necesarios para el funcionamiento del sistema.
+# =====================================================================================
+
+# Cargar todos los arhivos para el funcionamiento del sistema en /data, del repositorio.
+# Despues de la instalacion se mueven al directorio correspondiente.
+
+
+
+
 # NOTA: Si falta algo o algo esta mal, por favor avisen y se corrige. 
 
 
