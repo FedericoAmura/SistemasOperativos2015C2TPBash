@@ -429,16 +429,13 @@ function determinarLlamadasSospechosas(){
 	# Registros a procesar en un archivo temporal.
 	grep $LL_NU_LINEA_A $MAEDIR/umbral.tab >> temporal_umbral #CAmbiar por la linea de arriba.
 	
-	if [ $CANT_REGISTROS -eq 0  ] 
-	then
+	if [ $CANT_REGISTROS -eq 0  ]; then
 		#echo "La llamada $LL_NU_LINEA_A no se encuentra en la lista de umbrales, contabilizar."
 		CANT_LLAM_SIN_UMBRAL=$(($CANT_LLAM_SIN_UMBRAL+1))
 	
 	else
 		CANT_LLAM_CON_UMBRAL=$(($CANT_LLAM_CON_UMBRAL+1))
-		while read line
-		do	
-
+		while read line ; do	
 			UMBRAL=($line)
 			UM_ID=${UMBRAL[0]}
 			UM_CO_AREA_ORIGEN=${UMBRAL[1]}
@@ -449,28 +446,22 @@ function determinarLlamadasSospechosas(){
 			UM_ESTADO=${UMBRAL[6]}
 
 			#echo "UM_CO_DESTINO= $UM_CO_DESTINO"
-			if [ $UM_TI_LLAMADA = "DDI" ]
-			then
+			if [ $UM_TI_LLAMADA = "DDI" ]; then
 				#echo " $UM_ESTADO = Inactivo  $UM_CO_AREA_ORIGEN = $LL_NU_AREA $UM_NU_ORIGEN = $LL_NU_LINEA_A $UM_CO_DESTINO = $LL_CO_PAIS_B  $UM_CO_DESTINO  $UM_TOPE <= $LL_TIEMPO_CONVERSACION "
 				#if [ "$UM_ESTADO" = "Activo" ] && [ $UM_CO_AREA_ORIGEN = $LL_NU_AREA ] && [ $UM_NU_ORIGEN = $LL_NU_LINEA_A ] && [ -z $UM_CO_DESTINO  ] || [ $UM_CO_DESTINO = $LL_CO_PAIS_B ]  && [ $UM_TOPE -lt $LL_TIEMPO_CONVERSACION ]
-				if [ "$UM_ESTADO" = "Activo" ] && [ $UM_CO_AREA_ORIGEN = $LL_NU_AREA ] && [ $UM_NU_ORIGEN = $LL_NU_LINEA_A ] && [ -z $UM_CO_DESTINO  ] && [ $UM_TOPE -lt $LL_TIEMPO_CONVERSACION ] #FIXME: Falta chequear cuando un valor es nulo $UM_CO_DESTINO
-					then 												
-					# Guardo la llamada como sospechosa.
-					#echo " AGENTE: $LL_ID_AGENTE OFICINA: $OFICINA"
-					echo $ID_CENTRAL";"$LL_ID_AGENTE";"$UM_ID";"$UM_TI_LLAMADA";"$LL_FECHA";"$LL_TIEMPO_CONVERSACION";"$LL_NU_AREA";"$LL_NU_LINEA_A";"$LL_CO_PAIS_B";"$LL_CO_AREA_B";"$LL_NU_LINEA_B";"$FECHA_ARCHIVO>> $DIRECTORIO_PROC/$OFICINA"_"$ANIOLLAMADA$MESLLAMADA
+				if [ "$UM_ESTADO" = "Activo" ] && [ "$UM_CO_AREA_ORIGEN" = "$LL_NU_AREA" ] && [ "$UM_NU_ORIGEN" = "$LL_NU_LINEA_A" ] && [ -z "$UM_CO_DESTINO" ] || [ "$UM_CO_DESTINO" = "$LL_CO_PAIS_B" ] && [ $UM_TOPE -lt $LL_TIEMPO_CONVERSACION ]; then 												
+					# Guardo la llamada como sospechosa.					
+					#echo $ID_CENTRAL";"$LL_ID_AGENTE";"$UM_ID";"$UM_TI_LLAMADA";"$LL_FECHA";"$LL_TIEMPO_CONVERSACION";"$LL_NU_AREA";"$LL_NU_LINEA_A";"$LL_CO_PAIS_B";"$LL_CO_AREA_B";"$LL_NU_LINEA_B";"$FECHA_ARCHIVO>> $DIRECTORIO_PROC/$OFICINA"_"$ANIOLLAMADA$MESLLAMADA
 					CANT_LLAM_SOSPECHOSAS=$(($CANT_LLAM_SOSPECHOSAS+1))
 
 				else # No es una llamada sospechosa
 					CANT_LLAM_NO_SOSPECHOSAS=$(($CANT_LLAM_NO_SOSPECHOSAS+1))		
 				fi
-			elif [ $UM_TI_LLAMADA = "DDN" ] || [ $UM_TI_LLAMADA = "LOC" ]
-			then		
+			elif [ $UM_TI_LLAMADA = "DDN" ] || [ $UM_TI_LLAMADA = "LOC" ]; then		
 				#echo " $UM_ESTADO = Inactivo  $UM_CO_AREA_ORIGEN = $LL_NU_AREA $UM_NU_ORIGEN = $LL_NU_LINEA_A $UM_CO_DESTINO = $LL_CO_PAIS_B  $UM_CO_DESTINO  $UM_TOPE -lt $LL_TIEMPO_CONVERSACION "
-				#if [ $UM_ESTADO = "Activo" ] && [ $UM_CO_AREA_ORIGEN = $LL_NU_AREA ] && [ $UM_NU_ORIGEN = $LL_NU_LINEA_A ] && [ $UM_CO_DESTINO = $LL_CO_PAIS_B ] && [ ! -z $UM_CO_DESTINO ] && [ $UM_TOPE -lt $LL_TIEMPO_CONVERSACION ]
-				if [ $UM_ESTADO = "Activo" ] && [ $UM_CO_AREA_ORIGEN = $LL_NU_AREA ] && [ $UM_NU_ORIGEN = $LL_NU_LINEA_A ] && [ -z $UM_CO_DESTINO ] && [ $UM_TOPE -lt $LL_TIEMPO_CONVERSACION ] #FIXME: Como en el caso
-					then
+				if [ "$UM_ESTADO" = "Activo" ] && [ "$UM_CO_AREA_ORIGEN" = "$LL_NU_AREA" ] && [ "$UM_NU_ORIGEN" = "$LL_NU_LINEA_A" ] && [ -z "$UM_CO_DESTINO" ] || [ "$UM_CO_DESTINO" = "$LL_CO_PAIS_B" ] && [ $UM_TOPE -lt $LL_TIEMPO_CONVERSACION ]; then
 					# Guardo la llamada como sospechosa.
-					echo $ID_CENTRAL";"$LL_ID_AGENTE";"$UM_ID";"$UM_TI_LLAMADA";"$LL_FECHA";"$LL_TIEMPO_CONVERSACION";"$LL_NU_AREA";"$LL_NU_LINEA_A";"$LL_CO_PAIS_B";"$LL_CO_AREA_B";"$LL_NU_LINEA_B";"$FECHA_ARCHIVO>> $DIRECTORIO_PROC/$OFICINA"_"$ANIOLLAMADA$MESLLAMADA
+					#echo $ID_CENTRAL";"$LL_ID_AGENTE";"$UM_ID";"$UM_TI_LLAMADA";"$LL_FECHA";"$LL_TIEMPO_CONVERSACION";"$LL_NU_AREA";"$LL_NU_LINEA_A";"$LL_CO_PAIS_B";"$LL_CO_AREA_B";"$LL_NU_LINEA_B";"$FECHA_ARCHIVO>> $DIRECTORIO_PROC/$OFICINA"_"$ANIOLLAMADA$MESLLAMADA
 					CANT_LLAM_SOSPECHOSAS=$(($CANT_LLAM_SOSPECHOSAS+1))
 				else # No es una llamada sospechosa
 					CANT_LLAM_NO_SOSPECHOSAS=$(($CANT_LLAM_NO_SOSPECHOSAS+1))	
@@ -501,6 +492,7 @@ GraLog AFUMB INFO "Cantidad de archivos a procesar: $CANT_TOTAL_ARCH"
 
 for FILE in `ls $DIRECTORIO_ACEP | sort -t"_" -k1`
 do
+	#echo "archivo a procesar: $FILE"  #NOTA: para confirmar que se evaluen en orden cronológico.
 	path_origen=$DIRECTORIO_ACEP"/"$FILE
 	#GraLog AFUMB INFO "Proceso: $FILE"
 	arch=""
@@ -560,7 +552,7 @@ do
 
 	#6 - FIN DEL ARCHIVO	
 	path_destino_proc=$DIRECTORIO_PROC"/"$FILE
-	MoverA $path_origen $path_destino_proc
+	MoverA $path_origen $path_destino_proc 
 	GraLog AFUMB INFO "Archivo procesado: $FILE"
 	
 	#TOTALES A GRABAR

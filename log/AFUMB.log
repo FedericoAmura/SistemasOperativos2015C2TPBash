@@ -1,3 +1,127 @@
 #archivo de log AFUMB
 AFUMB.log - 10-06-15 22:53:54 - freddy - AFUMB - WAR - No se
 AFUMB.log - 10-06-15 22:53:54 - freddy - AFUMB - WAR - No se
+AFUMB.log - 10-18-15 01:17:24 - mauro - AFUMB - INFO - Inicio de AFUMB
+AFUMB.log - 10-18-15 01:17:24 - mauro - AFUMB - INFO - Cantidad de archivos a procesar: 2
+AFUMB.log - 10-18-15 01:17:24 - mauro - AFUMB - INFO - Archivo a procesar: BEL_20120803
+AFUMB.log - 10-18-15 01:17:35 - mauro - AFUMB - INFO - Codigo area invalido: 332
+AFUMB.log - 10-18-15 01:17:35 - mauro - AFUMB - INFO - Regisro invalido: DANIELANISMAEL 03/08/2015 02:10:04p.m. 28 11 45881031  332 7488884
+AFUMB.log - 10-18-15 01:17:35 - mauro - AFUMB - INFO - Codigo area invalido: 332
+AFUMB.log - 10-18-15 01:17:35 - mauro - AFUMB - INFO - Regisro invalido: WAITOLLERMARIO 03/08/2015 02:12:36p.m. 149 11 30540122  332 7488884
+AFUMB.log - 10-18-15 01:17:35 - mauro - AFUMB - INFO - Archivo procesado: BEL_20120803
+AFUMB.log - 10-18-15 01:17:35 - mauro - AFUMB - INFO - Cantidad de llamadas= 150: Rechazadas= 2 Con umbral= 58 Sin umbral= 90
+AFUMB.log - 10-18-15 01:17:35 - mauro - AFUMB - INFO - Cantidad de llamadas sospechosas= 8, No sospechosas= 50
+AFUMB.log - 10-18-15 01:17:35 - mauro - AFUMB - INFO - Archivo a procesar: BEL_20150703
+AFUMB.log - 10-18-15 01:35:08 - mauro - AFUMB - INFO - Inicio de AFUMB
+AFUMB.log - 10-18-15 01:35:08 - mauro - AFUMB - INFO - Cantidad de archivos a procesar: 1
+AFUMB.log - 10-18-15 01:35:08 - mauro - AFUMB - INFO - Archivo a procesar: BEL_20150703
+AFUMB.log - 10-18-15 01:35:16 - mauro - AFUMB - INFO - Archivo procesado: BEL_20150703
+AFUMB.log - 10-18-15 01:35:16 - mauro - AFUMB - INFO - Cantidad de llamadas= 99: Rechazadas= 0 Con umbral= 44 Sin umbral= 55
+AFUMB.log - 10-18-15 01:35:16 - mauro - AFUMB - INFO - Cantidad de llamadas sospechosas= 2, No sospechosas= 42
+AFUMB.log - 10-18-15 01:35:16 - mauro - AFUMB - INFO - Cantidad de archivos procesados: 1
+AFUMB.log - 10-18-15 01:35:16 - mauro - AFUMB - INFO - Cantidad de archivos rechazados: 0
+AFUMB.log - 10-18-15 01:35:16 - mauro - AFUMB - INFO - Fin de AFUMB
+AFUMB.log - 10-18-15 01:36:33 - mauro - AFUMB - INFO - Inicio de AFUMB
+AFUMB.log - 10-18-15 01:36:33 - mauro - AFUMB - INFO - Cantidad de archivos a procesar: 0
+AFUMB.log - 10-18-15 01:36:33 - mauro - AFUMB - INFO - Cantidad de archivos procesados: 0
+AFUMB.log - 10-18-15 01:36:33 - mauro - AFUMB - INFO - Cantidad de archivos rechazados: 0
+AFUMB.log - 10-18-15 01:36:33 - mauro - AFUMB - INFO - Fin de AFUMB
+AFUMB.log - 10-18-15 01:36:39 - mauro - AFUMB - INFO - Inicio de AFUMB
+AFUMB.log - 10-18-15 01:36:39 - mauro - AFUMB - INFO - Cantidad de archivos a procesar: 0
+AFUMB.log - 10-18-15 01:36:39 - mauro - AFUMB - INFO - Cantidad de archivos procesados: 0
+AFUMB.log - 10-18-15 01:36:39 - mauro - AFUMB - INFO - Cantidad de archivos rechazados: 0
+AFUMB.log - 10-18-15 01:36:39 - mauro - AFUMB - INFO - Fin de AFUMB
+AFUMB.log - 10-18-15 01:39:53 - mauro - AFUMB - INFO - Inicio de AFUMB
+AFUMB.log - 10-18-15 01:39:53 - mauro - AFUMB - INFO - Cantidad de archivos a procesar: 2
+AFUMB.log - 10-18-15 01:39:53 - mauro - AFUMB - INFO - Se rechaza el archivo por estar duplicado: BEL_20150703
+AFUMB.log - 10-18-15 01:40:01 - mauro - AFUMB - INFO - Inicio de AFUMB
+AFUMB.log - 10-18-15 01:40:01 - mauro - AFUMB - INFO - Cantidad de archivos a procesar: 1
+AFUMB.log - 10-18-15 01:40:01 - mauro - AFUMB - INFO - Archivo a procesar: BEL_20150803
+AFUMB.log - 10-18-15 01:40:12 - mauro - AFUMB - INFO - Codigo area invalido: 332
+AFUMB.log - 10-18-15 01:40:12 - mauro - AFUMB - INFO - Regisro invalido: DANIELANISMAEL 03/08/2015 02:10:04p.m. 28 11 45881031  332 7488884
+AFUMB.log - 10-18-15 01:40:12 - mauro - AFUMB - INFO - Codigo area invalido: 332
+AFUMB.log - 10-18-15 01:40:12 - mauro - AFUMB - INFO - Regisro invalido: WAITOLLERMARIO 03/08/2015 02:12:36p.m. 149 11 30540122  332 7488884
+AFUMB.log - 10-18-15 01:40:12 - mauro - AFUMB - INFO - Archivo procesado: BEL_20150803
+AFUMB.log - 10-18-15 01:40:12 - mauro - AFUMB - INFO - Cantidad de llamadas= 149: Rechazadas= 2 Con umbral= 57 Sin umbral= 90
+AFUMB.log - 10-18-15 01:40:12 - mauro - AFUMB - INFO - Cantidad de llamadas sospechosas= 8, No sospechosas= 49
+AFUMB.log - 10-18-15 01:40:12 - mauro - AFUMB - INFO - Cantidad de archivos procesados: 1
+AFUMB.log - 10-18-15 01:40:12 - mauro - AFUMB - INFO - Cantidad de archivos rechazados: 0
+AFUMB.log - 10-18-15 01:40:12 - mauro - AFUMB - INFO - Fin de AFUMB
+AFUMB.log - 10-18-15 01:40:18 - mauro - AFUMB - INFO - Inicio de AFUMB
+AFUMB.log - 10-18-15 01:40:18 - mauro - AFUMB - INFO - Cantidad de archivos a procesar: 1
+AFUMB.log - 10-18-15 01:40:19 - mauro - AFUMB - INFO - Archivo a procesar: BEL_20150803
+AFUMB.log - 10-18-15 01:40:29 - mauro - AFUMB - INFO - Codigo area invalido: 332
+AFUMB.log - 10-18-15 01:40:29 - mauro - AFUMB - INFO - Regisro invalido: DANIELANISMAEL 03/08/2015 02:10:04p.m. 28 11 45881031  332 7488884
+AFUMB.log - 10-18-15 01:40:29 - mauro - AFUMB - INFO - Codigo area invalido: 332
+AFUMB.log - 10-18-15 01:40:29 - mauro - AFUMB - INFO - Regisro invalido: WAITOLLERMARIO 03/08/2015 02:12:36p.m. 149 11 30540122  332 7488884
+AFUMB.log - 10-18-15 01:40:30 - mauro - AFUMB - INFO - Archivo procesado: BEL_20150803
+AFUMB.log - 10-18-15 01:40:30 - mauro - AFUMB - INFO - Cantidad de llamadas= 149: Rechazadas= 2 Con umbral= 57 Sin umbral= 90
+AFUMB.log - 10-18-15 01:40:30 - mauro - AFUMB - INFO - Cantidad de llamadas sospechosas= 8, No sospechosas= 49
+AFUMB.log - 10-18-15 01:40:30 - mauro - AFUMB - INFO - Cantidad de archivos procesados: 1
+AFUMB.log - 10-18-15 01:40:30 - mauro - AFUMB - INFO - Cantidad de archivos rechazados: 0
+AFUMB.log - 10-18-15 01:40:30 - mauro - AFUMB - INFO - Fin de AFUMB
+AFUMB.log - 10-18-15 01:41:09 - mauro - AFUMB - INFO - Inicio de AFUMB
+AFUMB.log - 10-18-15 01:41:09 - mauro - AFUMB - INFO - Cantidad de archivos a procesar: 1
+AFUMB.log - 10-18-15 01:41:09 - mauro - AFUMB - INFO - Archivo a procesar: BEL_20150803
+AFUMB.log - 10-18-15 01:41:20 - mauro - AFUMB - INFO - Codigo area invalido: 332
+AFUMB.log - 10-18-15 01:41:20 - mauro - AFUMB - INFO - Regisro invalido: DANIELANISMAEL 03/08/2015 02:10:04p.m. 28 11 45881031  332 7488884
+AFUMB.log - 10-18-15 01:41:20 - mauro - AFUMB - INFO - Codigo area invalido: 332
+AFUMB.log - 10-18-15 01:41:20 - mauro - AFUMB - INFO - Regisro invalido: WAITOLLERMARIO 03/08/2015 02:12:36p.m. 149 11 30540122  332 7488884
+AFUMB.log - 10-18-15 01:41:21 - mauro - AFUMB - INFO - Archivo procesado: BEL_20150803
+AFUMB.log - 10-18-15 01:41:21 - mauro - AFUMB - INFO - Cantidad de llamadas= 149: Rechazadas= 2 Con umbral= 57 Sin umbral= 90
+AFUMB.log - 10-18-15 01:41:21 - mauro - AFUMB - INFO - Cantidad de llamadas sospechosas= 8, No sospechosas= 49
+AFUMB.log - 10-18-15 01:41:21 - mauro - AFUMB - INFO - Cantidad de archivos procesados: 1
+AFUMB.log - 10-18-15 01:41:21 - mauro - AFUMB - INFO - Cantidad de archivos rechazados: 0
+AFUMB.log - 10-18-15 01:41:21 - mauro - AFUMB - INFO - Fin de AFUMB
+AFUMB.log - 10-18-15 01:42:33 - mauro - AFUMB - INFO - Inicio de AFUMB
+AFUMB.log - 10-18-15 01:42:33 - mauro - AFUMB - INFO - Cantidad de archivos a procesar: 1
+AFUMB.log - 10-18-15 01:42:33 - mauro - AFUMB - INFO - Archivo a procesar: BEL_20150803
+AFUMB.log - 10-18-15 01:42:43 - mauro - AFUMB - INFO - Codigo area invalido: 332
+AFUMB.log - 10-18-15 01:42:43 - mauro - AFUMB - INFO - Regisro invalido: DANIELANISMAEL 03/08/2015 02:10:04p.m. 28 11 45881031  332 7488884
+AFUMB.log - 10-18-15 01:42:44 - mauro - AFUMB - INFO - Codigo area invalido: 332
+AFUMB.log - 10-18-15 01:42:44 - mauro - AFUMB - INFO - Regisro invalido: WAITOLLERMARIO 03/08/2015 02:12:36p.m. 149 11 30540122  332 7488884
+AFUMB.log - 10-18-15 01:42:44 - mauro - AFUMB - INFO - Archivo procesado: BEL_20150803
+AFUMB.log - 10-18-15 01:42:44 - mauro - AFUMB - INFO - Cantidad de llamadas= 149: Rechazadas= 2 Con umbral= 57 Sin umbral= 90
+AFUMB.log - 10-18-15 01:42:44 - mauro - AFUMB - INFO - Cantidad de llamadas sospechosas= 8, No sospechosas= 49
+AFUMB.log - 10-18-15 01:42:44 - mauro - AFUMB - INFO - Cantidad de archivos procesados: 1
+AFUMB.log - 10-18-15 01:42:44 - mauro - AFUMB - INFO - Cantidad de archivos rechazados: 0
+AFUMB.log - 10-18-15 01:42:44 - mauro - AFUMB - INFO - Fin de AFUMB
+AFUMB.log - 10-18-15 01:44:32 - mauro - AFUMB - INFO - Inicio de AFUMB
+AFUMB.log - 10-18-15 01:44:32 - mauro - AFUMB - INFO - Cantidad de archivos a procesar: 1
+AFUMB.log - 10-18-15 01:44:32 - mauro - AFUMB - INFO - Archivo a procesar: BEL_20150803
+AFUMB.log - 10-18-15 01:44:43 - mauro - AFUMB - INFO - Codigo area invalido: 332
+AFUMB.log - 10-18-15 01:44:43 - mauro - AFUMB - INFO - Regisro invalido: DANIELANISMAEL 03/08/2015 02:10:04p.m. 28 11 45881031  332 7488884
+AFUMB.log - 10-18-15 01:44:43 - mauro - AFUMB - INFO - Codigo area invalido: 332
+AFUMB.log - 10-18-15 01:44:43 - mauro - AFUMB - INFO - Regisro invalido: WAITOLLERMARIO 03/08/2015 02:12:36p.m. 149 11 30540122  332 7488884
+AFUMB.log - 10-18-15 01:44:43 - mauro - AFUMB - INFO - Archivo procesado: BEL_20150803
+AFUMB.log - 10-18-15 01:44:43 - mauro - AFUMB - INFO - Cantidad de llamadas= 149: Rechazadas= 2 Con umbral= 57 Sin umbral= 90
+AFUMB.log - 10-18-15 01:44:43 - mauro - AFUMB - INFO - Cantidad de llamadas sospechosas= 8, No sospechosas= 49
+AFUMB.log - 10-18-15 01:44:43 - mauro - AFUMB - INFO - Cantidad de archivos procesados: 1
+AFUMB.log - 10-18-15 01:44:44 - mauro - AFUMB - INFO - Cantidad de archivos rechazados: 0
+AFUMB.log - 10-18-15 01:44:44 - mauro - AFUMB - INFO - Fin de AFUMB
+AFUMB.log - 10-18-15 01:45:30 - mauro - AFUMB - INFO - Inicio de AFUMB
+AFUMB.log - 10-18-15 01:45:30 - mauro - AFUMB - INFO - Cantidad de archivos a procesar: 1
+AFUMB.log - 10-18-15 01:45:30 - mauro - AFUMB - INFO - Archivo a procesar: BEL_20150803
+AFUMB.log - 10-18-15 01:45:44 - mauro - AFUMB - INFO - Codigo area invalido: 332
+AFUMB.log - 10-18-15 01:45:44 - mauro - AFUMB - INFO - Regisro invalido: DANIELANISMAEL 03/08/2015 02:10:04p.m. 28 11 45881031  332 7488884
+AFUMB.log - 10-18-15 01:45:44 - mauro - AFUMB - INFO - Codigo area invalido: 332
+AFUMB.log - 10-18-15 01:45:44 - mauro - AFUMB - INFO - Regisro invalido: WAITOLLERMARIO 03/08/2015 02:12:36p.m. 149 11 30540122  332 7488884
+AFUMB.log - 10-18-15 01:45:44 - mauro - AFUMB - INFO - Archivo procesado: BEL_20150803
+AFUMB.log - 10-18-15 01:45:44 - mauro - AFUMB - INFO - Cantidad de llamadas= 149: Rechazadas= 2 Con umbral= 57 Sin umbral= 90
+AFUMB.log - 10-18-15 01:45:44 - mauro - AFUMB - INFO - Cantidad de llamadas sospechosas= 16, No sospechosas= 68
+AFUMB.log - 10-18-15 01:45:44 - mauro - AFUMB - INFO - Cantidad de archivos procesados: 1
+AFUMB.log - 10-18-15 01:45:44 - mauro - AFUMB - INFO - Cantidad de archivos rechazados: 0
+AFUMB.log - 10-18-15 01:45:44 - mauro - AFUMB - INFO - Fin de AFUMB
+AFUMB.log - 10-18-15 01:47:56 - mauro - AFUMB - INFO - Inicio de AFUMB
+AFUMB.log - 10-18-15 01:47:56 - mauro - AFUMB - INFO - Cantidad de archivos a procesar: 1
+AFUMB.log - 10-18-15 01:47:56 - mauro - AFUMB - INFO - Archivo a procesar: BEL_20150803
+AFUMB.log - 10-18-15 01:48:10 - mauro - AFUMB - INFO - Codigo area invalido: 332
+AFUMB.log - 10-18-15 01:48:10 - mauro - AFUMB - INFO - Regisro invalido: DANIELANISMAEL 03/08/2015 02:10:04p.m. 28 11 45881031  332 7488884
+AFUMB.log - 10-18-15 01:48:10 - mauro - AFUMB - INFO - Codigo area invalido: 332
+AFUMB.log - 10-18-15 01:48:10 - mauro - AFUMB - INFO - Regisro invalido: WAITOLLERMARIO 03/08/2015 02:12:36p.m. 149 11 30540122  332 7488884
+AFUMB.log - 10-18-15 01:48:10 - mauro - AFUMB - INFO - Archivo procesado: BEL_20150803
+AFUMB.log - 10-18-15 01:48:10 - mauro - AFUMB - INFO - Cantidad de llamadas= 149: Rechazadas= 2 Con umbral= 57 Sin umbral= 90
+AFUMB.log - 10-18-15 01:48:10 - mauro - AFUMB - INFO - Cantidad de llamadas sospechosas= 8, No sospechosas= 49
+AFUMB.log - 10-18-15 01:48:10 - mauro - AFUMB - INFO - Cantidad de archivos procesados: 1
+AFUMB.log - 10-18-15 01:48:10 - mauro - AFUMB - INFO - Cantidad de archivos rechazados: 0
+AFUMB.log - 10-18-15 01:48:10 - mauro - AFUMB - INFO - Fin de AFUMB
