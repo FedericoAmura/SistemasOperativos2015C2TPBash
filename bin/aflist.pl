@@ -35,7 +35,7 @@ sub cargarCodigosDeArea(){
 sub cargarCodigosDeCentrales(){
 	my (%hash_CdC);
 	my (@registro);
-	open(ENTRADA,"<master/CdC") || die "ERROR: No se encontró archivo maestro CdC.\n";
+	open(ENTRADA,"<../master/CdC") || die "ERROR: No se encontró archivo maestro CdC.\n";
 
 	while (my $linea = <ENTRADA>){
 		chomp($linea);
@@ -48,13 +48,13 @@ sub cargarCodigosDeCentrales(){
 # campos: (id_agente; nombre_agente; apellido_agente; oficina; email)
 sub cargarCodigosDeAgentes(){
 	my (%hash_agentes);
-	my (@info_agentes);
-	open(ENTRADA,"<master/agentes") || die "ERROR: No se encontró archivo maestro agentes.\n";
+	my @info_agentes;
+	open(ENTRADA,"<../master/agentes") || die "ERROR: No se encontró archivo maestro agentes.\n";
 
 	while (my $linea = <ENTRADA>){
 		chomp($linea);
 		@info_agentes = split(";",$linea); 
-		$hash_agentes{$info_agentes[2]} = @info_agentes;
+		$hash_agentes{$info_agentes[2]} = [@info_agentes];
 	}
 	return %hash_agentes;
 }
@@ -213,13 +213,13 @@ sub f_3_agente_cantidad_llam_sosp
 			push (@input_periodos_validos, $_);
 		}
 	}
-	my @archivos = &getArchivosDir("./proc/");
+	my @archivos = &getArchivosDir("../proc/");
 
     foreach (@archivos){
 	 	next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
 	 	print "procesando...". $_ ."\n";
 
-		open (ENT,"<./proc/".$_) || die "Error: No se pudo abrir ".$_ ."\n";
+		open (ENT,"<../proc/".$_) || die "Error: No se pudo abrir ".$_ ."\n";
 	    while (my $linea = <ENT>){
 			chomp($linea);	
 			@reg=split(";",$linea);
@@ -236,7 +236,7 @@ sub f_3_agente_cantidad_llam_sosp
 
     my $fecha = &getDate;
     my @rank_agentes = sort { $agentes{$b} <=> $agentes{$a} } keys %agentes;
-    my %id_agentes = cargarCodigosDeAgentes;
+    my %id_agentes = &cargarCodigosDeAgentes();
 
     #foreach (@rank_agentes){
     print $rank_agentes[0]."\n";
@@ -253,8 +253,11 @@ sub f_3_agente_cantidad_llam_sosp
  		print "se genero estad_".$fecha.".csv\n";
 	    close (SAL);
     }else{
-    	foreach (@rank_agentes){
-			print $id_agentes{$_}[0].";".$agentes{$_} ."\n";
+    	foreach my $k (@rank_agentes){
+		#	#print $id_agentes{$_}[0].";".$agentes{$_} ."\n";
+			print $k.";".$agentes{$k}.";". $id_agentes{$k}[3].";". $id_agentes{$k}[4];
+			
+			print "\n";
  		}
     }		
 }
@@ -461,8 +464,72 @@ sub definir_aniomes
 	return @retval;
 }
 
-&f_1_central_cantidad_llam_sosp(1);
+#&f_1_central_cantidad_llam_sosp(1);
 #&f_2_ofi_cantidad_llam_sosp(1);
-#&f_3_agente_cantidad_llam_sosp(1);
+&f_3_agente_cantidad_llam_sosp(1);
 #&f_4_destino_llam_sospechosa;
 #&f_5_ranking_umbrales;
+
+use Data::Dumper;
+
+
+#	my (%hash_agentes);
+#	my @info_agentes;
+#	open(ENTRADA,"<../master/agentes") || die "ERROR: No se encontró archivo maestro agentes.\n";
+
+#	while (my $linea = <ENTRADA>){
+#		chomp($linea);
+#		@info_agentes = split(";",$linea); 
+#		
+#
+#		$hash_agentes{$info_agentes[2]} = @info_agentes;
+#	}
+	
+    
+#   my %id_agentes_x = &cargarCodigosDeAgentes();
+#   foreach $k (keys %id_agentes_x) {
+#	  print "$k";
+#   foreach (@{$id_agentes_x{$k}}) {
+#      print ";$_";
+#   }
+#   print "\n";
+#   }
+	
+	
+
+#foreach $clave (keys(%id_agentes))
+#{
+#    print "\%id_agentes{".$clave."}=".$id_agentes{$clave} ."\n" ;
+#};
+	
+#    my %id_dias = ("lunes" => "L","martes" => "M","miercoles" =>"X");
+	
+#foreach $clave (keys (%id_dias))
+#{
+#    print "\%id_agentes{".$clave."}=".$id_dias{$clave} ."\n" ;
+#};	
+	
+
+#my $array = [];    #create new anonymous array ref
+#push (@$array, '11');
+#push (@$array, '12');
+#push (@$array, '13');
+#$hash{'first'} = $array;   # add
+
+#$array = [];   #create a new anon-array
+#push (@$array, '21');
+#push (@$array, '22');
+#push (@$array, '23');
+#$hash{'second'} = $array;  # add
+
+#print "Hash content\n";
+#foreach $k (keys %hash) {
+#   print "$k";
+#   foreach (@{$hash{$k}}) {
+#      print " ;$_";
+#   }
+#   print "\n";
+#}
+
+	
+#print Dumper \%hash_agentes;	
