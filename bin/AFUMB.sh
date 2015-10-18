@@ -1,15 +1,22 @@
 #!/bin/bash
-#
+
+source $DIR/MoverA.sh
+source $DIR/GraLog.sh
+
 # Variables / Constantes
 # ==============================================================================================
-#NOVEDIR=$PWD/acep #Modificar por el valor correcto. 
-MAEDIR=$PWD/master #Modificar por el valor correcto. 
+NOVEDIR=$NOVEDIR
+MAEDIR=$MAEDIR
+MAE_COD_PAIS="$MAEDIR/CdP"
+MAE_COD_AREA_ARG="$MAEDIR/CdA"
+MAE_CENTRAL="$MAEDIR/CdC"
+MAE_AGENTES="$MAEDIR/agentes"
 
-source ./MoverA.sh
-source ./GraLog.sh
-LOGDIR="../log"
-LOGSIZE=100
-LOGEXT=log
+
+DIRECTORIO_ACEP=$ACEPDIR #Obtengo el directorio donde se almacenan los archivos aceptados.
+DIRECTORIO_PROC=$PROCDIR #Obtengo el directorio donde se almacena los archivos procesados
+DIRECTORIO_RECH=$RECHDIR #Obtnego el directorio de archivos rechazados.
+
 
 #CONTADORES
 CANT_ARCH_PROCESADOS=0
@@ -22,24 +29,6 @@ CANT_LLAM_NO_SOSPECHOSAS=0
 CANT_LLAM_RECHAZADAS=0
 
 
-#MAE_COD_PAIS=$2
-MAE_COD_PAIS="../master/CdP" #TODO-BORRAR ES SOLO PARA PROBAR
-#MAE_COD_AREA_ARG=$3
-MAE_COD_AREA_ARG="../master/CdA"  #TODO-BORRAR ES SOLO PARA PROBAR
-#MAE_CENTRAL=$4
-MAE_CENTRAL="../master/CdC"  #TODO-BORRAR ES SOLO PARA PROBAR
-#MAE_AGENTES=$5 
-MAE_AGENTES="../master/agentes"  #TODO-BORRAR ES SOLO PARA PROBAR
-TAB_TIPO_LLAMADAS=$6
-TAB_UMB_CONS=$7
-
-#DIRECTORIO_ACEP=$ACEPDIR #Obtengo el directorio donde se almacenan los archivos aceptados.
-#DIRECTORIO_PROC=$PROCDIR #Obtengo el directorio donde se almacena los archivos procesados
-#DIRECTORIO_RECH=$RECHDIR #Obtnego el directorio de archivos rechazados.
-DIRECTORIO_ACEP="../acep" #TODO- borrar es solo para probar.
-DIRECTORIO_PROC="../proc" #TODO- borrar es solo para probar.
-DIRECTORIO_RECH="../rech" #TODO- borrar es solo para probar.
-
 # Funciones
 #=================================================================================================
 
@@ -51,7 +40,7 @@ validarAgente() {
 	agente_encontrado=$(echo "$existe" | cut -d ';' -f3)
 	if [ "$agente" != "$agente_encontrado" ]
 	then
-		GraLog AFUMB INFO "Agente invalido: $agente"
+		GraLog AFUMB WAR "Agente invalido: $agente"
 		echo 1
 		return
 	fi
@@ -70,6 +59,7 @@ validarArea() {
 	then	
 		if [ $area -ne $area_encontrada ]
 		then
+			GraLog AFUMB WAR "Area invalido: $area"
 			echo 1 
 			return
 		fi
@@ -88,7 +78,7 @@ validarNumeroLineaA() {
 	linea_ok=$(validarLineaA $longArea $longlinea)
 	if [ $linea_ok -ne 0 ]
 	then 
-		GraLog AFUMB INFO "Linea A invalido: $1"	
+		GraLog AFUMB WAR "Linea A invalido: $1"	
 		echo 1
 		return
 	fi
@@ -117,13 +107,13 @@ validarNumeroLineaB() {
 					echo 0
 					return
 				else
-					GraLog AFUMB INFO "Formato linea invalido: $NUMLINEA"
+					GraLog AFUMB WAR "Formato linea invalido: $NUMLINEA"
 					echo 1
 					return
 				fi
 			
 			else
-				GraLog AFUMB INFO "Codigo area pais invalido: $COD_AREA_PAIS"
+				GraLog AFUMB WAR "Codigo area pais invalido: $COD_AREA_PAIS"
 				echo 1
 				return
 			fi
@@ -145,24 +135,23 @@ validarNumeroLineaB() {
 				LONG_AREA_LINEA=${#AREA_LINEA}
 				if [ $LONG_AREA_LINEA -eq 10 ]
 				then
-					#GraLog AFUMB INFO "Linea B VALIDA: $NUMLINEA"
 					echo 0
 					return
 				else
 
-					GraLog AFUMB INFO "Linea B invalido: $NUMLINEA"
+					GraLog AFUMB WAR "Linea B invalido: $NUMLINEA"
 					echo 1
 					return
 				fi
 			else 
 
-				GraLog AFUMB INFO "Codigo area invalido: $COD_AREA"
+				GraLog AFUMB WAR "Codigo area invalido: $COD_AREA"
 				echo 1
 				return
 
 			fi
 		else
-			GraLog AFUMB INFO "Linea B invalido: $NUMLINEA"
+			GraLog AFUMB WAR "Linea B invalido: $NUMLINEA"
 			echo 1
 			return
 		fi
@@ -175,7 +164,7 @@ validarCodPais() {
 	COD_AREA_PAIS_ENC=$(echo "$EXISTE_COD_AREA_PAIS" | cut -d ';' -f1)
 	if [ "$COD_AREA_PAIS" != "$COD_AREA_PAIS_ENC" ] 
 	then
-		GraLog AFUMB INFO "Codigo pais invalido: $COD_AREA_PAIS"
+		GraLog AFUMB WAR "Codigo pais invalido: $COD_AREA_PAIS"
 		echo 1
 		return
 	fi
@@ -187,7 +176,7 @@ validarTiempoConversacion() {
 	TIEMPO=$(echo "$1" | cut -d';' -f3)
 	if [ $TIEMPO -lt 0 ]
 	then
-		GraLog AFUMB INFO "Tiempo de conversacion invalido: $TIEMPO"
+		GraLog AFUMB WAR "Tiempo de conversacion invalido: $TIEMPO"
 		echo 1
 		return
 	fi
@@ -205,7 +194,7 @@ validarLineaA() {
 		if [ $2 -ne 8 ]
 		then
 			#linea invalida
-			GraLog AFUMB INFO "linea invalida: $2"
+			GraLog AFUMB WAR "linea invalida: $2"
 			echo 1
 			return
 		fi
@@ -216,7 +205,7 @@ validarLineaA() {
 			if [ $2 -ne 7 ]
 			then
 				#linea invalida
-				GraLog AFUMB INFO "linea invalida: $2"
+				GraLog AFUMB WAR "linea invalida: $2"
 				echo 1
 				return
 			fi
@@ -225,7 +214,7 @@ validarLineaA() {
 			if [ $2 -ne 6 ]
 			then
 				#linea invalida
-				GraLog AFUMB INFO "linea invalida: $2"
+				GraLog AFUMB WAR "linea invalida: $2"
 				echo 1
 				return
 			fi
@@ -240,17 +229,12 @@ determinarTipoLlamada() {
 	REGISTRO=$1
 	COD_AREA_PAIS=$(echo "$REGISTRO" | cut -d';' -f6)
 	if [ ! -z $COD_AREA_PAIS ]
-	then
-		#GraLog AFUMB INFO "EXISTE CODIGO AREA PAIS"		
+	then	
 		COD_AREA_PAIS_OK=$(validarCodPais $COD_AREA_PAIS)
-		#GraLog AFUMB INFO "COD_AREA_PAIS: $COD_AREA_PAIS"
 		LINEA_B=$(echo "$REGISTRO" | cut -d';' -f8)
-		#GraLog AFUMB INFO "LINEA_B: $LINEA_B"
-		#GraLog AFUMB INFO "COD_AREA_PAIS_OK: $COD_AREA_PAIS_OK"
 		if [ $COD_AREA_PAIS_OK -eq  0 ]  &&  [ ! -z $LINEA_B ]
 		then
-			#tipo de llamada DDI
-			#GraLog AFUMB INFO "TIPO DE LLAMADA DDI"	
+			#tipo de llamada DDI	
 			echo "DDI"
 			return
 		else
@@ -267,19 +251,17 @@ determinarTipoLlamada() {
 		if [ $COD_AREA_A -ne $COD_AREA_B ] && [ $LINEA_A_OK -eq 0 ]
 		then
 			#tipo de llamada DDN
-			#GraLog AFUMB INFO "TIPO LLAMADA DDN"
 			echo "DDN"
 			return
 		else
 			if [ $COD_AREA_A -eq $COD_AREA_B ] && [ $LINEA_A_OK -eq 0 ]
 			then
-				#tipo de llamada local
-				#GraLog AFUMB INFO "TIPO DE LLAMADA LOC"				
+				#tipo de llamada local				
 				echo "LOC"
 				return
 			else
 				#tipo de llamada invalida
-				GraLog AFUMB INFO "Tipo de llamada invalido"
+				GraLog AFUMB WAR "Tipo de llamada invalido"
 				echo "INV"
 				return
 			fi
@@ -320,28 +302,28 @@ validarRegistro() {
 						echo 0
 						return
 					else
-						GraLog AFUMB INFO "Registro invalido: $reg"
+						GraLog AFUMB WAR "Registro invalido: $reg"
 						echo 1
 						return
 					fi
 				else
-					GraLog AFUMB INFO "Regisro invalido: $reg"
+					GraLog AFUMB WAR "Regisro invalido: $reg"
 					echo 1
 					return
 				fi 		
 				
 			else
-				GraLog AFUMB INFO "Regisro invalido: $reg"
+				GraLog AFUMB WAR "Regisro invalido: $reg"
 				echo 1
 				return
 			fi 		
 		else
-			GraLog AFUMB INFO "Regisro invalido: $reg"
+			GraLog AFUMB WAR "Regisro invalido: $reg"
 			echo 1
 			return
 		fi
 	else
-		GraLog AFUMB INFO "Regisro invalido: $reg"
+		GraLog AFUMB WAR "Regisro invalido: $reg"
 		echo 1
 		return
 	fi
@@ -414,12 +396,8 @@ function determinarLlamadasSospechosas(){
 	
 	#armar la fecha del nombre del archivo
 	FECHA_LLAMADA=$(echo "$LL_FECHA" | cut -d' ' -f1)
-	#echo "LL_FECHA $LL_FECHA"
-	#echo "FECHA_LLAMADA $FECHA_LLAMADA"
 	ANIOLLAMADA=$(echo "$FECHA_LLAMADA" | cut -d'/' -f3)
-	#echo "ANIOLLAMADA $ANIOLLAMADA"
 	MESLLAMADA=$(echo "$FECHA_LLAMADA" | cut -d'/' -f2)
-	#echo "MESLLAMADA $MESLLAMADA"
 
 	# Por cada llamada. Busco en el umbral y clasifico.
 	#	
@@ -449,9 +427,9 @@ function determinarLlamadasSospechosas(){
 			if [ $UM_TI_LLAMADA = "DDI" ]; then
 				#echo " $UM_ESTADO = Inactivo  $UM_CO_AREA_ORIGEN = $LL_NU_AREA $UM_NU_ORIGEN = $LL_NU_LINEA_A $UM_CO_DESTINO = $LL_CO_PAIS_B  $UM_CO_DESTINO  $UM_TOPE <= $LL_TIEMPO_CONVERSACION "
 				#if [ "$UM_ESTADO" = "Activo" ] && [ $UM_CO_AREA_ORIGEN = $LL_NU_AREA ] && [ $UM_NU_ORIGEN = $LL_NU_LINEA_A ] && [ -z $UM_CO_DESTINO  ] || [ $UM_CO_DESTINO = $LL_CO_PAIS_B ]  && [ $UM_TOPE -lt $LL_TIEMPO_CONVERSACION ]
-				if [ "$UM_ESTADO" = "Activo" ] && [ "$UM_CO_AREA_ORIGEN" = "$LL_NU_AREA" ] && [ "$UM_NU_ORIGEN" = "$LL_NU_LINEA_A" ] && [ -z "$UM_CO_DESTINO" ] || [ "$UM_CO_DESTINO" = "$LL_CO_PAIS_B" ] && [ $UM_TOPE -lt $LL_TIEMPO_CONVERSACION ]; then 												
+				if [ "$UM_ESTADO" = "Activo" ] && [ "$UM_CO_AREA_ORIGEN" = "$LL_NU_AREA" ] && [ "$UM_NU_ORIGEN" = "$LL_NU_LINEA_A" ] && [ -z "$UM_CO_DESTINO" ] || [ "$UM_CO_DESTINO" = "$LL_CO_PAIS_B" ] && [ $UM_TOPE -lt $LL_TIEMPO_CONVERSACION ]; then 							
 					# Guardo la llamada como sospechosa.					
-					#echo $ID_CENTRAL";"$LL_ID_AGENTE";"$UM_ID";"$UM_TI_LLAMADA";"$LL_FECHA";"$LL_TIEMPO_CONVERSACION";"$LL_NU_AREA";"$LL_NU_LINEA_A";"$LL_CO_PAIS_B";"$LL_CO_AREA_B";"$LL_NU_LINEA_B";"$FECHA_ARCHIVO>> $DIRECTORIO_PROC/$OFICINA"_"$ANIOLLAMADA$MESLLAMADA
+					echo $ID_CENTRAL";"$LL_ID_AGENTE";"$UM_ID";"$UM_TI_LLAMADA";"$LL_FECHA";"$LL_TIEMPO_CONVERSACION";"$LL_NU_AREA";"$LL_NU_LINEA_A";"$LL_CO_PAIS_B";"$LL_CO_AREA_B";"$LL_NU_LINEA_B";"$FECHA_ARCHIVO>> $DIRECTORIO_PROC/$OFICINA"_"$ANIOLLAMADA$MESLLAMADA
 					CANT_LLAM_SOSPECHOSAS=$(($CANT_LLAM_SOSPECHOSAS+1))
 
 				else # No es una llamada sospechosa
@@ -461,7 +439,7 @@ function determinarLlamadasSospechosas(){
 				#echo " $UM_ESTADO = Inactivo  $UM_CO_AREA_ORIGEN = $LL_NU_AREA $UM_NU_ORIGEN = $LL_NU_LINEA_A $UM_CO_DESTINO = $LL_CO_PAIS_B  $UM_CO_DESTINO  $UM_TOPE -lt $LL_TIEMPO_CONVERSACION "
 				if [ "$UM_ESTADO" = "Activo" ] && [ "$UM_CO_AREA_ORIGEN" = "$LL_NU_AREA" ] && [ "$UM_NU_ORIGEN" = "$LL_NU_LINEA_A" ] && [ -z "$UM_CO_DESTINO" ] || [ "$UM_CO_DESTINO" = "$LL_CO_PAIS_B" ] && [ $UM_TOPE -lt $LL_TIEMPO_CONVERSACION ]; then
 					# Guardo la llamada como sospechosa.
-					#echo $ID_CENTRAL";"$LL_ID_AGENTE";"$UM_ID";"$UM_TI_LLAMADA";"$LL_FECHA";"$LL_TIEMPO_CONVERSACION";"$LL_NU_AREA";"$LL_NU_LINEA_A";"$LL_CO_PAIS_B";"$LL_CO_AREA_B";"$LL_NU_LINEA_B";"$FECHA_ARCHIVO>> $DIRECTORIO_PROC/$OFICINA"_"$ANIOLLAMADA$MESLLAMADA
+					echo $ID_CENTRAL";"$LL_ID_AGENTE";"$UM_ID";"$UM_TI_LLAMADA";"$LL_FECHA";"$LL_TIEMPO_CONVERSACION";"$LL_NU_AREA";"$LL_NU_LINEA_A";"$LL_CO_PAIS_B";"$LL_CO_AREA_B";"$LL_NU_LINEA_B";"$FECHA_ARCHIVO>> $DIRECTORIO_PROC/$OFICINA"_"$ANIOLLAMADA$MESLLAMADA
 					CANT_LLAM_SOSPECHOSAS=$(($CANT_LLAM_SOSPECHOSAS+1))
 				else # No es una llamada sospechosa
 					CANT_LLAM_NO_SOSPECHOSAS=$(($CANT_LLAM_NO_SOSPECHOSAS+1))	
@@ -507,7 +485,7 @@ do
 	if [ "$arch" = "$FILE" ]
 	then
 		#ARCHIVO DUPLICADO MOVER A RECHAZADOS
-		MoverA $path_origen $path_destino_rech
+		MoverA $path_origen $path_destino_rech AFUMB
 		GraLog AFUMB INFO "Se rechaza el archivo por estar duplicado: $FILE"
 		#INCREMENTO CONTADOR DE ARCHIVO RECHAZADO
 		CANT_ARCH_RECHAZADOS=$(($CANT_ARCH_RECHAZADOS+1))
@@ -521,7 +499,7 @@ do
 	if [ $cant_de_campos -ne 8 ]
 	then
 		#ARCHIVO CON FORMATO INVALIDO		
-		MoverA $path_origen $path_destino_rech
+		MoverA $path_origen $path_destino_rech AFUMB
 		GraLog AFUMB INFO "Se rechaza el archivo porque su estrutura no se corresponde con el formato esperado: $FILE"
 		#INCREMENTO CONTADOR DE ARCHIVO RECHAZADO
 		CANT_ARCH_RECHAZADOS=$(($CANT_ARCH_RECHAZADOS+1))
@@ -552,7 +530,7 @@ do
 
 	#6 - FIN DEL ARCHIVO	
 	path_destino_proc=$DIRECTORIO_PROC"/"$FILE
-	MoverA $path_origen $path_destino_proc 
+	MoverA $path_origen $path_destino_proc AFUMB
 	GraLog AFUMB INFO "Archivo procesado: $FILE"
 	
 	#TOTALES A GRABAR
