@@ -17,15 +17,18 @@
 
 ############################# sources ###############################
 
-source ./bin/MoverA.sh
-source ./bin/GraLog.sh
-
+source MoverA.sh
+source GraLog.sh
+LOGSIZE=400
 
 ###################### variables de entorno ##########################
 
 # Direcorio donde se va a instalar el sistema AFRA-J
 GRUPO="$PWD"
 CMD_INSTALL=$1
+
+GraLog AFINSTAL INFO "Inicio proceso de instalacion"
+GraLog AFINSTAL INFO "Directorio de invocacion: $GRUPO"
 
 # Variables por Default
 
@@ -42,9 +45,6 @@ DEFAULT_DATASIZE=100
 DEFAULT_LOGSIZE=400
 DEFAULT_LOGEXT=lg
 
-# Variables para interactuar con el Usuario
-#INPUT_USUARIO no se tienen que declarar las variables, directamente se asignan
-
 #Obtenemos las versiones de PERL y del SWITCH
 PERL_VERSION="$(dpkg --status perl | grep ^Version | cut -c 10)"
 SWITCH_VERSION="$(dpkg --status libswitch-perl | grep ^Version | cut -c 10)"
@@ -59,7 +59,8 @@ SWITCH_VERSION="$(dpkg --status libswitch-perl | grep ^Version | cut -c 10)"
 
 function setPath(){
 
-	echo "(logInfo) step 6: Definir el direcorio de los ejecutables"
+	echo "Ingrese los siguientes directorios a utilizar por el programa. Si no ingresa ningun valor, se tomara el valor default mostrado entre parentesis."
+	GraLog AFINSTAL INFO "Inicio configuracion variables."
 
 	echo "Cambie, o deje vacio, el directorio de instalación de los ejecutables ($DEFAULT_BINDIR):"
 	read BINDIR
@@ -67,20 +68,23 @@ function setPath(){
 	then
 		BINDIR=$DEFAULT_BINDIR
 	fi
+	GraLog AFINSTAL INFO "Configuracion BINDIR: $BINDIR"
 
-	echo "Cambie, o deje vacio, directorio para maestros y tablas ($DEFAULT_MAEDIR):"
+	echo "Cambie, o deje vacio, el directorio para maestros y tablas ($DEFAULT_MAEDIR):"
 	read MAEDIR
 	if [ "$MAEDIR" == "" ]
 	then
 		MAEDIR=$DEFAULT_MAEDIR
 	fi
+	GraLog AFINSTAL INFO "Configuracion MAEDIR: $MAEDIR"
 
-	echo "Cambie, o deje vacio, el Directorio de recepción de archivos de llamadas ($DEFAULT_NOVEDIR):"
+	echo "Cambie, o deje vacio, el directorio de recepción de archivos de llamadas ($DEFAULT_NOVEDIR):"
 	read NOVEDIR
 	if [ "$NOVEDIR" == "" ]
 	then
 		NOVEDIR=$DEFAULT_NOVEDIR
 	fi
+	GraLog AFINSTAL INFO "Configuracion NOVEDIR: $NOVEDIR"
 
 	echo "Cambie, o deje vacio, el directorio de grabación de los archivos de llamadas aceptadas ($DEFAULT_ACEPDIR):"
 	read ACEPDIR
@@ -88,6 +92,7 @@ function setPath(){
 	then
 		ACEPDIR=$DEFAULT_ACEPDIR
 	fi
+	GraLog AFINSTAL INFO "Configuracion ACEPDIR: $ACEPDIR"
 
 	echo "Cambie, o deje vacio, el directorio de grabación de los registros de llamadas sospechosas ($DEFAULT_PROCDIR):"
 	read PROCDIR
@@ -95,6 +100,7 @@ function setPath(){
 	then
 		PROCDIR=$DEFAULT_PROCDIR
 	fi
+	GraLog AFINSTAL INFO "Configuracion PROCDIR: $PROCDIR"
 
 	echo "Cambie, o deje vacio, el directorio de grabación de los reportes ($DEFAULT_REPODIR):"
 	read REPODIR
@@ -102,6 +108,7 @@ function setPath(){
 	then
 		REPODIR=$DEFAULT_REPODIR
 	fi
+	GraLog AFINSTAL INFO "Configuracion REPODIR: $REPODIR"
 
 	echo "Cambie, o deje vacio, el directorio para los archivos de log ($DEFAULT_LOGDIR):"
 	read LOGDIR
@@ -109,6 +116,7 @@ function setPath(){
 	then
 		LOGDIR=$DEFAULT_LOGDIR
 	fi
+	GraLog AFINSTAL INFO "Configuracion LOGDIR: $LOGDIR"
 
 	echo "Cambie, o deje vacio, el directorio de grabación de Archivos rechazados ($DEFAULT_RECHDIR):"
 	read RECHDIR
@@ -116,13 +124,15 @@ function setPath(){
 	then
 		RECHDIR=$DEFAULT_RECHDIR
 	fi
+	GraLog AFINSTAL INFO "Configuracion RECHDIR: $RECHDIR"
 
-	echo "Cambie, o deje vacio, espacio mínimo libre para la recepción de archivos de llamadas en Mbytes ($DEFAULT_DATASIZE):"
+	echo "Cambie, o deje vacio, el espacio mínimo libre para la recepción de archivos de llamadas en Mbytes ($DEFAULT_DATASIZE):"
 	read DATASIZE
 	if [ "$DATASIZE" == "" ]
 	then
 		DATASIZE=$DEFAULT_DATASIZE
 	fi
+	GraLog AFINSTAL INFO "Configuracion DATASIZE: $DATASIZE"
 
 	echo "Cambie, o deje vacio, el tamaño máximo para cada archivo de log en Kbytes ($DEFAULT_LOGSIZE):"
 	read LOGSIZE
@@ -130,6 +140,7 @@ function setPath(){
 	then
 		LOGSIZE=$DEFAULT_LOGSIZE
 	fi
+	GraLog AFINSTAL INFO "Configuracion LOGSIZE: $LOGSIZE"
 
 	echo "Cambie, o deje vacio, el nombre para la extensión de los archivos de log ($DEFAULT_LOGEXT):"
 	read LOGEXT
@@ -137,33 +148,32 @@ function setPath(){
 	then
 		LOGEXT=$DEFAULT_LOGEXT
 	fi
+	GraLog AFINSTAL INFO "Configuracion LOGEXT: $LOGEXT"
 }
 
 # Crea las estructuras de directorio requeridas
 #
-function instalacion(){ 
-	echo "Iniciando instalacion..."
-	echo -e "\t $CONFDIR"
-	echo -e "\t $BINDIR"
-	echo -e "\t $MAEDIR"
-	echo -e "\t $NOVEDIR"
-	echo -e "\t $ACEPDIR"
-	echo -e "\t $PROCDIR"
-	echo -e "\t $REPODIR"
-	echo -e "\t $LOGDIR"
-	echo -e "\t $RECHDIR"
+function instalacion(){
+	echo ""
+	echo "Instalacion:"
+	GraLog AFINSTAL INFO "Iniciando instalacion."
 
 	echo "-Creacion de los directorios..."
+	GraLog AFINSTAL INFO "Creando directorios"
 	mkdir --parents "$BINDIR" "$MAEDIR" "$NOVEDIR" "$ACEPDIR" "$PROCDIR" "$REPODIR" "$LOGDIR" "$RECHDIR"	
 	echo "-Directorios creados"
+	GraLog AFINSTAL INFO "Directorios creados"
 
 	verificarEspacioEnDisco
 	generateFileConfiguracion
 	moverFiles
+
+	GraLog AFINSTAL INFO "Instalacion finalizada"
 }
 
 function generateFileConfiguracion(){
 	echo "-Guardando configuracion del sistema..."
+	GraLog AFINSTAL INFO "Guardando configuracion del sistema"
 	echo "GRUPO=$GRUPO=$USER=$(date '+%d/%m/%Y %H:%M:%S')" > $DEFAULT_CONFDIR/AFINSTAL.cnfg
 	echo "BINDIR=$BINDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $DEFAULT_CONFDIR/AFINSTAL.cnfg
 	echo "MAEDIR=$MAEDIR=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $DEFAULT_CONFDIR/AFINSTAL.cnfg
@@ -177,27 +187,29 @@ function generateFileConfiguracion(){
 	echo "LOGSIZE=$LOGSIZE=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $DEFAULT_CONFDIR/AFINSTAL.cnfg
 	echo "LOGEXT=$LOGEXT=$USER=$(date '+%d/%m/%Y %H:%M:%S')" >> $DEFAULT_CONFDIR/AFINSTAL.cnfg
 	echo "-Configuracion guardada."
+	GraLog AFINSTAL INFO "Configuracion guardada"
 }
 
 function moverFiles(){
 	echo "-Moviendo archivos..."
+	GraLog AFINSTAL INFO "Moviendo archivos"
 	#Movientos de ejecutables
-	MoverA $DEFAULT_BINDIR/MoverA.sh $BINDIR/MoverA.sh AFINSTAL
-	MoverA $DEFAULT_BINDIR/GraLog.sh $BINDIR/GraLog.sh AFINSTAL
-	MoverA $DEFAULT_BINDIR/AFREC.sh $BINDIR/AFREC.sh AFINSTAL
-	MoverA $DEFAULT_BINDIR/AFINI.sh $BINDIR/AFINI.sh AFINSTAL
-	MoverA $DEFAULT_BINDIR/AFUMB.sh $BINDIR/AFUMB.sh AFINSTAL
-	MoverA $DEFAULT_BINDIR/ARRANCAR.sh $BINDIR/ARRANCAR.sh AFINSTAL
-	MoverA $DEFAULT_BINDIR/DETENER.sh $BINDIR/DETENER.sh AFINSTAL
-	MoverA $DEFAULT_BINDIR/AFLIST.pl $BINDIR/AFLIST.pl AFINSTAL
+	MoverA $GRUPO/MoverA.sh $BINDIR/MoverA.sh AFINSTAL
+	MoverA $GRUPO/GraLog.sh $BINDIR/GraLog.sh AFINSTAL
+	MoverA $GRUPO/AFREC.sh $BINDIR/AFREC.sh AFINSTAL
+	MoverA $GRUPO/AFINI.sh $BINDIR/AFINI.sh AFINSTAL
+	MoverA $GRUPO/AFUMB.sh $BINDIR/AFUMB.sh AFINSTAL
+	MoverA $GRUPO/ARRANCAR.sh $BINDIR/ARRANCAR.sh AFINSTAL
+	MoverA $GRUPO/DETENER.sh $BINDIR/DETENER.sh AFINSTAL
+	MoverA $GRUPO/AFLIST.pl $BINDIR/AFLIST.pl AFINSTAL
 	#Moviento de archivos maestros
-	MoverA $GRUPO/master/CdA $MAEDIR/CdA AFINSTAL
-	MoverA $GRUPO/master/CdC $MAEDIR/CdC AFINSTAL
-	MoverA $GRUPO/master/CdP $MAEDIR/CdP AFINSTAL
-	MoverA $GRUPO/master/tllama.tab $MAEDIR/tllama.tab AFINSTAL
-	MoverA $GRUPO/master/umbral.tab $MAEDIR/umbral.tab AFINSTAL
-	MoverA $GRUPO/master/agentes $MAEDIR/agentes AFINSTAL
+	MoverA $GRUPO/data/CdA.csv $MAEDIR/CdA.csv AFINSTAL
+	MoverA $GRUPO/data/CdP.csv $MAEDIR/CdP.csv AFINSTAL
+	MoverA $GRUPO/data/centrales.csv $MAEDIR/centrales.csv AFINSTAL
+	MoverA $GRUPO/data/umbrales.csv $MAEDIR/umbrales.csv AFINSTAL
+	MoverA $GRUPO/data/agentes.csv $MAEDIR/agentes.csv AFINSTAL
 	echo "-Archivos movidos"
+	GraLog AFINSTAL INFO "Archivos movidos"
 }
 
 function usuarioContinuar(){
@@ -205,21 +217,24 @@ function usuarioContinuar(){
 	MSJ_AL_USUARIO=$2
 	case $INPUT_USUARIO in
 		$(echo $INPUT_USUARIO | grep "^[Nn][Oo]*$") ) # "No" "no" "NO" "nO" "n"  
-			echo "Exit "	
+			echo "Exit"
+			GraLog AFINSTAL INFO "Opcion no aceptada. Abortando instalacion"
 			exit 1
 		;;
 		$(echo $INPUT_USUARIO | grep "^[Ss][Ii]*$") ) # "Si" "si" "sI" "SI" "s"
 			echo $MSJ_AL_USUARIO
+			GraLog AFINSTAL INFO "Opcion aceptada."
 		;;
  		*)
-			echo "Opcion Incorrecta.FIN"
+			echo "Opcion invalida ingresada. Instalacion abortada."
+			GraLog AFINSTAL ERR "Opcion invalida ingresada. Instalacion abortada."
 			exit 1
 		;;
 	esac	
 }
 
 # Esta Funcion se encarga de interactuar con el usuario.
-# Pide al usuario que ingrese un valor, este no pued ser vacio.
+# Pide al usuario que ingrese un valor, este no puede ser vacio.
 #
 function inputBoxString(){
 
@@ -258,15 +273,15 @@ function inputBoxString(){
 # Detectar si el paquete AFRA-J o algunos de sus componentes ya esta instalado.
 #
 function detectarInstalacion(){
-
-	#Verifico si el paquete ya esta instalado
+	GraLog AFINSTAL INFO "Buscando instalaciones AFRA-J existentes"
 	if [ -e "$DEFAULT_CONFDIR/AFINSTAL.cnfg" ]
 	then
-		echo "Ya existe una version instalada de AFRA-J."
+		GraLog AFINSTAL INFO "Ya existe una version instalada de AFRA-J."
 		levantarValoresDelCNFG
 		LISTA="A Modificar"
 		verificarInstalacionCompleta
 	else
+		GraLog AFINSTAL INFO "Instalacion nueva de AFRA-J."
 		LISTA="Pendiente"		
 	fi
 	#Chequear que Perl este instalado.
@@ -278,7 +293,7 @@ function detectarInstalacion(){
 function levantarValoresDelCNFG(){
 	oldIFS=$IFS
 	IFS=$'\n'
-	# Seteo de variables de ambiente desde el archivo
+	GraLog AFINSTAL INFO "Cargando variables de ambiente desde el archivo existente"
 	for linea in $(< "conf/AFINSTAL.cnfg")
 	do
 		nombre_var=`echo $linea | cut -d "=" -f1`
@@ -297,41 +312,47 @@ function verificarInstalacionCompleta(){
 	read INPUT_USUARIO
 	
 	# Validar Si el usuario desea continuar. 
-	usuarioContinuar $INPUT_USUARIO "Siguiente..."
+	usuarioContinuar $INPUT_USUARIO ""
 }
 
 #verificar si hay suficiente espacio en disco para las novedades
 #
 function verificarEspacioEnDisco(){
 	ESPACIO_NOVEDIR="$(df -h -k --block-size=MB $NOVEDIR | awk 'NR==2{print$4}' | sed s/MB$//)"
-	if [ $ESPACIO_NOVEDIR -lt $DATASIZE ]
+	if [ "$ESPACIO_NOVEDIR" -lt "$DATASIZE" ]
 	then
 		echo "No hay suficiente espacio en disco para poder completar la instalacion con esa configuracion"
 		echo "Libere espacio en el disco y vuelva a intentarlo"
+		GraLog AFINSTAL ERR "No hay suficiente espacio en disco para recibir novedades"
 		exit 3
 	fi
+	GraLog AFINSTAL INFO "Verificado espacio en disco: OK"
 }
 
 # verificar si Perl esta instaldo en el SO.
 # 
 function verificarPerl(){
 
-	echo "(logInfo) step 4: Verificando que Perl este instaldo."
-	echo "(logInfo) Perl version: " $PERL_VERSION
-	echo "(logInfo) Switch version: " $SWITCH_VERSION
+	GraLog AFINSTAL INFO "Version instalada de Perl: $PERL_VERSION"
+	GraLog AFINSTAL INFO "Version instalada de Switch: $SWITCH_VERSION"
 	#Hacemos instalar perl si no estaba
 	if [ $PERL_VERSION -lt "5" -o $SWITCH_VERSION -lt "2" ]
 	then
 		echo "El programa necesita de Perl y sus librerias para poder generar reportes, se va a proceder a instalarlo. Por favor ingrese la contrasena cuando se le solicite"
 		echo "De no instalarlo no podra generar los reportes. Sin embargo, puede instalarlo por su cuenta cuando desee mas tarde."
+		GraLog AFINSTAL INFO "Instalacion/actualizacion Perl/Switch"
 		sudo apt-get --force-yes --yes install perl
 		sudo apt-get --force-yes --yes install libswitch-perl
+		GraLog AFINSTAL INFO "Perl/Switch instalados y actualizados"
+	else
+		GraLog AFINSTAL INFO "No hace falta actualizar Perl/Switch."
 	fi
 }
 
 # Aceptacion de terminos y condiciones. 
 #
 function terminosYCondiciones(){
+	GraLog AFINSTAL INFO "Impresion terminos y condiciones"
 	echo "***************************************************************"
 	echo "*"
 	echo "*			Proceso de Instalacion \"AFRA-J\" 		 "
@@ -347,7 +368,7 @@ function terminosYCondiciones(){
 # Mostrar los valores de los parametros configurados y preguntar para continuar o voler atrás. 
 #
 function imprimirConfiguracion(){
-	echo "(logInfo) step 18: Parametros configurados."
+	GraLog AFINSTAL INFO "Impresion parametros configurados"
 
 	echo "Detalles de instalacion:"
 	echo -e "\t Directorio de Ejecutables: $BINDIR"
@@ -391,14 +412,16 @@ then
 	# Mostrar como quedo configurada la instalacion.
 	imprimirConfiguracion
 
-	# Interaccion con el usuario.	
-	echo "Desea continuar con la instalación? (Si-No)"
+	# Interaccion con el usuario.
+	GraLog AFINSTAL INFO "Confirmar configuracion."
+	echo "Por favor, confirme la configuracion mostrada. (Si-No)"
 	read INPUT_USUARIO		
 	
 	# Validar Si el Usuario desea continuar
-	usuarioContinuar $INPUT_USUARIO "Siguiente..."
+	usuarioContinuar $INPUT_USUARIO ""
 	
 	#Confirmar inicio de instalacion
+	GraLog AFINSTAL INFO "Iniciar instalacion?."
 	echo "Iniciando Instalacion. Esta Ud. seguro? (Si-No)"
 	read INPUT_USUARIO 
 
@@ -406,8 +429,9 @@ then
 	usuarioContinuar $INPUT_USUARIO "Iniciando instalacion del sistema AFRA-J"
 	
 	# Instalacion
-	instalacion 
-	
+	instalacion
+	echo "Instalacion concluida."
+	GraLog AFINSTAL INFO "Fin corrida AFINSTAL completada."
 	exit 1
 else
 	if [ "$CMD_INSTALL" == "--help" ] || [ "$CMD_INSTALL" == "-h" ]

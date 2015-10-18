@@ -94,6 +94,14 @@ function GraLog {
 	#Nombre del comando
 	NOMBRE_COMANDO="$1"
 
+	if [ "$NOMBRE_COMANDO" == "AFINSTAL" ]
+	then
+		LOGDIR_AUX="$LOGDIR"
+		LOGDIR="$GRUPO/conf"
+		LOGEXT_AUX="$LOGEXT"
+		LOGEXT="lg"
+	fi
+
 	#Tipo de MENSAJE #de minusculas a mayusculas
 	tipo="`echo $2 | tr "[:lower:]" "[:upper:]"`"
 
@@ -147,6 +155,12 @@ function GraLog {
 	echo $NOMBRE_COMANDO.$EXTENSION_ARCH_LOG" - "`date '+%m-%d-%y %T'`" - "$NOMBRE_USUARIO" - "$NOMBRE_COMANDO" - "$TIPO_MENSAJE" - "$MENSAJE>>$DIRECTORIO_LOGS/"$NOMBRE_COMANDO."$EXTENSION_ARCH_LOG
 	
 	verificarSiArchivoExcedeLogsize
+	
+	if [ "$NOMBRE_COMANDO" == "AFINSTAL" ]
+	then
+		LOGDIR="$LOGDIR_AUX"
+		LOGEXT="$LOGEXT_AUX"
+	fi
 
 }
 

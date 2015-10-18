@@ -42,6 +42,7 @@ function MoverA {
 	if [[ "$origen" == "" ]] || [[ "$destino" == "" ]]
 	then
 		#echo "Origen o destino sin especificar, aborto devolviendo 1"
+		GraLog $llamador ERR "MoverA: no se especifico origen o destino"
 		return 1
 	fi
 
@@ -49,6 +50,7 @@ function MoverA {
 	if [[ "$origen" == "$destino" ]]
 	then
 		#echo "Origen y destino son iguales, aborto devolviendo 2"
+		GraLog $llamador ERR "MoverA: Origen y destino son iguales"
 		return 2
 	fi
 
@@ -56,6 +58,7 @@ function MoverA {
 	if [ ! -e "$origen" ]
 	then
 		#echo "No existe el origen, aborto con 3"
+		GraLog $llamador ERR "MoverA: No existe file origen"
 		return 3
 	fi
 
@@ -63,6 +66,7 @@ function MoverA {
 	if [ ! -e "$dir_destino" ]
 	then
 		#echo "No existe el directorio destino, aborto con 4"
+		GraLog $llamador ERR "MoverA: No existe directorio destino"
 		return 4
 	fi
 
@@ -70,9 +74,11 @@ function MoverA {
 	if [ ! -e "$destino" ]
 	then
 		#echo "No existe el file destino, se mueve ok"
+		GraLog $llamador INFO "MoverA: Movido file con exito"
 		mv "$origen" "$destino"
 	else
 		#echo "Ya existe el file destino, moviendo a duplicados"
+		GraLog $llamador INFO "MoverA: File duplicado, redirigido"
 		mkdir -p "${dir_destino}/duplicados"
 		if [ ! -e "${dir_destino}/duplicados/${filename_destino}" ]
 		then
