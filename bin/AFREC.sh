@@ -1,11 +1,9 @@
 #!/bin/bash
 source MoverA.sh
 source GraLog.sh
-#source AFUMB.sh
+source AFUMB.sh
 
-echo "PWD: " $PWD
-cd ..
-echo "PWD: " $PWD
+
 # SERVICIO: AFREC.sh
 # USO: $ ARFREC.sh ARGUMENTO_1
 # ARGUMENTO_1: start|stop|status
@@ -24,7 +22,7 @@ ARG_1=$1
 validarTipoArchivo() {
   nombre_archivo=$1
 
-    tipo_archivo=$(file -b --mime-type "./nov/$nombre_archivo")
+    tipo_archivo=$(file -b --mime-type "$NOVEDIR$nombre_archivo")
     if [ "$tipo_archivo" = "text/plain" ]
   	then
    	 echo 0
@@ -108,8 +106,8 @@ validarNombreArchivo() {
   fi
 
   #Valida que el cod_central exista en el maestro de centrales
-  existe=$(grep "$cod_central" "./master/CdC")
-  #existe=$(grep "zsds" "./master/CdC")
+  existe=$(grep "$cod_central" "$MAEDIR/CdC")
+  
   cod_obtenido=$(echo "$existe" | cut -d ';' -f 1)
   #$printf $cod_obtenido
   #$printf $cod_central
@@ -126,11 +124,11 @@ validarNombreArchivo() {
 # Rechaza el archivo
 rechazar() {
   nombre_archivo=$1
-  origen="./nov/"$nombre_archivo
+  origen=$NOVEDIR$nombre_archivo
   
   #invocar a moverA para rechazar
-  MoverA $origen "./rech/"$nombre_archivo
-  #mv "$origen" "./rech"
+  MoverA $origen $RECHDIR$nombre_archivo
+  
   return
 	
 }
@@ -178,12 +176,12 @@ while [ true ]
 do
 #1- Log nro de ciclo.
 numero_ciclo=$(($numero_ciclo+1))
-#GraLog AFREC INFO "Ciclo: $numero_ciclo"
+GraLog AFREC INFO "Ciclo: $numero_ciclo"
 #echo Numero de ciclo: $numero_ciclo
 
 #2- Chequea si hay archivos en NOVEDIR y los valida.
 
-find "./nov" -type f | while read file; do
+find $NOVEDIR -type f | while read file; do
     nombre_archivo="$( echo "$file" | grep '[^/]*$' -o )"
 	
 	#echo $nombre_archivo	
@@ -198,12 +196,12 @@ find "./nov" -type f | while read file; do
            if [ $nombre_archivo_ok -eq 0 ]; then
 
              #echo el nombre esta bien
-	     origen="./nov/"$nombre_archivo
+	     origen=$NOVEDIR$nombre_archivo
 
 	     #6-invocar a moverA para aceptar
 	     
-	     MoverA $origen "./acep/"$nombre_archivo
-	     #mv "$origen" "./acep"
+	     MoverA $origen $ACEPDIR$nombre_archivo
+	     
     	   else
              echo $(rechazar $nombre_archivo)
 	   fi
@@ -217,17 +215,17 @@ find "./nov" -type f | while read file; do
   
 done
 
-if [ "$(ls -A "./acep")" ]; then
+if [ "$(ls -A $ACEPDIR)" ]; then
 
      #echo AFUMB
-     #GraLog AFREC INFO "AFUMB corriendo"
+     GraLog AFREC INFO "AFUMB corriendo"
      bash ./bin/AFUMB.sh
 else
-    echo ""./acep" esta vacio"
-    #GraLog AFREC INFO "Invocacion de AFUMB pospuesta para el siguiente ciclo"
+    #echo ""./acep" esta vacio"
+    GraLog AFREC INFO "Invocacion de AFUMB pospuesta para el siguiente ciclo"
 fi
 
-sleep 120 #cada 30 segundos se repite; se  puede cancelar con: ctrl+c
+sleep 120 #cada 30 segundos se repite;
 done
 }
 
