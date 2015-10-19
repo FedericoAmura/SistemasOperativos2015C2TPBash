@@ -1,16 +1,16 @@
 #!/bin/bash
 
-source $DIR/MoverA.sh
-source $DIR/GraLog.sh
+source $BINDIR/MoverA.sh
+source $BINDIR/GraLog.sh
 
 # Variables / Constantes
 # ==============================================================================================
 NOVEDIR=$NOVEDIR
 MAEDIR=$MAEDIR
-MAE_COD_PAIS="$MAEDIR/CdP"
-MAE_COD_AREA_ARG="$MAEDIR/CdA"
-MAE_CENTRAL="$MAEDIR/CdC"
-MAE_AGENTES="$MAEDIR/agentes"
+MAE_COD_PAIS="$MAEDIR/CdP.csv"
+MAE_COD_AREA_ARG="$MAEDIR/CdA.csv"
+MAE_CENTRAL="$MAEDIR/CdC.csv"
+MAE_AGENTES="$MAEDIR/agentes.csv"
 
 
 DIRECTORIO_ACEP=$ACEPDIR #Obtengo el directorio donde se almacenan los archivos aceptados.
@@ -402,10 +402,10 @@ function determinarLlamadasSospechosas(){
 	# Por cada llamada. Busco en el umbral y clasifico.
 	#	
 	# Cantidad de registros a procesar.
-	CANT_REGISTROS=$(grep $LL_NU_LINEA_A $MAEDIR/umbral.tab | wc -l) 
+	CANT_REGISTROS=$(grep $LL_NU_LINEA_A $MAEDIR/umbrales.csv | wc -l) 
 	
 	# Registros a procesar en un archivo temporal.
-	grep $LL_NU_LINEA_A $MAEDIR/umbral.tab >> temporal_umbral #CAmbiar por la linea de arriba.
+	grep $LL_NU_LINEA_A $MAEDIR/umbrales.csv >> temporal_umbral #CAmbiar por la linea de arriba.
 	
 	if [ $CANT_REGISTROS -eq 0  ]; then
 		#echo "La llamada $LL_NU_LINEA_A no se encuentra en la lista de umbrales, contabilizar."
@@ -527,6 +527,8 @@ do
 		fi	
 				
 	done < $path_origen
+
+	rm $DIRECTORIO_PROC/nombres_archivos.tmp
 
 	#6 - FIN DEL ARCHIVO	
 	path_destino_proc=$DIRECTORIO_PROC"/"$FILE
