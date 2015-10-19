@@ -211,8 +211,7 @@ function moverFiles(){
 	MoverA $GRUPO/data/tllama.tab $MAEDIR/tllama.tab AFINSTAL
 	MoverA $GRUPO/data/agentes.csv $MAEDIR/agentes.csv AFINSTAL
 	#Muevo el resto de los archivos a novedades
-	for ARCHIVO in $(ls -w1 $GRUPO/data ); do
-		echo "$ARCHIVO"
+	for ARCHIVO in $(ls -w1 $GRUPO/data ); do		
 		MoverA $GRUPO/data/$ARCHIVO $NOVEDIR/$ARCHIVO AFINSTAL
 	done
 
