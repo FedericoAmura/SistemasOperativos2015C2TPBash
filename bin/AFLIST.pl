@@ -103,6 +103,7 @@ sub menu_r
 	my @subllamadas;
 	my @nombresArchivos;
 	my @archivos;
+	my @archivosDir;
 	my $input = '';
 	my $aux = '';
 	my $informe = '';
@@ -128,9 +129,10 @@ sub menu_r
 			case "1"
 			{
 				print "Ingreso archivos procesados.\n";
-				$origen = "/home/freddy/Workspace/TPSisOp/bin/proc";
-				@oficinas = definir_oficinas();
-				@aniomes = definir_aniomes();
+				$origen = "/home/freddy/Workspace/TPSisOp/bin/proc";#"$ENV{'PROCDIR'};
+				@archivosDir = &getArchivosDir("/home/freddy/Workspace/TPSisOp/bin/proc");#"$ENV{'PROCDIR'}");
+				@oficinas = definir_oficinas(@archivosDir);
+				@archivos = definir_aniomes(@oficinas);
 				foreach (@oficinas){
 					$aux=$_;
 					foreach (@aniomes){
@@ -141,11 +143,7 @@ sub menu_r
 			case "2"
 			{
 				print "Ingreso informes previos.\n";
-				$origen = "/home/freddy/Workspace/TPSisOp/bin/reportes";
-				@subllamadas = definir_subllamadas_origen();
-				foreach (@subllamadas){
-					push(@nombresArchivos,"subllamada.".$_);
-		 		}
+				@archivos = definir_subllamadas_origen();
 			}
 			case "0"
 			{
@@ -153,38 +151,85 @@ sub menu_r
 			}
 		}
 
-		foreach (@nombresArchivos){
-			print "Archivo: ".$_." incluido.\n";
-		}
-		foreach (@nombresArchivos){
-			open($aux,"</home/freddy/Workspace/TPSisOp/bin/proc/".$_) || die "Error: No se pudo abrir ".$_ ."\n";
-			push(@archivos,$aux);
-		}
-		foreach (@archivos){
-			print "Archivo: ".$_." abierto.\n";
-			while (my $linea = <ENT>){
-				chomp($linea);
-				print "Linea: ".$linea."\n"
-				#my @reg=split(";",$linea);
-				#if ($input_llam_seg == "1"){ #filtro por cantidad de llamadas
-				#	$centrales{$reg[0]}+=1; 
-				#}
+		foreach (@archivosDir){
+		 	next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
+		 	print "procesando...". $_ ."\n";
+		 	sleep 1;
+
+			open (ENT,"<$ENV{'PROCDIR'}/".$_) || die "Error: No se pudo abrir ".$_ ."\n";
+		    	while (my $linea = <ENT>){
+				chomp($linea);	
+				my @reg=split(";",$linea);
+				if ($input_llam_seg == "1"){ #filtro por cantidad de llamadas
+					$centrales{$reg[0]}+=1; 
+				}
+				if ($input_llam_seg == "2"){ # filtro por cantidad de segundos
+					$centrales{$reg[0]}+=$reg[5];
+				}
+			}
+			close (ENT);
+		}#foreach
+
+		print "\n";
+		print "Ingrese cual es el filtro que desea aplicar:\n";
+		print "1.Filtro por central.\n";
+		print "2.Filtro por agente.\n";
+		print "3.Filtro por umbral.\n";
+		print "4.Filtro por tipo de llamada.\n";
+		print "5.Filtro por tiempo de conversacion.\n";
+		print "6.Filtro por numero A.\n";
+		print "0.Salir\n";
+
+		print "Ingresar una opcion: ";
+		$input = <STDIN>;
+		chomp($input);
+		
+		switch ($input)
+		{
+			case "1"
+			{
+				print "Ingreso filtro por central.\n";
+			}
+			case "2"
+			{
+				print "Ingreso filtro por agente.\n";
+			}
+			case "3"
+			{
+				print "Ingreso filtro por umbral.\n";
+			}
+			case "4"
+			{
+				print "Ingreso filtro por tipo de llamada.\n";
+			}
+			case "5"
+			{
+				print "Ingreso filtro por tiempo de conversacion.\n";
+			}
+			case "6"
+			{
+				print "Ingreso filtro por numero A.\n";
+			}
+			case "0"
+			{
+				exit;
 			}
 		}
-
-				
-		#realizar_informe();
 
 		foreach (@archivos){
 			close($_);
 		}
+
+		&emitir_informe($informe);
 
 	}
 } #end menu_r
 
 sub definir_oficinas
 {	
-	my @retval;
+	my @filtrar = @_;
+	my @filtros;
+	my @nombreFile;
 	my $input = '';
 	print "Ingrese los codigos de oficina que quiere incluir en su reporte.\n";
 	print "Si no ingresa ninguna, se incluiran todas.\n";
@@ -194,15 +239,20 @@ sub definir_oficinas
 		$input = <STDIN>;
 		chomp($input);
 		if ( $input ne "0" ){
-			push(@retval, $input);
+			push(@filtros, $input);
 		}
+	}
+	foreach(@filtrar){
+		print "Archivo: ".$_."\n";
+		my @nombreFile=split("_",$_);
 	}
 	return @retval;
 }
 
 sub definir_aniomes
 {
-	my @retval;
+	my @filtrar = @_;
+	my @filtros;
 	my $input = '';
 	print "Ingrese los aniomeses que quiere incluir en su reporte.\n";
 	print "Si no ingresa ninguno, se incluiran todos.\n";
@@ -212,7 +262,7 @@ sub definir_aniomes
 		$input = <STDIN>;
 		chomp($input);
 		if ( $input ne "0" ){
-			push(@retval, $input);
+			push(@filtros, $input);
 		}
 	}
 	return @retval;
@@ -220,8 +270,8 @@ sub definir_aniomes
 
 sub definir_subllamadas_origen
 {
-my @retval;
-	my $input = '';
+	my @retval;
+	my $input = '1';
 	print "Ingrese los reportes de origen que quiere incluir en su reporte.\n";
 	print "Si no ingresa ninguno, se incluiran todos.\n";
 	print "Para terminar, ingrese 0.\n";
@@ -230,15 +280,11 @@ my @retval;
 		$input = <STDIN>;
 		chomp($input);
 		if ( $input ne "0" ){
-			push(@retval, $input);
+			open (ENT,"</home/freddy/Workspace/TPSisOp/bin/reportes/subllamada.".$input) || die "Error: No se pudo abrir el informe previo ".$input ."\n";
+			push(@retval, ENT);
 		}
 	}
 	return @retval;
-}
-
-sub realizar_informe
-{
-	emitir_informe();
 }
 
 sub emitir_informe
@@ -249,16 +295,18 @@ sub emitir_informe
 		print "Exportando a archivo...\n";
 		my $filename = 'subllamada.' . $file;
 		open(my $file_reporte, '>>', $filename) or die "No se pudo generar el archivo: '$filename' $!" ;
-		print $file_reporte "una cadena de prueba";
+		print $file_reporte $_[0];
 		close($file_reporte);
 		$file += 1;
 		print "Exportado con exito\n";
 	}
 	else
 	{
-		print "Estadisticas y header del informe\n";
-		print "File vale: ".$file."\n";
-		print "una cadena de prueba\n";
+		print "Informe:\n";
+		print "IDcentral;IDagente;IDumbral;TipoLlamada;InicioLlamada;TiempoConversacion;NumeroA;NumeroB;FechaArchivo\n";
+		print $_[0];
+		print "Presione una tecla para continuar...\n";
+		my $input_opt = <STDIN>;
 	}
 }
 
