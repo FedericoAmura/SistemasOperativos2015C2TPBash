@@ -10,7 +10,7 @@
 #4: destino no existe
 
 #definimos la variable contador en cero si es que no esta ya definida
-if [ -z "$contador"]
+if [ -z "$contador" ]
 then
 	contador=0
 fi
