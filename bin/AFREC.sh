@@ -127,7 +127,7 @@ rechazar() {
   origen=$NOVEDIR$nombre_archivo
   
   #invocar a moverA para rechazar
-  MoverA $origen $RECHDIR$nombre_archivo
+  MoverA $origen $RECHDIR$nombre_archivo AFREC
   
   return
 	
@@ -200,7 +200,7 @@ find $NOVEDIR -type f | while read file; do
 
 	     #6-invocar a moverA para aceptar
 	     
-	     MoverA $origen $ACEPDIR$nombre_archivo
+	     MoverA $origen $ACEPDIR$nombre_archivo AFREC
 	     
     	   else
              echo $(rechazar $nombre_archivo)
