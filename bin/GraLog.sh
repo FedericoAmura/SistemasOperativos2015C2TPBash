@@ -24,8 +24,8 @@ verificarSiArchivoExcedeLogsize (){
 	if [ "$arch_log"="$NOMBRE_COMANDO.$EXTENSION_ARCH_LOG" ]
 
 	then
-		cd $DIRECTORIO_LOGS
-		cant_bytes=`wc -c $arch_log | cut -d' ' -f1` #Tomo la cantidad de bytes que ocupa
+		#cd $DIRECTORIO_LOGS
+		cant_bytes=`wc -c $DIRECTORIO_LOGS"/"$arch_log | cut -d' ' -f1` #Tomo la cantidad de bytes que ocupa
 
 		if [ ${cant_bytes:-0} -ge $MAX_SIZE_LOG ]
 		then
