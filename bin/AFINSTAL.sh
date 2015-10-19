@@ -210,6 +210,12 @@ function moverFiles(){
 	MoverA $GRUPO/data/umbrales.csv $MAEDIR/umbrales.csv AFINSTAL
 	MoverA $GRUPO/data/tllama.tab $MAEDIR/tllama.tab AFINSTAL
 	MoverA $GRUPO/data/agentes.csv $MAEDIR/agentes.csv AFINSTAL
+	#Muevo el resto de los archivos a novedades
+	for ARCHIVO in $(ls -w1 $GRUPO/data ); do
+		echo "$ARCHIVO"
+		MoverA $GRUPO/data/$ARCHIVO $NOVEDIR/$ARCHIVO AFINSTAL
+	done
+
 	echo "-Archivos movidos"
 	GraLog AFINSTAL INFO "Archivos movidos"
 }
