@@ -164,28 +164,28 @@ function existenScripts {
 function existenMaestrosYTablas {
 	todoOk=0
 	# chequeo si existe archivo Maestro de Código de País
-	if [ ! -f "$MAEDIR/CdP" ]; then
+	if [ ! -f "$MAEDIR/CdP.csv" ]; then
 		todoOk=1
 		echo " Archivo Maestro de Código de País: NO ENCONTRADO"
 		GraLog AFINI EF "No se encontró el archivo maestro CdP."
 	fi
 
 	# chequeo si existe archivo Maestro de Código de Area de Argentina
-	if [ ! -f "$MAEDIR/CdA" ]; then
+	if [ ! -f "$MAEDIR/CdA.csv" ]; then
 		todoOk=1
 		echo " Archivo Maestro de Código de Area de Argentina: NO ENCONTRADO"
 		GraLog AFINI EF "No se encontró el archivo maestro CdA."
 	fi
 
 	# chequeo si existe archivo Maestro de Centrales
-	if [ ! -f "$MAEDIR/CdC" ]; then
+	if [ ! -f "$MAEDIR/centrales.csv" ]; then
 		todoOk=1
 		echo " Archivo Maestro de Código de Centrales: NO ENCONTRADO"
 		GraLog AFINI EF "No se encontró el archivo maestro CdC."
 	fi
 
 	# chequeo si existe archivo Maestro de Agentes
-	if [ ! -f "$MAEDIR/agentes" ]; then
+	if [ ! -f "$MAEDIR/agentes.csv" ]; then
 		todoOk=1
 		echo " Archivo Maestro de Código de Agentes: NO ENCONTRADO"
 		GraLog AFINI EF "No se encontró el archivo maestro agentes."
@@ -199,7 +199,7 @@ function existenMaestrosYTablas {
 	fi
 
 	# chequeo si existe tabla de Umbrales de Consumo
-	if [ ! -f "$MAEDIR/umbral.tab" ]; then
+	if [ ! -f "$MAEDIR/umbrales.csv" ]; then
 		todoOk=1
 		echo " Tabla de Umbrales de Consumo: NO ENCONTRADO"
 		GraLog AFINI EF "No se encontró el archivo maestro umbral.tab ."

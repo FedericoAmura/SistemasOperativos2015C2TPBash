@@ -157,13 +157,14 @@ function instalacion(){
 	echo ""
 	echo "Instalacion:"
 	GraLog AFINSTAL INFO "Iniciando instalacion."
+	echo "PWD: $PWD"
 
 	echo "-Creacion de los directorios..."
 	GraLog AFINSTAL INFO "Creando directorios"
 	mkdir --parents "$BINDIR" "$MAEDIR" "$NOVEDIR" "$ACEPDIR" "$PROCDIR" "$REPODIR" "$LOGDIR" "$RECHDIR"	
 	echo "-Directorios creados"
 	GraLog AFINSTAL INFO "Directorios creados"
-
+	echo "PWD: $PWD"
 	verificarEspacioEnDisco
 	generateFileConfiguracion
 	moverFiles
@@ -207,6 +208,7 @@ function moverFiles(){
 	MoverA $GRUPO/data/CdP.csv $MAEDIR/CdP.csv AFINSTAL
 	MoverA $GRUPO/data/centrales.csv $MAEDIR/centrales.csv AFINSTAL
 	MoverA $GRUPO/data/umbrales.csv $MAEDIR/umbrales.csv AFINSTAL
+	MoverA $GRUPO/data/tllama.tab $MAEDIR/tllama.tab AFINSTAL
 	MoverA $GRUPO/data/agentes.csv $MAEDIR/agentes.csv AFINSTAL
 	echo "-Archivos movidos"
 	GraLog AFINSTAL INFO "Archivos movidos"
