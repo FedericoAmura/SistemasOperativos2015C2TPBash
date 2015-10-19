@@ -97,26 +97,19 @@ exit(0);
 sub menu_r
 {
 
-my $origen = "";
-my @oficinas;
-my @aniomes;
-my $subllamadas = 0;
-my @subllamadas;
-
-clear_screen();
-print "Bienvenido al generador de informes de llamadas.\n\n";
-$origen = definir_origen();
-print "Origen".$origen."\n";
-@oficinas = definir_oficinas();
-@aniomes = definir_aniomes();
-@subllamadas = definir_subllamadas_origen();
-#realizar_informe();
-
-} #end menu_r
-
-sub definir_origen
-{
+	my $origen = "";
+	my @oficinas;
+	my @aniomes;
+	my @subllamadas;
+	my @nombresArchivos;
+	my @archivos;
 	my $input = '';
+	my $aux = '';
+	my $informe = '';
+
+	clear_screen();
+
+	print "Bienvenido al generador de informes de llamadas.\n\n";
 
 	while ($input ne '0')
 	{
@@ -130,23 +123,64 @@ sub definir_origen
 		$input = <STDIN>;
 		chomp($input);
 
-		switch($input)
+		switch ($input)
 		{
 			case "1"
 			{
-				return($ENV{'PROCDIR'});
+				print "Ingreso archivos procesados.\n";
+				$origen = "/home/freddy/Workspace/TPSisOp/bin/proc";
+				@oficinas = definir_oficinas();
+				@aniomes = definir_aniomes();
+				foreach (@oficinas){
+					$aux=$_;
+					foreach (@aniomes){
+						push(@nombresArchivos,$aux."_".$_.".csv");
+					}
+				}
 			}
 			case "2"
 			{
-				return($ENV{'REPODIR'});
+				print "Ingreso informes previos.\n";
+				$origen = "/home/freddy/Workspace/TPSisOp/bin/reportes";
+				@subllamadas = definir_subllamadas_origen();
+				foreach (@subllamadas){
+					push(@nombresArchivos,"subllamada.".$_);
+		 		}
 			}
 			case "0"
 			{
 				exit;
 			}
 		}
+
+		foreach (@nombresArchivos){
+			print "Archivo: ".$_." incluido.\n";
+		}
+		foreach (@nombresArchivos){
+			open($aux,"</home/freddy/Workspace/TPSisOp/bin/proc/".$_) || die "Error: No se pudo abrir ".$_ ."\n";
+			push(@archivos,$aux);
+		}
+		foreach (@archivos){
+			print "Archivo: ".$_." abierto.\n";
+			while (my $linea = <ENT>){
+				chomp($linea);
+				print "Linea: ".$linea."\n"
+				#my @reg=split(";",$linea);
+				#if ($input_llam_seg == "1"){ #filtro por cantidad de llamadas
+				#	$centrales{$reg[0]}+=1; 
+				#}
+			}
+		}
+
+				
+		#realizar_informe();
+
+		foreach (@archivos){
+			close($_);
+		}
+
 	}
-}
+} #end menu_r
 
 sub definir_oficinas
 {	
@@ -159,7 +193,9 @@ sub definir_oficinas
 	{
 		$input = <STDIN>;
 		chomp($input);
-		push(@retval, $input);
+		if ( $input ne "0" ){
+			push(@retval, $input);
+		}
 	}
 	return @retval;
 }
@@ -175,9 +211,10 @@ sub definir_aniomes
 	{
 		$input = <STDIN>;
 		chomp($input);
-		push(@retval, $input);
+		if ( $input ne "0" ){
+			push(@retval, $input);
+		}
 	}
-	pop (@retval);
 	return @retval;
 }
 
@@ -192,7 +229,9 @@ my @retval;
 	{
 		$input = <STDIN>;
 		chomp($input);
-		push(@retval, $input);
+		if ( $input ne "0" ){
+			push(@retval, $input);
+		}
 	}
 	return @retval;
 }
@@ -211,7 +250,7 @@ sub emitir_informe
 		my $filename = 'subllamada.' . $file;
 		open(my $file_reporte, '>>', $filename) or die "No se pudo generar el archivo: '$filename' $!" ;
 		print $file_reporte "una cadena de prueba";
-		close $file_reporte;
+		close($file_reporte);
 		$file += 1;
 		print "Exportado con exito\n";
 	}
