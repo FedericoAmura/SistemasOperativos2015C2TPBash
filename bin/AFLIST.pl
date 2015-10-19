@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-use strict;
+#use strict;
 use warnings;
 use Switch;
 use Date::Parse;
@@ -295,13 +295,15 @@ while ($input ne '0')
         case "4"
         {
 		f_4_destino_llam_sospechosa();
-		
+		print "Presione una tecla para continuar...\n";
+        $input_opt = <STDIN>;  
 		$input = '';
 		}
         case "5"
         {
 		f_5_ranking_umbrales();		
-		
+		print "Presione una tecla para continuar...\n";
+        $input_opt = <STDIN>; 		
 		$input = '';
 		}
     }
@@ -344,7 +346,7 @@ sub f_1_central_cantidad_llam_sosp
 		open (ENT,"<$ENV{'PROCDIR'}/".$_) || die "Error: No se pudo abrir ".$_ ."\n";
 	    while (my $linea = <ENT>){
 			chomp($linea);	
-			@reg=split(";",$linea);
+			my @reg=split(";",$linea);
 			if ($input_llam_seg == "1"){ #filtro por cantidad de llamadas
 				$centrales{$reg[0]}+=1; 
 			}
@@ -358,7 +360,7 @@ sub f_1_central_cantidad_llam_sosp
 
     my $fecha = &getDate;
     my @rank_centrales = sort { $centrales{$b} <=> $centrales{$a} } keys %centrales;
-    my %id_centrales = cargarCodigosDeCentrales;
+    my %id_centrales = &cargarCodigosDeCentrales();
 
     # Se graba o se imprime
     if ($file eq 1){
@@ -408,12 +410,12 @@ sub f_2_ofi_cantidad_llam_sosp
 	 	print "procesando...". $_ ."\n";
 		sleep 1;
 
-		@info_oficina = split("_",$_);	 	
+		my @info_oficina = split("_",$_);	 	
 
 		open (ENT,"<$ENV{'PROCDIR'}/".$_) || die "Error: No se pudo abrir ".$_ ."\n";
 	    while (my $linea = <ENT>){
 			chomp($linea);	
-			@reg=split(";",$linea);
+			my @reg=split(";",$linea);
 
 			if ($input_llam_seg == "1"){ #filtro por cantidad de llamadas
 				$oficinas{$info_oficina[0]}+=1; 
@@ -589,8 +591,8 @@ sub f_4_destino_llam_sospechosa
     my @rank_dest_inter = sort { $destinosInter{$b} <=> $destinosInter{$a} } keys %destinosInter;
     my @rank_dest_nac = sort { $destinosNac{$b} <=> $destinosNac{$a} } keys %destinosNac;
     
-    my %id_dest_paises = cargarCodigosDePais;
-    my %id_dest_regiones = cargarCodigosDeArea;
+    my %id_dest_paises = &cargarCodigosDePais;
+    my %id_dest_regiones = &cargarCodigosDeArea;
 
 
     if ($file eq 1){
@@ -650,7 +652,7 @@ sub f_5_ranking_umbrales
 		open (ENT,"<$ENV{'PROCDIR'}/".$_) || die "Error: No se pudo abrir ".$_ ."\n";
 	    while (my $linea = <ENT>){
 			chomp($linea);	
-			@reg=split(";",$linea);
+			my @reg=split(";",$linea);
 			$umbrales{$reg[2]} += 1;
 		}
         close (ENT);
@@ -749,7 +751,7 @@ sub cargarCodigosDeAgentes(){
 	while (my $linea = <ENTRADA>){
 		chomp($linea);
 		@info_agentes = split(";",$linea); 
-		$hash_agentes{$info_agentes[0]} = @info_agentes;
+		$hash_agentes{$info_agentes[0]} = [@info_agentes];
 	}
 	return %hash_agentes;
 }
