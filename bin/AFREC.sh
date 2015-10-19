@@ -219,7 +219,7 @@ if [ "$(ls -A $ACEPDIR)" ]; then
 
      #echo AFUMB
      GraLog AFREC INFO "AFUMB corriendo"
-     bash ./bin/AFUMB.sh
+     bash $BINDIR/AFUMB.sh
 else
     #echo ""./acep" esta vacio"
     GraLog AFREC INFO "Invocacion de AFUMB pospuesta para el siguiente ciclo"
