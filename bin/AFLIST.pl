@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-use strict;
+#use strict;
 use warnings;
 use Switch;
 use Date::Parse;
@@ -295,13 +295,15 @@ while ($input ne '0')
         case "4"
         {
 		f_4_destino_llam_sospechosa();
-		
+		print "Presione una tecla para continuar...\n";
+        $input_opt = <STDIN>;  
 		$input = '';
 		}
         case "5"
         {
 		f_5_ranking_umbrales();		
-		
+		print "Presione una tecla para continuar...\n";
+        $input_opt = <STDIN>; 		
 		$input = '';
 		}
     }
@@ -344,7 +346,7 @@ sub f_1_central_cantidad_llam_sosp
 		open (ENT,"<$ENV{'PROCDIR'}/".$_) || die "Error: No se pudo abrir ".$_ ."\n";
 	    while (my $linea = <ENT>){
 			chomp($linea);	
-			@reg=split(";",$linea);
+			my @reg=split(";",$linea);
 			if ($input_llam_seg == "1"){ #filtro por cantidad de llamadas
 				$centrales{$reg[0]}+=1; 
 			}
@@ -358,7 +360,7 @@ sub f_1_central_cantidad_llam_sosp
 
     my $fecha = &getDate;
     my @rank_centrales = sort { $centrales{$b} <=> $centrales{$a} } keys %centrales;
-    my %id_centrales = cargarCodigosDeCentrales;
+    my %id_centrales = &cargarCodigosDeCentrales();
 
     # Se graba o se imprime
     if ($file eq 1){
@@ -408,12 +410,12 @@ sub f_2_ofi_cantidad_llam_sosp
 	 	print "procesando...". $_ ."\n";
 		sleep 1;
 
-		@info_oficina = split("_",$_);	 	
+		my @info_oficina = split("_",$_);	 	
 
 		open (ENT,"<$ENV{'PROCDIR'}/".$_) || die "Error: No se pudo abrir ".$_ ."\n";
 	    while (my $linea = <ENT>){
 			chomp($linea);	
-			@reg=split(";",$linea);
+			my @reg=split(";",$linea);
 
 			if ($input_llam_seg == "1"){ #filtro por cantidad de llamadas
 				$oficinas{$info_oficina[0]}+=1; 
@@ -449,93 +451,72 @@ sub f_2_ofi_cantidad_llam_sosp
 
 sub f_3_agente_cantidad_llam_sosp
 {
+	my $input_llam_seg = $_[0];
+	my %agentes;
+	print "\n";
 	print "llamando..f_3_agente_cantidad_llam_sosp\n";
+	print "Agentes con mayor cantidad de llamadas sospechosas\n";
 	if ($_[0] == "1"){
-	print "con filtro por cantidad de llamadas\n";	
+		print "con filtro por cantidad de llamadas\n";
 	}
 	if ($_[0] == "2"){
-	print "con filtro por cantidad de segundos\n";	
+		print "con filtro por cantidad de segundos\n";
 	}
-	my %age;
-	my @reg;
-    my $sec;
-    my $min;
-    my $hora;
-    my $dia;
-    my $mes;
-    my $anio;
-	($sec,$min,$hora,$dia,$mes,$anio)=localtime;    
-    $anio+=1900;
-    $mes++;
-	my $fecha = $anio.$mes.$dia."_".$hora.$min.$sec;
-    my $input_periodo='';
-    my $fecha_ok="N";	
-	
-	opendir (DIR,"./proc/") || die "Error el directorio no existe\n";
-	my @indice = readdir(DIR);
-	closedir(DIR);
 
-    while ($input_periodo eq '' && $fecha_ok eq "N")
-    {
-    print "Ingrese el periodo a filtrar YYYY o YYYYMM: ";
-    $input_periodo = <STDIN>;
-    chomp($input_periodo);	
-	    if ($input_periodo !~ /(\d{4})(\d\d)/  ||  $input_periodo !~ /(\d{4})/) {
-	    print "Error al ingresar fecha: [YYYY] o [YYYYMM]\n";    
-	    }
-	    else { 
-		$fecha_ok="S";
-	    }
-    }        
-    
-    foreach my $archivos (@indice)
-	{
-	 next unless ($archivos =~ /$input_periodo\.csv$/);
-	 print "procesando...". $archivos ."\n";
-	 sleep 1;
+	# El usuario puede ingresar uno ó  más períodos
+	my @input_periodos = &definir_aniomes;
+	my @input_periodos_validos;
+	foreach (@input_periodos){
+		if (&validarFecha($_) > 0){
+			push (@input_periodos_validos, $_);
+		}
+	}
+	my @archivos = &getArchivosDir("$ENV{'PROCDIR'}");
 
-		open (ENT,"<./proc/".$archivos) || die "Error: No se pudo abrir ".$archivos ."\n";
-	    while (<ENT>)
-	    {
-		chomp($_);	
-		@reg=split(";",$_);
-		if ($_[0] == "1"){ #filtro por cantidad de llamadas
-			$age{$reg[1]}+=1; 
-		}
-		if ($_[0] == "2"){ # filtro por cantidad de segundos
-			$age{$reg[1]}+=$reg[5]; 	
-		}
+    foreach (@archivos){
+	 	next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
+	 	print "procesando...". $_ ."\n";
+
+		open (ENT,"<../proc/".$_) || die "Error: No se pudo abrir ".$_ ."\n";
+	    while (my $linea = <ENT>){
+			chomp($linea);	
+			@reg=split(";",$linea);
+			if ($input_llam_seg == "1"){ #filtro por cantidad de llamadas
+				$agentes{$reg[1]}+=1; 
+			}
+			if ($input_llam_seg == "2"){ # filtro por cantidad de segundos
+				$agentes{$reg[1]}+=$reg[5];
+			}
 		}
         close (ENT);
     }#foreach
-    
-    
-	if ( $file eq 1 ) #escribe en archivo?
-	{
-	open (SAL,">estad_".$fecha.".csv");
-    }
-	#foreach (keys (%age))
-    #	my $linea;
-    #   foreach $linea (sort { $age{$a} <=> $age{$b} } keys %age)
-    foreach (sort { $age{$a} <=> $age{$b} } keys %age)	
-	{
-		if ( $file eq 1 )
-		{
-		print SAL $_.";".$age{$_} ."\n";
-		#print SAL  $linea .";" . $age{$linea}."\n";
-		} else 
-		{
-		print $_.";".$age{$_} ."\n";
-		}
-	};
-    
-    if ( $file eq 1 )
-	{
-	    print "se genero estad_".$fecha.".csv\n";
+    print "\n";
+
+    my $fecha = &getDate;
+    my @rank_agentes = sort { $agentes{$b} <=> $agentes{$a} } keys %agentes;
+    my %id_agentes = &cargarCodigosDeAgentes();
+
+    #foreach (@rank_agentes){
+    #print $rank_agentes[0]."\n";
+    #print $id_agentes{$rank_agentes[0]}[0]."\n";
+    #}
+
+    if ($file eq 1){
+ 		open (SAL,">estad_".$fecha.".csv");
+
+    	foreach my $k (@rank_agentes){
+		#	#print $id_agentes{$_}[0].";".$agentes{$_} ."\n";
+			print SAL $k.";".$agentes{$k}.";". $id_agentes{$k}[3].";". $id_agentes{$k}[4]."\n";			
+ 		}
+ 		print "se genero estad_".$fecha.".csv\n";
 	    close (SAL);
-    } 
-	
-	
+    }else{
+    	foreach my $k (@rank_agentes){
+		#	#print $id_agentes{$_}[0].";".$agentes{$_} ."\n";
+			print $k.";".$agentes{$k}.";". $id_agentes{$k}[3].";". $id_agentes{$k}[4];			
+			print "\n";
+ 		}
+    }		
 	
 }
 
@@ -589,8 +570,8 @@ sub f_4_destino_llam_sospechosa
     my @rank_dest_inter = sort { $destinosInter{$b} <=> $destinosInter{$a} } keys %destinosInter;
     my @rank_dest_nac = sort { $destinosNac{$b} <=> $destinosNac{$a} } keys %destinosNac;
     
-    my %id_dest_paises = cargarCodigosDePais;
-    my %id_dest_regiones = cargarCodigosDeArea;
+    my %id_dest_paises = &cargarCodigosDePais;
+    my %id_dest_regiones = &cargarCodigosDeArea;
 
 
     if ($file eq 1){
@@ -650,7 +631,7 @@ sub f_5_ranking_umbrales
 		open (ENT,"<$ENV{'PROCDIR'}/".$_) || die "Error: No se pudo abrir ".$_ ."\n";
 	    while (my $linea = <ENT>){
 			chomp($linea);	
-			@reg=split(";",$linea);
+			my @reg=split(";",$linea);
 			$umbrales{$reg[2]} += 1;
 		}
         close (ENT);
@@ -749,7 +730,7 @@ sub cargarCodigosDeAgentes(){
 	while (my $linea = <ENTRADA>){
 		chomp($linea);
 		@info_agentes = split(";",$linea); 
-		$hash_agentes{$info_agentes[0]} = @info_agentes;
+		$hash_agentes{$info_agentes[0]} = [@info_agentes];
 	}
 	return %hash_agentes;
 }
