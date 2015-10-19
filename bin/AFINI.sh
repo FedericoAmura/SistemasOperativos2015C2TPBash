@@ -363,7 +363,6 @@ function arrancarAFREC {
 			sleep 1
 			
 			echo "AFREC corriendo bajo el no.: <Process Id de AFREC>"
-			echo "pwd:  $PWD"
 			source ./ARRANCAR.sh
 			#exit
 		else

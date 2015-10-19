@@ -21,8 +21,7 @@ ARG_1=$1
 # Recibe el nombre del archivo.
 validarTipoArchivo() {
   nombre_archivo=$1
-
-    tipo_archivo=$(file -b --mime-type "$NOVEDIR$nombre_archivo")
+    tipo_archivo=$(file -b --mime-type "$NOVEDIR/$nombre_archivo.csv")
     if [ "$tipo_archivo" = "text/plain" ]
   	then
    	 echo 0
@@ -106,7 +105,7 @@ validarNombreArchivo() {
   fi
 
   #Valida que el cod_central exista en el maestro de centrales
-  existe=$(grep "$cod_central" "$MAEDIR/CdC")
+  existe=$(grep "$cod_central" "$MAEDIR/centrales.csv")
   
   cod_obtenido=$(echo "$existe" | cut -d ';' -f 1)
   #$printf $cod_obtenido
@@ -124,10 +123,10 @@ validarNombreArchivo() {
 # Rechaza el archivo
 rechazar() {
   nombre_archivo=$1
-  origen=$NOVEDIR$nombre_archivo
+  origen=$NOVEDIR/$nombre_archivo
   
   #invocar a moverA para rechazar
-  MoverA $origen $RECHDIR$nombre_archivo AFREC
+  MoverA $origen.csv $RECHDIR/$nombre_archivo.csv AFREC
   
   return
 	
@@ -180,11 +179,12 @@ GraLog AFREC INFO "Ciclo: $numero_ciclo"
 #echo Numero de ciclo: $numero_ciclo
 
 #2- Chequea si hay archivos en NOVEDIR y los valida.
-
+echo "$NOVEDIR"
 find $NOVEDIR -type f | while read file; do
-    nombre_archivo="$( echo "$file" | grep '[^/]*$' -o )"
-	
-	#echo $nombre_archivo	
+	nombre_archivo=${file##*/}
+	nombre_archivo=${nombre_archivo%%.*}
+#    nombre_archivo="$( echo "$file" | grep '[^/]*$' -o )" #BackUp
+
         tipo_archivo_ok=$(validarTipoArchivo $nombre_archivo)
 	if [ $tipo_archivo_ok -eq 0 ]; then
      	 #echo es de texto
@@ -196,11 +196,10 @@ find $NOVEDIR -type f | while read file; do
            if [ $nombre_archivo_ok -eq 0 ]; then
 
              #echo el nombre esta bien
-	     origen=$NOVEDIR$nombre_archivo
+	     origen=$NOVEDIR/$nombre_archivo
 
 	     #6-invocar a moverA para aceptar
-	     
-	     MoverA $origen $ACEPDIR$nombre_archivo AFREC
+	     MoverA $origen.csv $ACEPDIR/$nombre_archivo.csv AFREC
 	     
     	   else
              echo $(rechazar $nombre_archivo)
