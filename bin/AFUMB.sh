@@ -335,6 +335,14 @@ rechazarRegistro() {
 	REGISTRO=$1
 	FUENTE=$2	
 	MOTIVO=$3
+	ID_AGENTE=$(echo "$REGISTRO" | cut -d ';' -f 1)
+	INICIO_LLAMADA=$(echo "$REGISTRO" | cut -d ';' -f 2)
+	TIEMPO_CONV=$(echo "$REGISTRO" | cut -d ';' -f 3)
+	AREA_NUMERO_A=$(echo "$REGISTRO" | cut -d ';' -f 4)
+	NUMERO_A=$(echo "$REGISTRO" | cut -d ';' -f 5)
+	COD_PAIS_NUMERO_B=$(echo "$REGISTRO" | cut -d ';' -f 6)
+	AREA_NUMERO_B=$(echo "$REGISTRO" | cut -d ';' -f 7)
+	NUMERO_B=$(echo "$REGISTRO" | cut -d ';' -f 8)
 	COD_CENTRAL=$(echo "$FUENTE" | cut -d '_' -f 1)
 	NOMBRE_ARCHIVO=$COD_CENTRAL".rech"
 	PATH_ARCH_RECHAZADOS=$DIRECTORIO_RECH"/Llamadas"
@@ -355,7 +363,7 @@ rechazarRegistro() {
 	fi
 
 	#GUARDO EL REGISTRO	
-	echo $FUENTE";"$MOTIVO";"$REGISTRO>>"$PATH_ARCH_RECHAZADOS/$NOMBRE_ARCHIVO"
+	echo $FUENTE";"$MOTIVO";"$ID_AGENTE";"$INICIO_LLAMADA";"$TIEMPO_CONV";"$AREA_NUMERO_A";"$NUMERO_A";"$COD_PAIS_NUMERO_B";"$AREA_NUMERO_B";"$NUMERO_B >>"$PATH_ARCH_RECHAZADOS/$NOMBRE_ARCHIVO"
 	
 }
 
