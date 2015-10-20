@@ -47,25 +47,12 @@ function inicializarAmbiente {
 
 	# CASO 2 : AMBIENTE INICIALIZADO
 	else
-		echo "Ambiente ya inicializado."
+		echo "Ambiente ya fue inicializado."
 		echo "Para reiniciar, termine la sesión e ingrese nuevamente."
 		GraLog AFINI WAR "Se quiere inicializar ambiente ya inicializado."
-		echo "¿Desea terminar la sesión? (s-n)"
-		read terminar
-
-		if [ $terminar == 's' ]; then
-			echo "Cerrando Sesión"
-			GraLog AFINI INFO "Usuario $USER cierra sesión."
-			return 3
-		else
-			if [ $terminar == 'n' ]; then
-				echo "Continua con la sesión"
-				return 4
-			else	
-				echo "Opción ingresada inválida. Intente nuevamente"
-				inicializarAmbiente # Llamada recursiva
-			fi
-		fi
+		# Si el usuario desea arrancar el demonio
+		arrancarAFREC
+		return 1
 	fi
 
 	return 0

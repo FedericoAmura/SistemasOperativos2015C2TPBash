@@ -482,7 +482,7 @@ sub f_1_central_cantidad_llam_sosp
 
     # Se graba o se imprime
     if ($file eq 1){
- 		open (SAL,">estad_".$fecha.".csv");
+ 		open (SAL,">$ENV{'REPODIR'}/estad_".$fecha.".csv");
 
  		foreach (@rank_centrales){
  			print SAL $id_centrales{$_}.";".$centrales{$_}."\n";
@@ -554,7 +554,7 @@ sub f_2_ofi_cantidad_llam_sosp
     my @rank_oficinas = sort { $oficinas{$b} <=> $oficinas{$a} } keys %oficinas;
     
     if ($file eq 1){
- 		open (SAL,">estad_".$fecha.".csv");
+ 		open (SAL,">$ENV{'REPODIR'}/estad_".$fecha.".csv");
 
  		foreach (@rank_oficinas){
  			print SAL $_.";".$oficinas{$_}."\n";
@@ -624,7 +624,7 @@ sub f_3_agente_cantidad_llam_sosp
     #}
 
     if ($file eq 1){
- 		open (SAL,">estad_".$fecha.".csv");
+ 		open (SAL,">$ENV{'REPODIR'}/estad_".$fecha.".csv");
 
     	foreach my $k (@rank_agentes){
 		#	#print $id_agentes{$_}[0].";".$agentes{$_} ."\n";
@@ -699,7 +699,7 @@ sub f_4_destino_llam_sospechosa
 
 
     if ($file eq 1){
- 		open (SAL,">estad_".$fecha.".csv");
+ 		open (SAL,">$ENV{'REPODIR'}/estad_".$fecha.".csv");
 
  		print SAL "Destinos internacionales con mayor cantidad de llamadas sospechosas:\n";
  		foreach (@rank_dest_inter){
@@ -769,7 +769,7 @@ sub f_5_ranking_umbrales
 
 
     if ($file eq 1){
- 		open (SAL,">estad_".$fecha.".csv");
+ 		open (SAL,">$ENV{'REPODIR'}/estad_".$fecha.".csv");
 
  		foreach (@rank_umbrales){
  			if ($umbrales{$_} > 1){
