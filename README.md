@@ -30,6 +30,16 @@ Instrucciones de inicialización de ambiente
 
   2. Ejecutar ./AFINI.sh
 
+# Agregar como arrancar desde ARRANCAR.sh
+
+      Ejecutar
+          bash ARRANCAR.sh
+
+
+      
+      detener un proceso
+      bash  DETENER.sh ARRANCAR.sh
+
   ------------------------------------------------------------------------------
 Enjoy!
 

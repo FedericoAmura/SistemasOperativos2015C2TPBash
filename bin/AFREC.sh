@@ -134,10 +134,10 @@ rechazar() {
 
 
 function sanityCheck {
-#    q=`ps -ef |grep /bin/bash |grep $0 |grep -v "grep"|grep -v $$| wc -l`
-#    w=`ps -ef |grep /bin/bash |grep $0 |grep -v "grep"|grep -v $$`
-    q=`ps -ef |grep bash |grep $0 |grep -v "grep"|grep -v $$| wc -l`
-    w=`ps -ef |grep bash |grep $0 |grep -v "grep"|grep -v $$`
+    q=`ps -ef |grep /bin/bash |grep $0 |grep -v "grep"|grep -v $$| wc -l`
+    w=`ps -ef |grep /bin/bash |grep $0 |grep -v "grep"|grep -v $$`
+    #q=`ps -ef |grep bash |grep $0 |grep -v "grep"|grep -v $$| wc -l`
+    #w=`ps -ef |grep bash |grep $0 |grep -v "grep"|grep -v $$`
 
     if [ $q != "0" ]; then
 		GraLog AFREC INFO "Existe una instancia de $0 corriendo...$ARG_0 $ARG_1 $MIBASENAME"

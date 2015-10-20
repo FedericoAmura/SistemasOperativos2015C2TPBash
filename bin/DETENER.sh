@@ -47,4 +47,4 @@ return 0
 validarArgs
 stop
 
-exit 0
+#exit 0
