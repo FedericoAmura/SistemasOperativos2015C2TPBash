@@ -17,11 +17,11 @@ my $file = 0;
 #ARGUMENTO 2= -w /OPCIONAL. Si existe, escribe en un archivo el resultado
 #USO: AFLIST.pl -r/s/h [-w]"
 
-#verifica si no hay otro AFLIST en ejecucion
-#TODO
-
 #verifica que la inicializacion de ambiente este realizada
-#TODO
+if ("$ENV{'GRUPO'}" eq ""){
+	print "El ambiente no fue inicializado. Por favor, corra AFINI y vuelva a intentarlo.\n";
+	exit(1);
+}
 
 # obtiene los comandos desde los argumentos
 my $arg_0=$ARGV[0];
@@ -101,12 +101,12 @@ sub menu_r
 	my @oficinas;
 	my @aniomes;
 	my @subllamadas;
-	my @nombresArchivos;
 	my @archivos;
 	my @archivosDir;
 	my $input = '';
 	my $aux = '';
-	my $informe = '';
+	my @preInforme;
+	my @informe;
 
 	clear_screen();
 
@@ -114,6 +114,15 @@ sub menu_r
 
 	while ($input ne '0')
 	{
+		undef(@oficinas);
+		undef(@aniomes);
+		undef(@subllamadas);
+		undef(@archivos);
+		undef(@archivosDir);
+		undef(@aniomes);
+		undef(@preInforme);
+		undef(@informe);
+		
 		print "\n";
 		print "Ingrese sobre que informacion desea generar informes:\n";
 		print "1.Sobre los archivos de llamadas sospechosas.\n";
@@ -128,21 +137,16 @@ sub menu_r
 		{
 			case "1"
 			{
-				print "Ingreso archivos procesados.\n";
-				$origen = $ENV{'PROCDIR'};
+				print "Ingreso archivos procesados.\n\n";
+				$origen = "$ENV{'PROCDIR'}";
 				@archivosDir = &getArchivosDir("$ENV{'PROCDIR'}");
-				@oficinas = definir_oficinas(@archivosDir);
-				@archivos = definir_aniomes(@oficinas);
-				foreach (@oficinas){
-					$aux=$_;
-					foreach (@aniomes){
-						push(@nombresArchivos,$aux."_".$_.".csv");
-					}
-				}
+				@oficinas = &filtrar_oficinas(@archivosDir);
+				@archivos = &filtrar_aniomes(@oficinas);
 			}
 			case "2"
 			{
-				print "Ingreso informes previos.\n";
+				print "Ingreso informes previos.\n\n";
+				$origen = "$ENV{'REPODIR'}";
 				@archivos = definir_subllamadas_origen();
 			}
 			case "0"
@@ -150,26 +154,18 @@ sub menu_r
 				exit;
 			}
 		}
-
-		foreach (@archivosDir){
-		 	next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
-		 	print "procesando...". $_ ."\n";
-		 	sleep 1;
-
-			open (ENT,"<$ENV{'PROCDIR'}/".$_) || die "Error: No se pudo abrir ".$_ ."\n";
-		    	while (my $linea = <ENT>){
-				chomp($linea);	
-				my @reg=split(";",$linea);
-				if ($input_llam_seg == "1"){ #filtro por cantidad de llamadas
-					$centrales{$reg[0]}+=1; 
-				}
-				if ($input_llam_seg == "2"){ # filtro por cantidad de segundos
-					$centrales{$reg[0]}+=$reg[5];
-				}
+		
+		foreach(@archivos)
+		{
+			print "Preparando archivo: ".$_.". ";
+			open (ENT,"<$origen/$_") || die "Error: No se pudo abrir ".$_ ."\n";
+			print "Abierto.\n";
+			while (my $linea = <ENT>){
+				chomp($linea);
+				push(@preInforme,$linea);
 			}
-			close (ENT);
-		}#foreach
-
+		}
+		
 		print "\n";
 		print "Ingrese cual es el filtro que desea aplicar:\n";
 		print "1.Filtro por central.\n";
@@ -188,27 +184,29 @@ sub menu_r
 		{
 			case "1"
 			{
-				print "Ingreso filtro por central.\n";
+				print "Ingreso filtro por central.\n\n";
+				@informe = &informeFiltrandoCentral(@preInforme);
 			}
 			case "2"
 			{
-				print "Ingreso filtro por agente.\n";
+				print "Ingreso filtro por agente.\n\n";
+				@informe = &informeFiltrandoAgente(@preInforme);
 			}
 			case "3"
 			{
-				print "Ingreso filtro por umbral.\n";
+				print "Ingreso filtro por umbral.\n\n";
 			}
 			case "4"
 			{
-				print "Ingreso filtro por tipo de llamada.\n";
+				print "Ingreso filtro por tipo de llamada.\n\n";
 			}
 			case "5"
 			{
-				print "Ingreso filtro por tiempo de conversacion.\n";
+				print "Ingreso filtro por tiempo de conversacion.\n\n";
 			}
 			case "6"
 			{
-				print "Ingreso filtro por numero A.\n";
+				print "Ingreso filtro por numero A.\n\n";
 			}
 			case "0"
 			{
@@ -220,20 +218,21 @@ sub menu_r
 			close($_);
 		}
 
-		&emitir_informe($informe);
+		&emitir_informe(@informe);
 
 	}
 } #end menu_r
 
-sub definir_oficinas
+sub filtrar_oficinas
 {	
 	my @filtrar = @_;
 	my @filtros;
-	my @nombreFile;
+	my @retval;
 	my $input = '';
 	print "Ingrese los codigos de oficina que quiere incluir en su reporte.\n";
 	print "Si no ingresa ninguna, se incluiran todas.\n";
 	print "Para terminar, ingrese 0.\n";
+	#ingreso los valores que van a quedar
 	while ($input ne "0")
 	{
 		$input = <STDIN>;
@@ -242,9 +241,67 @@ sub definir_oficinas
 			push(@filtros, $input);
 		}
 	}
-	foreach(@filtrar){
-		print "Archivo: ".$_."\n";
-		my @nombreFile=split("_",$_);
+	
+	#veo si quedo vacio y en ese caso dejo todos los que empiezan con XXX
+	my $filtros = @filtros;
+	if ($filtros==0){
+		#filtro las entradas que no sean ^XXX
+		foreach(@filtrar){
+			if ($_ =~ /^[A-Z]{3}/){
+				push(@retval,$_);
+			}
+		}
+	} else {
+		#paso los valores definidos a la devolucion
+		foreach(@filtrar){
+			$aux=$_;
+			foreach(@filtros){
+				if ($aux =~ /^\Q$_/){
+					push(@retval,$aux);
+				}
+			}
+		}
+	}
+	return @retval;
+}
+
+sub filtrar_aniomes
+{
+	my @filtrar = @_;
+	my @filtros;
+	my @retval;
+	my $input = '';
+	print "Ingrese los aniomes (en formato YYYYMM) que quiere incluir en su reporte.\n";
+	print "Si no ingresa ninguna, se incluiran todos.\n";
+	print "Para terminar, ingrese 0.\n";
+	#ingreso los valores que van a quedar
+	while ($input ne "0")
+	{
+		$input = <STDIN>;
+		chomp($input);
+		if ( $input ne "0" ){
+			push(@filtros, $input);
+		}
+	}
+	#veo si quedo vacio y en ese caso dejo todos los que terminan con aniomes y ext .csv
+	my $filtros = @filtros;
+	if ($filtros==0){
+		#filtro las entradas que no sean YYYYMMDD.csvS
+		foreach(@filtrar){
+			if ($_ =~ /[0-9]{4}[01][0-9][0-3][0-9]\.csv$/){
+				push(@retval,$_);
+			}
+		}
+	} else {
+		#paso los valores definidos a la devolucion
+		foreach(@filtrar){
+			$aux=$_;
+			foreach(@filtros){
+				if ($aux =~ /${_}[0-3][0-9]\.csv$/){
+					push(@retval,$aux);
+				}
+			}
+		}
 	}
 	return @retval;
 }
@@ -299,6 +356,8 @@ sub filtrarPorAnioMes
 sub definir_subllamadas_origen
 {
 	my @retval;
+	my $retval;
+	my @aux;
 	my $input = '1';
 	print "Ingrese los reportes de origen que quiere incluir en su reporte.\n";
 	print "Si no ingresa ninguno, se incluiran todos.\n";
@@ -308,8 +367,96 @@ sub definir_subllamadas_origen
 		$input = <STDIN>;
 		chomp($input);
 		if ( $input ne "0" ){
-			open (ENT,"</home/freddy/Workspace/TPSisOp/bin/reportes/subllamada.".$input) || die "Error: No se pudo abrir el informe previo ".$input ."\n";
-			push(@retval, ENT);
+			push(@retval, "subllamada.".$input);
+		}
+	}
+	$retval = @retval;
+	if ($retval==0){
+		print "Se ingresaran todas las subllamadas.\n";
+		@aux = &getArchivosDir("$ENV{'REPODIR'}");
+		foreach(@aux)
+		{
+			if ($_ =~ /^subllamada\.[0-9]*$/){
+					push(@retval,$_);
+			}
+		}
+	}
+	return @retval;
+}
+
+sub informeFiltrandoCentral
+{
+	my @filtrar = @_;
+	my @filtros;
+	my @retval;
+	my $input = '';
+	my @aux;
+	
+	print "Ingrese los ID de las centrales que quiere incluir en su reporte.\n";
+	print "Si no ingresa ninguna, se incluiran todos.\n";
+	print "Para terminar, ingrese 0.\n";
+	#ingreso los valores que van a quedar
+	while ($input ne "0")
+	{
+		$input = <STDIN>;
+		chomp($input);
+		if ( $input ne "0" ){
+			push(@filtros, $input);
+		}
+	}
+	#veo si quedo vacio y en ese caso dejo todos los que terminan con aniomes y ext .csv
+	my $filtros = @filtros;
+	if ($filtros==0){
+		return @filtrar;
+	} else {
+		#paso los valores definidos a la devolucion
+		foreach(@filtrar){
+			$aux=$_;
+			@reg=split(";",$_);
+			foreach(@filtros){
+				if (@reg[0] eq $_){
+					push(@retval,$aux);
+				}
+			}
+		}
+	}
+	return @retval;
+}
+
+sub informeFiltrandoAgente
+{
+	my @filtrar = @_;
+	my @filtros;
+	my @retval;
+	my $input = '';
+	my @aux;
+	
+	print "Ingrese los ID de agentes que quiere incluir en su reporte.\n";
+	print "Si no ingresa ninguna, se incluiran todos.\n";
+	print "Para terminar, ingrese 0.\n";
+	#ingreso los valores que van a quedar
+	while ($input ne "0")
+	{
+		$input = <STDIN>;
+		chomp($input);
+		if ( $input ne "0" ){
+			push(@filtros, $input);
+		}
+	}
+	#veo si quedo vacio y en ese caso dejo todos los que terminan con aniomes y ext .csv
+	my $filtros = @filtros;
+	if ($filtros==0){
+		return @filtrar;
+	} else {
+		#paso los valores definidos a la devolucion
+		foreach(@filtrar){
+			$aux=$_;
+			@reg=split(";",$_);
+			foreach(@filtros){
+				if (@reg[1] eq $_){
+					push(@retval,$aux);
+				}
+			}
 		}
 	}
 	return @retval;
@@ -317,13 +464,21 @@ sub definir_subllamadas_origen
 
 sub emitir_informe
 {
+	my @informe = @_;
+	my @archivosDir;
 	if ($file)
 	{
+		@archivosDir = &getArchivosDir("$ENV{'REPODIR'}");
+		foreach(@archivosDir){
+			$file += 1;
+		}
 		print "Estadisticas del informe\n";
 		print "Exportando a archivo...\n";
 		my $filename = 'subllamada.' . $file;
-		open(my $file_reporte, '>>', $filename) or die "No se pudo generar el archivo: '$filename' $!" ;
-		print $file_reporte $_[0];
+		open(my $file_reporte, ">$ENV{'REPODIR'}/$filename") or die "No se pudo generar el archivo: '$filename' $!" ;
+		foreach(@informe){
+			print $file_reporte $_."\n";
+		}
 		close($file_reporte);
 		$file += 1;
 		print "Exportado con exito\n";
@@ -332,8 +487,10 @@ sub emitir_informe
 	{
 		print "Informe:\n";
 		print "IDcentral;IDagente;IDumbral;TipoLlamada;InicioLlamada;TiempoConversacion;NumeroA;NumeroB;FechaArchivo\n";
-		print $_[0];
-		print "Presione una tecla para continuar...\n";
+		foreach(@informe){
+			print $_."\n";
+		}
+		print "Presione una tecla para volver al menu principal...\n";
 		my $input_opt = <STDIN>;
 	}
 }
