@@ -134,11 +134,15 @@ rechazar() {
 
 
 function sanityCheck {
-    q=`ps -ef |grep /bin/bash |grep $0 |grep -v "grep"|grep -v $$| wc -l`
-    w=`ps -ef |grep /bin/bash |grep $0 |grep -v "grep"|grep -v $$`
+#    q=`ps -ef |grep /bin/bash |grep $0 |grep -v "grep"|grep -v $$| wc -l`
+#    w=`ps -ef |grep /bin/bash |grep $0 |grep -v "grep"|grep -v $$`
+    q=`ps -ef |grep bash |grep $0 |grep -v "grep"|grep -v $$| wc -l`
+    w=`ps -ef |grep bash |grep $0 |grep -v "grep"|grep -v $$`
+
     if [ $q != "0" ]; then
-        echo "$w" #imprime la linea del grep
-        echo "Existe una instancia de $0 corriendo...$ARG_0 $ARG_1 $MIBASENAME"
+		GraLog AFREC INFO "Existe una instancia de $0 corriendo...$ARG_0 $ARG_1 $MIBASENAME"
+        #echo "$w" #imprime la linea del grep
+        #echo "Existe una instancia de $0 corriendo...$ARG_0 $ARG_1 $MIBASENAME"
         exit 1
     fi
 }
@@ -146,11 +150,15 @@ function sanityCheck {
 
 #manejo de estados para AFREC
 function status {
-    q=`ps -ef |grep /bin/bash |grep $0 |grep -v "grep"|grep -v $$| wc -l`
-    w=`ps -ef |grep /bin/bash |grep $0 |grep -v "grep"|grep -v $$`
+    #q=`ps -ef |grep /bin/bash |grep $0 |grep -v "grep"|grep -v $$| wc -l`
+    #w=`ps -ef |grep /bin/bash |grep $0 |grep -v "grep"|grep -v $$`
+	q=`ps -ef |grep bash |grep $0 |grep -v "grep"|grep -v $$| wc -l`
+    w=`ps -ef |grep bash |grep $0 |grep -v "grep"|grep -v $$`
+    
     if [ $q != "0" ]; then
         echo "$w" #imprime la linea del grep
-        echo "Existe una instancia de $0 corriendo..."
+		GraLog AFREC INFO "Existe una instancia de $0 corriendo..."
+#        echo "Existe una instancia de $0 corriendo..."
     fi
 }
 

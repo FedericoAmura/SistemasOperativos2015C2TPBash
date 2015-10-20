@@ -20,11 +20,13 @@ ARG_0=$1
 
 function stop {
     
-    q=`ps -ef |grep /bin/bash |grep $ARG_0 |grep -v "grep"|grep -v $$| wc -l`
-    w=`ps -ef |grep /bin/bash |grep $ARG_0 | grep -v $$ |grep -v "grep"`
-#    echo "linea cerrando $q $w " #imprime la linea del grep
+    #q=`ps -ef |grep /bin/bash |grep $ARG_0 |grep -v "grep"|grep -v $$| wc -l`
+    #w=`ps -ef |grep /bin/bash |grep $ARG_0 | grep -v $$ |grep -v "grep"`
+    q=`ps -ef |grep bash |grep $ARG_0 |grep -v "grep"|grep -v $$| wc -l`
+    w=`ps -ef |grep bash |grep $ARG_0 | grep -v $$ |grep -v "grep"`
+    echo "linea cerrando $q $w " #imprime la linea del grep
     if [ $q != "0" ]; then
-    kill `ps -ef |grep /bin/bash |grep $ARG_0|grep -v $$ |grep -v "grep"|awk '{print($2)}'` 
+    kill `ps -ef |grep bash |grep $ARG_0|grep -v $$ |grep -v "grep"|awk '{print($2)}'` 
     echo "Ha finalizado $ARG_0..."   
     else
     echo "No existe llamada a $ARG_0. No se pudo completar la operacion"
