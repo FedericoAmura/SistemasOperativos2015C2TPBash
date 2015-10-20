@@ -265,7 +265,7 @@ sub definir_aniomes
 			push(@filtros, $input);
 		}
 	}
-	return @retval;
+	return @filtros;
 }
 
 sub definir_subllamadas_origen
@@ -562,9 +562,9 @@ sub f_3_agente_cantidad_llam_sosp
 
     foreach (@archivos){
 	 	next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
-	 	print "procesando...". $_ ."\n";
+	 	print "procesando...$ENV{'PROCDIR'}/".$_."\n";
 
-		open (ENT,"<../proc/".$_) || die "Error: No se pudo abrir ".$_ ."\n";
+		open (ENT,"<$ENV{'PROCDIR'}/".$_) || die "Error: No se pudo abrir $ENV{'PROCDIR'}/".$_ ."\n";
 	    while (my $linea = <ENT>){
 			chomp($linea);	
 			@reg=split(";",$linea);
@@ -812,12 +812,13 @@ sub cargarCodigosDeCentrales(){
 sub cargarCodigosDeAgentes(){
 	my (%hash_agentes);
 	my (@info_agentes);
-	open(ENTRADA,"<$ENV{'MAEDIR'}/agentes") || die "ERROR: No se encontró archivo maestro agentes.\n";
+	#print "buscando archivo de agentes $ENV{'MAEDIR'}/agentes.csv \n";
+	open(ENTRADA,"<$ENV{'MAEDIR'}/agentes.csv") || die "ERROR: No se encontró archivo maestro agentes.\n";
 
 	while (my $linea = <ENTRADA>){
 		chomp($linea);
 		@info_agentes = split(";",$linea); 
-		$hash_agentes{$info_agentes[0]} = [@info_agentes];
+		$hash_agentes{$info_agentes[2]} = [@info_agentes];
 	}
 	return %hash_agentes;
 }
