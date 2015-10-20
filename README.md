@@ -28,7 +28,7 @@ Instrucciones de inicialización de ambiente
   1. Abrir la terminal y dirigirse al directorio donde se encuentran los 
      ejecutables.
 
-  2. Ejecutar ./AFINI.sh
+  2. Ejecutar source AFINI.sh
 
 # Agregar como arrancar desde ARRANCAR.sh
 
