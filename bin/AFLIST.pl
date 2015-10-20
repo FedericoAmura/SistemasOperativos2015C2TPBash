@@ -129,8 +129,8 @@ sub menu_r
 			case "1"
 			{
 				print "Ingreso archivos procesados.\n";
-				$origen = "/home/freddy/Workspace/TPSisOp/bin/proc";#"$ENV{'PROCDIR'};
-				@archivosDir = &getArchivosDir("/home/freddy/Workspace/TPSisOp/bin/proc");#"$ENV{'PROCDIR'}");
+				$origen = $ENV{'PROCDIR'};
+				@archivosDir = &getArchivosDir("$ENV{'PROCDIR'}");
 				@oficinas = definir_oficinas(@archivosDir);
 				@archivos = definir_aniomes(@oficinas);
 				foreach (@oficinas){
@@ -266,6 +266,34 @@ sub definir_aniomes
 		}
 	}
 	return @filtros;
+}
+
+sub filtrarPorAnioMes
+{
+	my @filtrar = @_;
+	my @periodosIngresados;
+	my @filtros;
+	my $input = '';
+	print "Ingrese los aniomeses que quiere incluir en su reporte.\n";
+	print "Si no ingresa ninguno, se incluiran todos.\n";
+	print "Para terminar, ingrese 0.\n";
+	while ($input ne "0")
+	{
+		$input = <STDIN>;
+		chomp($input);
+		if ( $input ne "0" ){
+			if (&validarFecha($input) > 0){
+				push(@periodosIngresados, $input);
+			}			
+		}
+	}
+
+	foreach (@filtrar){
+		if (&archivoCorrespondeAPeriodoIngresado($_, @periodosIngresados)){
+			push(@filtros, $_);
+		}
+	}
+	return @filtros;	
 }
 
 sub definir_subllamadas_origen
@@ -415,18 +443,21 @@ sub f_1_central_cantidad_llam_sosp
 		print "con filtro por cantidad de segundos\n";
 	}
 
-	# El usuario puede ingresar uno ó  más períodos
-	my @input_periodos = &definir_aniomes;
-	my @input_periodos_validos;
-	foreach (@input_periodos){
-		if (&validarFecha($_) > 0){
-			push (@input_periodos_validos, $_);
-		}
-	}
 	my @archivos = &getArchivosDir("$ENV{'PROCDIR'}");
 
-    foreach (@archivos){
-	 	next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
+	# El usuario puede ingresar uno ó  más períodos
+	#my @archivos_a_procesar = &definir_aniomes(@archivos);
+	my @archivos_a_procesar = &filtrarPorAnioMes(@archivos);
+	#my @input_periodos_validos;
+	#foreach (@input_periodos){
+	#	if (&validarFecha($_) > 0){
+	#		push (@input_periodos_validos, $_);
+	#	}
+	#}
+	
+
+    foreach (@archivos_a_procesar){
+	 	#next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
 	 	print "procesando...". $_ ."\n";
 	 	sleep 1;
 
@@ -482,18 +513,21 @@ sub f_2_ofi_cantidad_llam_sosp
 		print "con filtro por cantidad de segundos\n";
 	}
 
-	# El usuario puede ingresar uno ó  más períodos
-	my @input_periodos = &definir_aniomes;
-	my @input_periodos_validos;
-	foreach (@input_periodos){
-		if (&validarFecha($_) > 0){
-			push @input_periodos_validos, $_;
-		}
-	}
 	my @archivos = &getArchivosDir("$ENV{'PROCDIR'}");
+	
+	# El usuario puede ingresar uno ó  más períodos
+	#my @input_periodos = &definir_aniomes;
+	#my @input_periodos_validos;
+	#foreach (@input_periodos){
+	#	if (&validarFecha($_) > 0){
+	#		push @input_periodos_validos, $_;
+	#	}
+	#}
+	
+	my @archivos_a_procesar = &filtrarPorAnioMes(@archivos);	
 
-    foreach (@archivos){
-	 	next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
+    foreach (@archivos_a_procesar){
+	 	#next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
 	 	print "procesando...". $_ ."\n";
 		sleep 1;
 
@@ -551,18 +585,19 @@ sub f_3_agente_cantidad_llam_sosp
 	}
 
 	# El usuario puede ingresar uno ó  más períodos
-	my @input_periodos = &definir_aniomes;
-	my @input_periodos_validos;
-	foreach (@input_periodos){
-		if (&validarFecha($_) > 0){
-			push (@input_periodos_validos, $_);
-		}
-	}
+	#my @input_periodos = &definir_aniomes;
+	#my @input_periodos_validos;
+	#foreach (@input_periodos){
+	#	if (&validarFecha($_) > 0){
+	#		push (@input_periodos_validos, $_);
+	#	}
+	#}
 	my @archivos = &getArchivosDir("$ENV{'PROCDIR'}");
+	my @archivos_a_procesar = &filtrarPorAnioMes(@archivos);
 
-    foreach (@archivos){
-	 	next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
-	 	print "procesando...$ENV{'PROCDIR'}/".$_."\n";
+    foreach (@archivos_a_procesar){
+	 	#next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
+	 	print "procesando...". $_ ."\n";
 
 		open (ENT,"<$ENV{'PROCDIR'}/".$_) || die "Error: No se pudo abrir $ENV{'PROCDIR'}/".$_ ."\n";
 	    while (my $linea = <ENT>){
@@ -617,17 +652,19 @@ sub f_4_destino_llam_sospechosa
 	print "Destino con mayor cantidad de llamadas sospechosas\n";
 
 	# El usuario puede ingresar uno ó  más períodos
-	my @input_periodos = &definir_aniomes;
-	my @input_periodos_validos;
-	foreach (@input_periodos){
-		if (&validarFecha($_) > 0){
-			push (@input_periodos_validos, $_);
-		}
-	}
+	#my @input_periodos = &definir_aniomes;
+	#my @input_periodos_validos;
+	#foreach (@input_periodos){
+	#	if (&validarFecha($_) > 0){
+	#		push (@input_periodos_validos, $_);
+	#	}
+	#}
 	my @archivos = &getArchivosDir("$ENV{'PROCDIR'}");
+	
+	my @archivos_a_procesar = &filtrarPorAnioMes(@archivos);
 
-    foreach (@archivos){
-	 	next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
+    foreach (@archivos_a_procesar){
+	 	#next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
 	 	print "procesando...". $_ ."\n";
 		sleep 1;
 
@@ -701,17 +738,19 @@ sub f_5_ranking_umbrales
 	print "Umbrales con mayor cantidad de llamadas sospechosas\n";
 
 	# El usuario puede ingresar uno ó  más períodos
-	my @input_periodos = &definir_aniomes;
-	my @input_periodos_validos;
-	foreach (@input_periodos){
-		if (&validarFecha($_) > 0){
-			push (@input_periodos_validos, $_);
-		}
-	}
+	#my @input_periodos = &definir_aniomes;
+	#my @input_periodos_validos;
+	#foreach (@input_periodos){
+	#	if (&validarFecha($_) > 0){
+	#		push (@input_periodos_validos, $_);
+	#	}
+	#}
 	my @archivos = &getArchivosDir("$ENV{'PROCDIR'}");
 
-    foreach (@archivos){
-	 	next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
+	my @archivos_a_procesar = &filtrarPorAnioMes(@archivos);
+
+    foreach (@archivos_a_procesar){
+	 	#next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
 	 	print "procesando...". $_ ."\n";
 	 	sleep 1;
 
@@ -768,7 +807,7 @@ sub presione_tecla_para_continuar {
 sub cargarCodigosDePais(){
 	my (%hash_CdP);
 	my (@registro);
-	open(ENTRADA,"<$ENV{'MAEDIR'}/CdP") || die "ERROR: No se encontró archivo maestro CdP.\n";
+	open(ENTRADA,"<$ENV{'MAEDIR'}/CdP.csv") || die "ERROR: No se encontró archivo maestro CdP.\n";
 
 	while (my $linea = <ENTRADA>){
 		chomp($linea);
@@ -783,7 +822,7 @@ sub cargarCodigosDePais(){
 sub cargarCodigosDeArea(){
 	my (%hash_CdA);
 	my (@registro);
-	open(ENTRADA,"<$ENV{'MAEDIR'}/CdA") || die "ERROR: No se encontró archivo maestro CdA.\n";
+	open(ENTRADA,"<$ENV{'MAEDIR'}/CdA.csv") || die "ERROR: No se encontró archivo maestro CdA.\n";
 
 	while (my $linea = <ENTRADA>){
 		chomp($linea);
@@ -798,7 +837,7 @@ sub cargarCodigosDeArea(){
 sub cargarCodigosDeCentrales(){
 	my (%hash_CdC);
 	my (@registro);
-	open(ENTRADA,"<$ENV{'MAEDIR'}/CdC") || die "ERROR: No se encontró archivo maestro CdC.\n";
+	open(ENTRADA,"<$ENV{'MAEDIR'}/centrales.csv") || die "ERROR: No se encontró archivo maestro CdC.\n";
 
 	while (my $linea = <ENTRADA>){
 		chomp($linea);
