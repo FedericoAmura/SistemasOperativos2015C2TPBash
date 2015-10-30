@@ -21,7 +21,8 @@ ARG_1=$1
 # Recibe el nombre del archivo.
 validarTipoArchivo() {
   nombre_archivo=$1
-    tipo_archivo=$(file -b --mime-type "$NOVEDIR/$nombre_archivo.csv")
+  extension=$2
+    tipo_archivo=$(file -b --mime-type "$NOVEDIR/$nombre_archivo"."$extension")
     if [ "$tipo_archivo" = "text/plain" ]
   	then
    	 echo 0
@@ -123,10 +124,11 @@ validarNombreArchivo() {
 # Rechaza el archivo
 rechazar() {
   nombre_archivo=$1
+  extension=$2
   origen=$NOVEDIR/$nombre_archivo
   
   #invocar a moverA para rechazar
-  MoverA $origen.csv $RECHDIR/$nombre_archivo.csv AFREC
+  MoverA $origen"."$extension $RECHDIR/$nombre_archivo"."$extension AFREC
   
   return
 	
@@ -187,13 +189,16 @@ GraLog AFREC INFO "Ciclo: $numero_ciclo"
 #echo Numero de ciclo: $numero_ciclo
 
 #2- Chequea si hay archivos en NOVEDIR y los valida.
-echo "$NOVEDIR"
+#echo "$NOVEDIR"
 find $NOVEDIR -type f | while read file; do
-	nombre_archivo=${file##*/}
-	nombre_archivo=${nombre_archivo%%.*}
-#    nombre_archivo="$( echo "$file" | grep '[^/]*$' -o )" #BackUp
+	nombre_archivo=$(basename "$file")
+        extension="${nombre_archivo##*.}"
+	nombre_archivo="${nombre_archivo%.*}"
+#	nombre_archivo=${file##*/}
+#	nombre_archivo=${nombre_archivo%%.*}
+#       nombre_archivo="$( echo "$file" | grep '[^/]*$' -o )" #BackUp
 
-        tipo_archivo_ok=$(validarTipoArchivo $nombre_archivo)
+        tipo_archivo_ok=$(validarTipoArchivo $nombre_archivo $extension)
 	if [ $tipo_archivo_ok -eq 0 ]; then
      	 #echo es de texto
 	 formato_nombre_archivo_ok=$(validarFormatoNombreArchivo $nombre_archivo)
@@ -205,18 +210,20 @@ find $NOVEDIR -type f | while read file; do
 
              #echo el nombre esta bien
 	     origen=$NOVEDIR/$nombre_archivo
-
-	     #6-invocar a moverA para aceptar
-	     MoverA $origen.csv $ACEPDIR/$nombre_archivo.csv AFREC
-	     
+             if [ -s $origen ]; then
+	     	#6-invocar a moverA para aceptar
+	     	MoverA $origen"."$extension $ACEPDIR/$nombre_archivo"."$extension AFREC
+	     else
+             echo $(rechazar $nombre_archivo $extension)
+	     fi 	
     	   else
-             echo $(rechazar $nombre_archivo)
+             echo $(rechazar $nombre_archivo $extension)
 	   fi
     	 else
-          echo $(rechazar $nombre_archivo)
+          echo $(rechazar $nombre_archivo $extension)
     	 fi
     	else
-          echo $(rechazar $nombre_archivo)
+          echo $(rechazar $nombre_archivo $extension)
 
     	fi
   
@@ -232,7 +239,7 @@ else
     GraLog AFREC INFO "Invocacion de AFUMB pospuesta para el siguiente ciclo"
 fi
 
-sleep 120 #cada 30 segundos se repite;
+sleep 10 #cada 10 segundos se repite;
 done
 }
 

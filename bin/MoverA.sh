@@ -74,7 +74,7 @@ function MoverA {
 	if [ ! -e "$destino" ]
 	then
 		#echo "No existe el file destino, se mueve ok"
-		GraLog $llamador INFO "MoverA: Movido file con exito"
+		GraLog $llamador INFO "MoverA: Movido "$filename_destino" con exito"
 		mv "$origen" "$destino"
 	else
 		#echo "Ya existe el file destino, moviendo a duplicados"
