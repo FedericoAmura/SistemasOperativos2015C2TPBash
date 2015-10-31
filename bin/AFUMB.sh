@@ -3,6 +3,7 @@
 source $BINDIR/MoverA.sh
 source $BINDIR/GraLog.sh
 
+
 # Variables / Constantes
 # ==============================================================================================
 NOVEDIR=$NOVEDIR
@@ -11,6 +12,7 @@ MAE_COD_PAIS="$MAEDIR/CdP.csv"
 MAE_COD_AREA_ARG="$MAEDIR/CdA.csv"
 MAE_CENTRAL="$MAEDIR/CdC.csv"
 MAE_AGENTES="$MAEDIR/agentes.csv"
+
 
 
 DIRECTORIO_ACEP=$ACEPDIR #Obtengo el directorio donde se almacenan los archivos aceptados.
@@ -483,6 +485,14 @@ do
 	#GraLog AFUMB INFO "Proceso: $FILE"
 	arch=""
 	
+	path_destino_proc=$DIRECTORIO_PROC"/proc"
+	#VALIDO QUE EL DIRECTORIO DE LLAMADAS PROCESADAS EXISTA
+	if [ ! -d "$path_destino_proc" ]
+	then
+		#SINO EXISTE CREO EL DIRECTORIO
+		mkdir -p "$path_destino_proc"
+	fi
+
 	#2 - Verifico que el archivo no este duplicado
 	ls -1 $DIRECTORIO_PROC > "$DIRECTORIO_PROC/nombres_archivos.tmp"
 
@@ -497,6 +507,7 @@ do
 		GraLog AFUMB INFO "Se rechaza el archivo por estar duplicado: $FILE"
 		#INCREMENTO CONTADOR DE ARCHIVO RECHAZADO
 		CANT_ARCH_RECHAZADOS=$(($CANT_ARCH_RECHAZADOS+1))
+		rm $DIRECTORIO_PROC/nombres_archivos.tmp  #agregado
 		exit 1
 	fi
 	
@@ -511,6 +522,7 @@ do
 		GraLog AFUMB INFO "Se rechaza el archivo porque su estrutura no se corresponde con el formato esperado: $FILE"
 		#INCREMENTO CONTADOR DE ARCHIVO RECHAZADO
 		CANT_ARCH_RECHAZADOS=$(($CANT_ARCH_RECHAZADOS+1))
+		rm $DIRECTORIO_PROC/nombres_archivos.tmp  #agregado
 		exit 1
 	fi
 	
@@ -520,7 +532,7 @@ do
 	#4 - PROCESAR UN REGISTRO
 	while read linea
 	do
-		CANT_LLAMADAS=$(($CANT_LLAMADAS+1))
+		CANT_LLAMADAS=$(($CANT_LLAMADAS+1))		
 		#VALIDAR LOS CAMPOS DEL REGISTRO
 		validaRegistro=$(validarRegistro "$linea")
 		if [ $validaRegistro -eq  0 ]
@@ -537,10 +549,9 @@ do
 	done < $path_origen
 
 	rm $DIRECTORIO_PROC/nombres_archivos.tmp
-
+	
 	#6 - FIN DEL ARCHIVO	
-	path_destino_proc=$DIRECTORIO_PROC"/"$FILE
-	MoverA $path_origen $path_destino_proc AFUMB
+	MoverA $path_origen $path_destino_proc"/"$FILE AFUMB
 	GraLog AFUMB INFO "Archivo procesado: $FILE"
 	
 	#TOTALES A GRABAR
