@@ -6,12 +6,11 @@ source GraLog.sh
 # 0: Inicialización OK
 # 1: No existe archivo de configuración (AFINSTAL.cnfg)
 # 2: El archivo de configuración AFINSTAL.cnfg no tiene permisos de lectura
-# 3: El usuario cierra la sesión
-# 4: El usuario continúa la sesión
+# 3: Ambiente ya fue inicializado
 function inicializarAmbiente {
 
 	# CASO 1 : AMBIENTE NO INICIALIZADO
-	if [ -z "$MAEDIR" ]; then
+	if [ -z $ambienteInicializado ]; then
 		# Si no existe el archivo de configuración, volver a instalar
 		if [ ! -f "conf/AFINSTAL.cnfg" ]; then
 			echo "No se encontro archivo de configuración AFINSTAL.cnfg"
@@ -36,11 +35,13 @@ function inicializarAmbiente {
 		# Seteo de variables de ambiente
 		for linea in $(< "conf/AFINSTAL.cnfg")
 		do
-			nombre_var=`echo $linea | cut -d "=" -f1`
-			valor=`echo $linea | cut -d "=" -f2`
+			nombre_var=$(echo $linea | cut -d "=" -f1)
+			valor=$(echo $linea | cut -d "=" -f2)
 			export $nombre_var=$valor
 		done
 		IFS=$oldIFS
+		export ambienteInicializado=1
+		export PATH="$PATH:$BINDIR"
 		sleep 1
 		echo "Ambiente Inicializado : OK"
 		GraLog AFINI INFO "El ambiente ha sido inicializado correctamente."
@@ -52,10 +53,28 @@ function inicializarAmbiente {
 		GraLog AFINI WAR "Se quiere inicializar ambiente ya inicializado."
 		# Si el usuario desea arrancar el demonio
 		arrancarAFREC
-		return 1
+		return 3
 	fi
 
 	return 0
+}
+
+function eliminarVariablesAmbiente() {
+	unset CONFDIR
+	unset MAEDIR
+	unset BINDIR
+	unset NOVEDIR
+	unset ACEPDIR
+	unset CONFDIR
+	unset GRUPO
+	unset REPODIR
+	unset RECHDIR
+	unset DATASIZE
+	unset PROCDIR
+	unset LOGDIR
+	unset LOGSIZE
+	unset ambienteInicializado
+	PATH=$(echo $PATH | sed 's-^\(.*\):.*$-\1-g')
 }
 
 # valores de retorno
@@ -203,7 +222,7 @@ function listarArchivosDir {
 		for file in *
 		do
 			if [ -f $file ]; then
-				echo -e "\t$file"
+				echo " $file"
 			fi
 		done
 		cd ..
@@ -340,31 +359,31 @@ function mostrarYgrabar {
 
 function arrancarAFREC {
 	cd $BINDIR
-	printf "¿Desea efectuar la activación de AFREC? (s-n):"
+	printf "¿Desea efectuar la activación de AFREC? (si-no): "
 	read arrancar
-	if [ $arrancar == 's' ]; then
+	if [ $arrancar == 'si' ]; then
 		if [ -z $afrecActivado ]; then
 			export afrecActivado=1
 			echo "Iniciando AFREC..."
-			#GraLog AFINI INFO "El usuario $USER inició AFREC."
+			GraLog AFINI INFO "El usuario $USER inició AFREC."
 			sleep 1
 			
-			echo "AFREC corriendo bajo el no.: <Process Id de AFREC>"
-			source ./ARRANCAR.sh
-			#exit
+			. ARRANCAR.sh
+			echo "AFREC corriendo bajo el no (PID) : $!"
+			return 0
 		else
 			echo "WARNING: Ya hay un proceso AFREC corriendo."
 			GraLog AFINI WAR "Ya hay un proceso AFREC corriendo."
 			#exit
 		fi
 	else
-		if [ $arrancar == 'n' ]; then
+		if [ $arrancar == 'no' ]; then
 			echo "El Usuario no desea arrancar AFREC."
 			GraLog AFINI INFO "El usuario $USER no desea iniciar AFREC en este momento."
-			echo "Si desea arrancar AFREC, en otro momento, ejecute el siguiente comando: \"source ARRANCAR.sh\" desde el directorio donde se encuentran los ejecutables."
+			echo "Si desea arrancar AFREC, en otro momento, ejecute el siguiente comando: \". ARRANCAR.sh\" desde el directorio donde se encuentran los ejecutables."
 			#exit
 		else
-			echo "Opción ingresada inválida. Intente nuevamente (s-n)."
+			echo "Opción ingresada inválida. Intente nuevamente (si-no)."
 			arrancarAFREC
 		fi
 	fi
@@ -400,7 +419,13 @@ if [ $ret -eq 0 ]; then
 			if [ $ret -eq 0 ]; then
 				echo
 				arrancarAFREC
+			else
+				eliminarVariablesAmbiente
 			fi
+		else
+			eliminarVariablesAmbiente
 		fi
+	else
+		eliminarVariablesAmbiente
 	fi	
 fi
