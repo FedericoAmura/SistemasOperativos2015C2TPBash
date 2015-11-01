@@ -210,7 +210,7 @@ find $NOVEDIR -type f | while read file; do
 
              #echo el nombre esta bien
 	     origen=$NOVEDIR/$nombre_archivo
-             if [ -s $origen ]; then
+             if [ -s $origen"."$extension ]; then
 	     	#6-invocar a moverA para aceptar
 	     	MoverA $origen"."$extension $ACEPDIR/$nombre_archivo"."$extension AFREC
 	     else
