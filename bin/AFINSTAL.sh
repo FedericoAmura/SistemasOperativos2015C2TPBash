@@ -62,15 +62,18 @@ function setPath(){
 	echo "Ingrese los siguientes directorios a utilizar por el programa. Si no ingresa ningun valor, se tomara el valor default mostrado entre parentesis."
 	GraLog AFINSTAL INFO "Inicio configuracion variables."
 
-	echo "Cambie, o deje vacio, el directorio de instalación de los ejecutables ($DEFAULT_BINDIR):"
-	read BINDIR
-	if [ "$BINDIR" == "" ]
+	echo "Cambie, o deje vacio para utilizar el default, el directorio de instalación de los ejecutables ($DEFAULT_BINDIR):"
+	echo -n "$GRUPO/"
+	read INPUT_USUARIO
+	if [ "$INPUT_USUARIO" == "" ]
 	then
 		BINDIR=$DEFAULT_BINDIR
+	else
+		BINDIR="$GRUPO/$INPUT_USUARIO"
 	fi
 	GraLog AFINSTAL INFO "Configuracion BINDIR: $BINDIR"
 
-	echo "Cambie, o deje vacio, el directorio para maestros y tablas ($DEFAULT_MAEDIR):"
+	echo "Cambie, o deje vacio para utilizar el default, el directorio para maestros y tablas ($DEFAULT_MAEDIR):"
 	read MAEDIR
 	if [ "$MAEDIR" == "" ]
 	then
@@ -78,7 +81,7 @@ function setPath(){
 	fi
 	GraLog AFINSTAL INFO "Configuracion MAEDIR: $MAEDIR"
 
-	echo "Cambie, o deje vacio, el directorio de recepción de archivos de llamadas ($DEFAULT_NOVEDIR):"
+	echo "Cambie, o deje vacio para utilizar el default, el directorio de recepción de archivos de llamadas ($DEFAULT_NOVEDIR):"
 	read NOVEDIR
 	if [ "$NOVEDIR" == "" ]
 	then
@@ -86,7 +89,7 @@ function setPath(){
 	fi
 	GraLog AFINSTAL INFO "Configuracion NOVEDIR: $NOVEDIR"
 
-	echo "Cambie, o deje vacio, el directorio de grabación de los archivos de llamadas aceptadas ($DEFAULT_ACEPDIR):"
+	echo "Cambie, o deje vacio para utilizar el default, el directorio de grabación de los archivos de llamadas aceptadas ($DEFAULT_ACEPDIR):"
 	read ACEPDIR
 	if [ "$ACEPDIR" == "" ]
 	then
@@ -94,7 +97,7 @@ function setPath(){
 	fi
 	GraLog AFINSTAL INFO "Configuracion ACEPDIR: $ACEPDIR"
 
-	echo "Cambie, o deje vacio, el directorio de grabación de los registros de llamadas sospechosas ($DEFAULT_PROCDIR):"
+	echo "Cambie, o deje vacio para utilizar el default, el directorio de grabación de los registros de llamadas sospechosas ($DEFAULT_PROCDIR):"
 	read PROCDIR
 	if [ "$PROCDIR" == "" ]
 	then
@@ -102,7 +105,7 @@ function setPath(){
 	fi
 	GraLog AFINSTAL INFO "Configuracion PROCDIR: $PROCDIR"
 
-	echo "Cambie, o deje vacio, el directorio de grabación de los reportes ($DEFAULT_REPODIR):"
+	echo "Cambie, o deje vacio para utilizar el default, el directorio de grabación de los reportes ($DEFAULT_REPODIR):"
 	read REPODIR
 	if [ "$REPODIR" == "" ]
 	then
@@ -110,7 +113,7 @@ function setPath(){
 	fi
 	GraLog AFINSTAL INFO "Configuracion REPODIR: $REPODIR"
 
-	echo "Cambie, o deje vacio, el directorio para los archivos de log ($DEFAULT_LOGDIR):"
+	echo "Cambie, o deje vacio para utilizar el default, el directorio para los archivos de log ($DEFAULT_LOGDIR):"
 	read LOGDIR
 	if [ "$LOGDIR" == "" ]
 	then
@@ -118,7 +121,7 @@ function setPath(){
 	fi
 	GraLog AFINSTAL INFO "Configuracion LOGDIR: $LOGDIR"
 
-	echo "Cambie, o deje vacio, el directorio de grabación de Archivos rechazados ($DEFAULT_RECHDIR):"
+	echo "Cambie, o deje vacio para utilizar el default, el directorio de grabación de Archivos rechazados ($DEFAULT_RECHDIR):"
 	read RECHDIR
 	if [ "$RECHDIR" == "" ]
 	then
@@ -126,7 +129,7 @@ function setPath(){
 	fi
 	GraLog AFINSTAL INFO "Configuracion RECHDIR: $RECHDIR"
 
-	echo "Cambie, o deje vacio, el espacio mínimo libre para la recepción de archivos de llamadas en Mbytes ($DEFAULT_DATASIZE):"
+	echo "Cambie, o deje vacio para utilizar el default, el espacio mínimo libre para la recepción de archivos de llamadas en Mbytes ($DEFAULT_DATASIZE):"
 	read DATASIZE
 	if [ "$DATASIZE" == "" ]
 	then
@@ -134,7 +137,7 @@ function setPath(){
 	fi
 	GraLog AFINSTAL INFO "Configuracion DATASIZE: $DATASIZE"
 
-	echo "Cambie, o deje vacio, el tamaño máximo para cada archivo de log en Kbytes ($DEFAULT_LOGSIZE):"
+	echo "Cambie, o deje vacio para utilizar el default, el tamaño máximo para cada archivo de log en Kbytes ($DEFAULT_LOGSIZE):"
 	read LOGSIZE
 	if [ "$LOGSIZE" == "" ]
 	then
@@ -142,7 +145,7 @@ function setPath(){
 	fi
 	GraLog AFINSTAL INFO "Configuracion LOGSIZE: $LOGSIZE"
 
-	echo "Cambie, o deje vacio, el nombre para la extensión de los archivos de log ($DEFAULT_LOGEXT):"
+	echo "Cambie, o deje vacio para utilizar el default, el nombre para la extensión de los archivos de log ($DEFAULT_LOGEXT):"
 	read LOGEXT
 	if [ "$LOGEXT" == "" ]
 	then
@@ -195,25 +198,21 @@ function moverFiles(){
 	echo "-Moviendo archivos..."
 	GraLog AFINSTAL INFO "Moviendo archivos"
 	#Movientos de ejecutables
-	MoverA $GRUPO/source/MoverA.sh $BINDIR/MoverA.sh AFINSTAL copiar
-	MoverA $GRUPO/source/GraLog.sh $BINDIR/GraLog.sh AFINSTAL copiar
-	MoverA $GRUPO/source/AFREC.sh $BINDIR/AFREC.sh AFINSTAL copiar
-	MoverA $GRUPO/source/AFINI.sh $BINDIR/AFINI.sh AFINSTAL copiar
-	MoverA $GRUPO/source/AFUMB.sh $BINDIR/AFUMB.sh AFINSTAL copiar
-	MoverA $GRUPO/source/ARRANCAR.sh $BINDIR/ARRANCAR.sh AFINSTAL copiar
-	MoverA $GRUPO/source/DETENER.sh $BINDIR/DETENER.sh AFINSTAL copiar
-	MoverA $GRUPO/source/AFLIST.pl $BINDIR/AFLIST.pl AFINSTAL copiar
+	MoverA "$GRUPO/source/MoverA.sh" "$BINDIR/MoverA.sh" AFINSTAL copiar
+	MoverA "$GRUPO/source/GraLog.sh" "$BINDIR/GraLog.sh" AFINSTAL copiar
+	MoverA "$GRUPO/source/AFREC.sh" "$BINDIR/AFREC.sh" AFINSTAL copiar
+	MoverA "$GRUPO/source/AFINI.sh" "$BINDIR/AFINI.sh" AFINSTAL copiar
+	MoverA "$GRUPO/source/AFUMB.sh" "$BINDIR/AFUMB.sh" AFINSTAL copiar
+	MoverA "$GRUPO/source/ARRANCAR.sh" "$BINDIR/ARRANCAR.sh" AFINSTAL copiar
+	MoverA "$GRUPO/source/DETENER.sh" "$BINDIR/DETENER.sh" AFINSTAL copiar
+	MoverA "$GRUPO/source/AFLIST.pl" "$BINDIR/AFLIST.pl" AFINSTAL copiar
 	#Moviento de archivos maestros
-	MoverA $GRUPO/source/CdA.csv $MAEDIR/CdA.csv AFINSTAL copiar
-	MoverA $GRUPO/source/CdP.csv $MAEDIR/CdP.csv AFINSTAL copiar
-	MoverA $GRUPO/source/centrales.csv $MAEDIR/centrales.csv AFINSTAL copiar
-	MoverA $GRUPO/source/umbrales.csv $MAEDIR/umbrales.csv AFINSTAL copiar
-	MoverA $GRUPO/source/tllama.tab $MAEDIR/tllama.tab AFINSTAL copiar
-	MoverA $GRUPO/source/agentes.csv $MAEDIR/agentes.csv AFINSTAL copiar
-	#Muevo el resto de los archivos a novedades
-	#for ARCHIVO in $(ls -w1 $GRUPO/data ); do		
-	#	MoverA $GRUPO/data/$ARCHIVO $NOVEDIR/$ARCHIVO AFINSTAL
-	#done
+	MoverA "$GRUPO/source/CdA.csv" "$MAEDIR/CdA.csv" AFINSTAL copiar
+	MoverA "$GRUPO/source/CdP.csv" "$MAEDIR/CdP.csv" AFINSTAL copiar
+	MoverA "$GRUPO/source/centrales.csv" "$MAEDIR/centrales.csv" AFINSTAL copiar
+	MoverA "$GRUPO/source/umbrales.csv" "$MAEDIR/umbrales.csv" AFINSTAL copiar
+	MoverA "$GRUPO/source/tllama.tab" "$MAEDIR/tllama.tab" AFINSTAL copiar
+	MoverA "$GRUPO/source/agentes.csv" "$MAEDIR/agentes.csv" AFINSTAL copiar
 
 	echo "-Archivos movidos"
 	GraLog AFINSTAL INFO "Archivos movidos"
