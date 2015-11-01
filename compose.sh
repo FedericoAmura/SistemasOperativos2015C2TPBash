@@ -51,6 +51,7 @@ then
 	#Carpeta par contener el paquete y arbol de directorio por defecto.
 	mkdir $GRUPO
 	mkdir $GRUPO/conf
+	mkdir $GRUPO/data
 	
 
 	#Agrega todos los scripts para la instalacion.
@@ -74,7 +75,12 @@ then
 	cp README.md $GRUPO/
 
 	# Copio toda la carpeta data
-	cp -R data $GRUPO/
+	cp ./data/agentes.csv $GRUPO/data/
+	cp ./data/CdA.csv $GRUPO/data/
+	cp ./data/CdP.csv $GRUPO/data/
+	cp ./data/centrales.csv $GRUPO/data/
+	cp ./data/tllama.csv $GRUPO/data/
+	cp ./data/umbrales.csv $GRUPO/data/
 
 	#Crea archivo .zip
 	zip -r $NOMBRE_PAQUETE_ZIP $GRUPO 	

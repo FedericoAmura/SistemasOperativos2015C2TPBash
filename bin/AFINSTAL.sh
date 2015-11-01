@@ -195,25 +195,25 @@ function moverFiles(){
 	echo "-Moviendo archivos..."
 	GraLog AFINSTAL INFO "Moviendo archivos"
 	#Movientos de ejecutables
-	MoverA $GRUPO/MoverA.sh $BINDIR/MoverA.sh AFINSTAL
-	MoverA $GRUPO/GraLog.sh $BINDIR/GraLog.sh AFINSTAL
-	MoverA $GRUPO/AFREC.sh $BINDIR/AFREC.sh AFINSTAL
-	MoverA $GRUPO/AFINI.sh $BINDIR/AFINI.sh AFINSTAL
-	MoverA $GRUPO/AFUMB.sh $BINDIR/AFUMB.sh AFINSTAL
-	MoverA $GRUPO/ARRANCAR.sh $BINDIR/ARRANCAR.sh AFINSTAL
-	MoverA $GRUPO/DETENER.sh $BINDIR/DETENER.sh AFINSTAL
-	MoverA $GRUPO/AFLIST.pl $BINDIR/AFLIST.pl AFINSTAL
+	MoverA $GRUPO/MoverA.sh $BINDIR/MoverA.sh AFINSTAL copiar
+	MoverA $GRUPO/GraLog.sh $BINDIR/GraLog.sh AFINSTAL copiar
+	MoverA $GRUPO/AFREC.sh $BINDIR/AFREC.sh AFINSTAL copiar
+	MoverA $GRUPO/AFINI.sh $BINDIR/AFINI.sh AFINSTAL copiar
+	MoverA $GRUPO/AFUMB.sh $BINDIR/AFUMB.sh AFINSTAL copiar
+	MoverA $GRUPO/ARRANCAR.sh $BINDIR/ARRANCAR.sh AFINSTAL copiar
+	MoverA $GRUPO/DETENER.sh $BINDIR/DETENER.sh AFINSTAL copiar
+	MoverA $GRUPO/AFLIST.pl $BINDIR/AFLIST.pl AFINSTAL copiar
 	#Moviento de archivos maestros
-	MoverA $GRUPO/data/CdA.csv $MAEDIR/CdA.csv AFINSTAL
-	MoverA $GRUPO/data/CdP.csv $MAEDIR/CdP.csv AFINSTAL
-	MoverA $GRUPO/data/centrales.csv $MAEDIR/centrales.csv AFINSTAL
-	MoverA $GRUPO/data/umbrales.csv $MAEDIR/umbrales.csv AFINSTAL
-	MoverA $GRUPO/data/tllama.tab $MAEDIR/tllama.tab AFINSTAL
-	MoverA $GRUPO/data/agentes.csv $MAEDIR/agentes.csv AFINSTAL
+	MoverA $GRUPO/data/CdA.csv $MAEDIR/CdA.csv AFINSTAL copiar
+	MoverA $GRUPO/data/CdP.csv $MAEDIR/CdP.csv AFINSTAL copiar
+	MoverA $GRUPO/data/centrales.csv $MAEDIR/centrales.csv AFINSTAL copiar
+	MoverA $GRUPO/data/umbrales.csv $MAEDIR/umbrales.csv AFINSTAL copiar
+	MoverA $GRUPO/data/tllama.tab $MAEDIR/tllama.tab AFINSTAL copiar
+	MoverA $GRUPO/data/agentes.csv $MAEDIR/agentes.csv AFINSTAL copiar
 	#Muevo el resto de los archivos a novedades
-	for ARCHIVO in $(ls -w1 $GRUPO/data ); do		
-		MoverA $GRUPO/data/$ARCHIVO $NOVEDIR/$ARCHIVO AFINSTAL
-	done
+	#for ARCHIVO in $(ls -w1 $GRUPO/data ); do		
+	#	MoverA $GRUPO/data/$ARCHIVO $NOVEDIR/$ARCHIVO AFINSTAL
+	#done
 
 	echo "-Archivos movidos"
 	GraLog AFINSTAL INFO "Archivos movidos"
@@ -341,19 +341,26 @@ function verificarEspacioEnDisco(){
 function verificarPerl(){
 
 	GraLog AFINSTAL INFO "Version instalada de Perl: $PERL_VERSION"
-	GraLog AFINSTAL INFO "Version instalada de Switch: $SWITCH_VERSION"
-	#Hacemos instalar perl si no estaba
-	if [ $PERL_VERSION -lt "5" -o $SWITCH_VERSION -lt "2" ]
+	if [ "$PERL_VERSION" -lt "5" ]
 	then
-		echo "El programa necesita de Perl y sus librerias para poder generar reportes, se va a proceder a instalarlo. Por favor ingrese la contrasena cuando se le solicite"
-		echo "De no instalarlo no podra generar los reportes. Sin embargo, puede instalarlo por su cuenta cuando desee mas tarde."
-		GraLog AFINSTAL INFO "Instalacion/actualizacion Perl/Switch"
+		echo "El programa necesita de Perl y la libreria switch para poder generar reportes, se va a proceder a instalarlo. Por favor ingrese la contrasena cuando se le solicite"
+		echo "De no instalarlo no podra generar los reportes. Sin embargo, puede instalarlo por su cuenta cuando desee mas tarde y luego podra utilizar el modulo AFLIST."
+		GraLog AFINSTAL INFO "Instalacion/actualizacion Perl"
 		sudo apt-get --force-yes --yes install perl
-		sudo apt-get --force-yes --yes install libswitch-perl
-		GraLog AFINSTAL INFO "Perl/Switch instalados y actualizados"
 	else
-		GraLog AFINSTAL INFO "No hace falta actualizar Perl/Switch."
+		GraLog AFINSTAL INFO "No hace falta actualizar Perl."
 	fi
+	
+	GraLog AFINSTAL INFO "Version instalada de Switch: $SWITCH_VERSION"
+	if [ "$SWITCH_VERSION" -lt "2" ]
+	then
+		GraLog AFINSTAL INFO "Instalacion/actualizacion Switch"
+		sudo apt-get --force-yes --yes install libswitch-perl
+	else
+		GraLog AFINSTAL INFO "No hace falta actualizar Switch."
+	fi
+	
+	GraLog AFINSTAL INFO "Perl/Switch ya instalados y actualizados"
 }
 
 # Aceptacion de terminos y condiciones. 
