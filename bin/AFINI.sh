@@ -52,7 +52,8 @@ function inicializarAmbiente {
 		echo "Para reiniciar, termine la sesión e ingrese nuevamente."
 		GraLog AFINI WAR "Se quiere inicializar ambiente ya inicializado."
 		# Si el usuario desea arrancar el demonio
-		arrancarAFREC
+		#arrancarAFREC
+		echo "Para inicialiar el demonio ejecute el comando $./ARRANCAR.sh &"
 		return 3
 	fi
 
@@ -362,14 +363,16 @@ function arrancarAFREC {
 	printf "¿Desea efectuar la activación de AFREC? (si-no): "
 	read arrancar
 	if [ $arrancar == 'si' ]; then
-		if [ -z $afrecActivado ]; then
+    	ARRANCAR_PID=`ps -ef |grep bash |grep "./ARRANCAR.sh" |grep -v $$ |grep -v "grep"|awk '{print($2)}'`
+		if [ -z $ARRANCAR_PID  ]; then
 			export afrecActivado=1
 			echo "Iniciando AFREC..."
 			GraLog AFINI INFO "El usuario $USER inició AFREC."
 			sleep 1
 			
-			. ARRANCAR.sh
-			echo "AFREC corriendo bajo el no (PID) : $!"
+			./ARRANCAR.sh &
+			echo "ARRANCAR.sh corriendo bajo el PID=$! - PPID=$$"
+			GraLog AFINI WAR "Se ha invocado ARRANCAR.sh PID=$!."
 			return 0
 		else
 			echo "WARNING: Ya hay un proceso AFREC corriendo."

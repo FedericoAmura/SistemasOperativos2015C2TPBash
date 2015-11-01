@@ -27,7 +27,7 @@ function stop {
     echo "linea cerrando $q $w " #imprime la linea del grep
     if [ $q != "0" ]; then
     kill `ps -ef |grep bash |grep $ARG_0|grep -v $$ |grep -v "grep"|awk '{print($2)}'` 
-    echo "Ha finalizado $ARG_0..."   
+    #echo "Ha finalizado $ARG_0..."   
     else
     echo "No existe llamada a $ARG_0. No se pudo completar la operacion"
     exit 2
