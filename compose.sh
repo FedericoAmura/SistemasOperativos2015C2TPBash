@@ -50,37 +50,36 @@ then
 	
 	#Carpeta par contener el paquete y arbol de directorio por defecto.
 	mkdir $GRUPO
+	mkdir $GRUPO/source
 	mkdir $GRUPO/conf
-	mkdir $GRUPO/data
 	
 
 	#Agrega todos los scripts para la instalacion.
 	cp ./bin/AFINSTAL.sh $GRUPO/
 
 	#Agrego el resto de los *.sh $GRUPO/
-	cp ./bin/AFINI.sh $GRUPO/
-	cp ./bin/AFINSTAL.sh $GRUPO/
-	cp ./bin/AFREC.sh $GRUPO/
-	cp ./bin/AFUMB.sh $GRUPO/
-	cp ./bin/ARRANCAR.sh $GRUPO/
-	cp ./bin/DETENER.sh $GRUPO/
-	cp ./bin/GraLog.sh $GRUPO/
-	cp ./bin/MoverA.sh $GRUPO/
+	cp ./bin/AFINI.sh $GRUPO/source/
+	cp ./bin/AFINSTAL.sh $GRUPO/source/
+	cp ./bin/AFREC.sh $GRUPO/source/
+	cp ./bin/AFUMB.sh $GRUPO/source/
+	cp ./bin/ARRANCAR.sh $GRUPO/source/
+	cp ./bin/DETENER.sh $GRUPO/source/
+	cp ./bin/GraLog.sh $GRUPO/source/
+	cp ./bin/MoverA.sh $GRUPO/source/
 
 	# Archivos .pl
-	cp ./bin/aflist.pl $GRUPO/
-	cp ./bin/AFLIST.pl $GRUPO/
+	cp ./bin/AFLIST.pl $GRUPO/source/
 
 	#Agrego el archivo readme
 	cp README.md $GRUPO/
 
 	# Copio toda la carpeta data
-	cp ./data/agentes.csv $GRUPO/data/
-	cp ./data/CdA.csv $GRUPO/data/
-	cp ./data/CdP.csv $GRUPO/data/
-	cp ./data/centrales.csv $GRUPO/data/
-	cp ./data/tllama.csv $GRUPO/data/
-	cp ./data/umbrales.csv $GRUPO/data/
+	cp ./data/agentes.csv $GRUPO/source/
+	cp ./data/CdA.csv $GRUPO/source/
+	cp ./data/CdP.csv $GRUPO/source/
+	cp ./data/centrales.csv $GRUPO/source/
+	cp ./data/tllama.tab $GRUPO/source/
+	cp ./data/umbrales.csv $GRUPO/source/
 
 	#Crea archivo .zip
 	zip -r $NOMBRE_PAQUETE_ZIP $GRUPO 	

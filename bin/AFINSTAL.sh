@@ -17,8 +17,8 @@
 
 ############################# sources ###############################
 
-source MoverA.sh
-source GraLog.sh
+source ./source/MoverA.sh
+source ./source/GraLog.sh
 LOGSIZE=400
 
 ###################### variables de entorno ##########################
@@ -195,21 +195,21 @@ function moverFiles(){
 	echo "-Moviendo archivos..."
 	GraLog AFINSTAL INFO "Moviendo archivos"
 	#Movientos de ejecutables
-	MoverA $GRUPO/MoverA.sh $BINDIR/MoverA.sh AFINSTAL copiar
-	MoverA $GRUPO/GraLog.sh $BINDIR/GraLog.sh AFINSTAL copiar
-	MoverA $GRUPO/AFREC.sh $BINDIR/AFREC.sh AFINSTAL copiar
-	MoverA $GRUPO/AFINI.sh $BINDIR/AFINI.sh AFINSTAL copiar
-	MoverA $GRUPO/AFUMB.sh $BINDIR/AFUMB.sh AFINSTAL copiar
-	MoverA $GRUPO/ARRANCAR.sh $BINDIR/ARRANCAR.sh AFINSTAL copiar
-	MoverA $GRUPO/DETENER.sh $BINDIR/DETENER.sh AFINSTAL copiar
-	MoverA $GRUPO/AFLIST.pl $BINDIR/AFLIST.pl AFINSTAL copiar
+	MoverA $GRUPO/source/MoverA.sh $BINDIR/MoverA.sh AFINSTAL copiar
+	MoverA $GRUPO/source/GraLog.sh $BINDIR/GraLog.sh AFINSTAL copiar
+	MoverA $GRUPO/source/AFREC.sh $BINDIR/AFREC.sh AFINSTAL copiar
+	MoverA $GRUPO/source/AFINI.sh $BINDIR/AFINI.sh AFINSTAL copiar
+	MoverA $GRUPO/source/AFUMB.sh $BINDIR/AFUMB.sh AFINSTAL copiar
+	MoverA $GRUPO/source/ARRANCAR.sh $BINDIR/ARRANCAR.sh AFINSTAL copiar
+	MoverA $GRUPO/source/DETENER.sh $BINDIR/DETENER.sh AFINSTAL copiar
+	MoverA $GRUPO/source/AFLIST.pl $BINDIR/AFLIST.pl AFINSTAL copiar
 	#Moviento de archivos maestros
-	MoverA $GRUPO/data/CdA.csv $MAEDIR/CdA.csv AFINSTAL copiar
-	MoverA $GRUPO/data/CdP.csv $MAEDIR/CdP.csv AFINSTAL copiar
-	MoverA $GRUPO/data/centrales.csv $MAEDIR/centrales.csv AFINSTAL copiar
-	MoverA $GRUPO/data/umbrales.csv $MAEDIR/umbrales.csv AFINSTAL copiar
-	MoverA $GRUPO/data/tllama.tab $MAEDIR/tllama.tab AFINSTAL copiar
-	MoverA $GRUPO/data/agentes.csv $MAEDIR/agentes.csv AFINSTAL copiar
+	MoverA $GRUPO/source/CdA.csv $MAEDIR/CdA.csv AFINSTAL copiar
+	MoverA $GRUPO/source/CdP.csv $MAEDIR/CdP.csv AFINSTAL copiar
+	MoverA $GRUPO/source/centrales.csv $MAEDIR/centrales.csv AFINSTAL copiar
+	MoverA $GRUPO/source/umbrales.csv $MAEDIR/umbrales.csv AFINSTAL copiar
+	MoverA $GRUPO/source/tllama.tab $MAEDIR/tllama.tab AFINSTAL copiar
+	MoverA $GRUPO/source/agentes.csv $MAEDIR/agentes.csv AFINSTAL copiar
 	#Muevo el resto de los archivos a novedades
 	#for ARCHIVO in $(ls -w1 $GRUPO/data ); do		
 	#	MoverA $GRUPO/data/$ARCHIVO $NOVEDIR/$ARCHIVO AFINSTAL
