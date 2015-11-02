@@ -174,6 +174,7 @@ sub menu_r
 		print "4.Filtro por tipo de llamada.\n";
 		print "5.Filtro por tiempo de conversacion.\n";
 		print "6.Filtro por numero A.\n";
+		print "7.Filtro por numero B.\n";
 		print "0.Salir\n";
 
 		print "Ingresar una opcion: ";
@@ -185,28 +186,40 @@ sub menu_r
 			case "1"
 			{
 				print "Ingreso filtro por central.\n\n";
-				@informe = &informeFiltrandoCentral(@preInforme);
+				@informe = &filtrarInforme("Ingrese los ID de las centrales que quiere incluir en su reporte.",0,@preInforme);
 			}
 			case "2"
 			{
 				print "Ingreso filtro por agente.\n\n";
-				@informe = &informeFiltrandoAgente(@preInforme);
+				@informe = &filtrarInforme("Ingrese los ID de agentes que quiere incluir en su reporte.",1,@preInforme);
 			}
 			case "3"
 			{
 				print "Ingreso filtro por umbral.\n\n";
+				@informe = &filtrarInforme("Ingrese los ID de umbrales que quiere incluir en su reporte.",2,@preInforme);
 			}
 			case "4"
 			{
 				print "Ingreso filtro por tipo de llamada.\n\n";
+				@informe = &filtrarInforme("Ingrese los ID de tipos de llamada que quiere incluir en su reporte.",3,@preInforme);
 			}
 			case "5"
 			{
 				print "Ingreso filtro por tiempo de conversacion.\n\n";
+				@informe = &filtrarRangoTiempoConversacion(@preInforme);
 			}
 			case "6"
 			{
 				print "Ingreso filtro por numero A.\n\n";
+				@preInforme = &filtrarInforme("Ingrese los numeros de area que quiere incluir en su reporte.",6,@preInforme);
+				@informe = &filtrarInforme("Ingrese los numeros de telefono que quiere incluir en su reporte.",7,@preInforme);
+			}
+			case "7"
+			{
+				print "Ingreso filtro por numero B.\n\n";
+				@preInforme = &filtrarInforme("Ingrese los numeros de pais que quiere incluir en su reporte.",8,@preInforme);
+				@preInforme = &filtrarInforme("Ingrese los numeros de area que quiere incluir en su reporte.",9,@preInforme);
+				@informe = &filtrarInforme("Ingrese los numeros de telefono que quiere incluir en su reporte.",10,@preInforme);
 			}
 			case "0"
 			{
@@ -247,7 +260,7 @@ sub filtrar_oficinas
 	if ($filtros==0){
 		#filtro las entradas que no sean ^XXX
 		foreach(@filtrar){
-			if ($_ =~ /^[A-Z]{3}/){
+			if ($_ =~ /^[\w]{3}/){
 				push(@retval,$_);
 			}
 		}
@@ -286,9 +299,9 @@ sub filtrar_aniomes
 	#veo si quedo vacio y en ese caso dejo todos los que terminan con aniomes y ext .csv
 	my $filtros = @filtros;
 	if ($filtros==0){
-		#filtro las entradas que no sean YYYYMMDD.csvS
+		#filtro las entradas que no sean YYYYMM.csv$
 		foreach(@filtrar){
-			if ($_ =~ /[0-9]{4}[01][0-9][0-3][0-9]\.csv$/){
+			if ($_ =~ /[0-9]{4}[01][0-9]\.csv$/){
 				push(@retval,$_);
 			}
 		}
@@ -297,7 +310,7 @@ sub filtrar_aniomes
 		foreach(@filtrar){
 			$aux=$_;
 			foreach(@filtros){
-				if ($aux =~ /${_}[0-3][0-9]\.csv$/){
+				if ($aux =~ /${_}\.csv$/){
 					push(@retval,$aux);
 				}
 			}
@@ -359,7 +372,7 @@ sub definir_subllamadas_origen
 	my $retval;
 	my @aux;
 	my $input = '1';
-	print "Ingrese los reportes de origen que quiere incluir en su reporte.\n";
+	print "Indique los reportes de origen que quiere incluir en su reporte ingresando los valores numericos que tienen como extension.\n";
 	print "Si no ingresa ninguno, se incluiran todos.\n";
 	print "Para terminar, ingrese 0.\n";
 	while ($input ne "0")
@@ -384,15 +397,15 @@ sub definir_subllamadas_origen
 	return @retval;
 }
 
-sub informeFiltrandoCentral
+sub filtrarInforme
 {
-	my @filtrar = @_;
+	my ($texto,$campo,@filtrar) = @_;
 	my @filtros;
 	my @retval;
 	my $input = '';
 	my @aux;
 	
-	print "Ingrese los ID de las centrales que quiere incluir en su reporte.\n";
+	print $texto."\n";
 	print "Si no ingresa ninguna, se incluiran todos.\n";
 	print "Para terminar, ingrese 0.\n";
 	#ingreso los valores que van a quedar
@@ -404,7 +417,6 @@ sub informeFiltrandoCentral
 			push(@filtros, $input);
 		}
 	}
-	#veo si quedo vacio y en ese caso dejo todos los que terminan con aniomes y ext .csv
 	my $filtros = @filtros;
 	if ($filtros==0){
 		return @filtrar;
@@ -414,7 +426,7 @@ sub informeFiltrandoCentral
 			$aux=$_;
 			@reg=split(";",$_);
 			foreach(@filtros){
-				if (@reg[0] eq $_){
+				if ($reg[$campo] eq $_){
 					push(@retval,$aux);
 				}
 			}
@@ -423,40 +435,37 @@ sub informeFiltrandoCentral
 	return @retval;
 }
 
-sub informeFiltrandoAgente
+sub filtrarRangoTiempoConversacion
 {
 	my @filtrar = @_;
-	my @filtros;
+	my $minimo = 0;
+	my $maximo = 0;
 	my @retval;
-	my $input = '';
-	my @aux;
+	my $aux;
 	
-	print "Ingrese los ID de agentes que quiere incluir en su reporte.\n";
-	print "Si no ingresa ninguna, se incluiran todos.\n";
-	print "Para terminar, ingrese 0.\n";
-	#ingreso los valores que van a quedar
-	while ($input ne "0")
+	print "Ingrese el tiempo minimo de llamada que quiere incluir en su reporte.\n";
+	$minimo = <STDIN>;
+	
+	print "Ingrese el tiempo maximo de llamada que quiere incluir en su reporte.\n";
+	$maximo = <STDIN>;
+	
+	while ($minimo>$maximo)
 	{
-		$input = <STDIN>;
-		chomp($input);
-		if ( $input ne "0" ){
-			push(@filtros, $input);
-		}
+		print "Valores invalidos. El maximo debe ser mayor al minimo.\n";
+		
+		print "Ingrese el tiempo minimo de llamada que quiere incluir en su reporte.\n";
+		$minimo = <STDIN>;
+	
+		print "Ingrese el tiempo maximo de llamada que quiere incluir en su reporte.\n";
+		$maximo = <STDIN>;
 	}
-	#veo si quedo vacio y en ese caso dejo todos los que terminan con aniomes y ext .csv
-	my $filtros = @filtros;
-	if ($filtros==0){
-		return @filtrar;
-	} else {
-		#paso los valores definidos a la devolucion
-		foreach(@filtrar){
-			$aux=$_;
-			@reg=split(";",$_);
-			foreach(@filtros){
-				if (@reg[1] eq $_){
-					push(@retval,$aux);
-				}
-			}
+	
+	#paso los valores definidos a la devolucion
+	foreach(@filtrar){
+		$aux=$_;
+		@reg=split(";",$aux);
+		if ($reg[5] >= $minimo && $reg[5] <= $maximo){
+			push(@retval,$aux);
 		}
 	}
 	return @retval;
@@ -464,15 +473,21 @@ sub informeFiltrandoAgente
 
 sub emitir_informe
 {
-	my @informe = @_;
+	my @informe = sort @_;
+	my $informe = @informe;
 	my @archivosDir;
 	if ($file)
 	{
 		@archivosDir = &getArchivosDir("$ENV{'REPODIR'}");
-		foreach(@archivosDir){
-			$file += 1;
+		if ($file == 1){
+			foreach(@archivosDir){
+				if ($_ =~ /^subllamada/){
+					$file += 1;
+				}
+			}
 		}
 		print "Estadisticas del informe\n";
+		print "Entradas finales: ".$informe."\n\n";
 		print "Exportando a archivo...\n";
 		my $filename = 'subllamada.' . $file;
 		open(my $file_reporte, ">$ENV{'REPODIR'}/$filename") or die "No se pudo generar el archivo: '$filename' $!" ;
@@ -486,7 +501,7 @@ sub emitir_informe
 	else
 	{
 		print "Informe:\n";
-		print "IDcentral;IDagente;IDumbral;TipoLlamada;InicioLlamada;TiempoConversacion;NumeroA;NumeroB;FechaArchivo\n";
+		print "IDcentral;IDagente;IDumbral;TipoLlamada;InicioLlamada;TiempoConversacion;AreaA;NumeroA;PaisB;AreaB;NumeroB;FechaArchivo\n";
 		foreach(@informe){
 			print $_."\n";
 		}
@@ -639,7 +654,7 @@ sub f_1_central_cantidad_llam_sosp
 
     # Se graba o se imprime
     if ($file eq 1){
- 		open (SAL,">$ENV{'REPODIR'}/estad_".$fecha.".csv");
+ 		open (SAL,">estad_".$fecha.".csv");
 
  		foreach (@rank_centrales){
  			print SAL $id_centrales{$_}.";".$centrales{$_}."\n";
@@ -711,7 +726,7 @@ sub f_2_ofi_cantidad_llam_sosp
     my @rank_oficinas = sort { $oficinas{$b} <=> $oficinas{$a} } keys %oficinas;
     
     if ($file eq 1){
- 		open (SAL,">$ENV{'REPODIR'}/estad_".$fecha.".csv");
+ 		open (SAL,">estad_".$fecha.".csv");
 
  		foreach (@rank_oficinas){
  			print SAL $_.";".$oficinas{$_}."\n";
@@ -781,7 +796,7 @@ sub f_3_agente_cantidad_llam_sosp
     #}
 
     if ($file eq 1){
- 		open (SAL,">$ENV{'REPODIR'}/estad_".$fecha.".csv");
+ 		open (SAL,">estad_".$fecha.".csv");
 
     	foreach my $k (@rank_agentes){
 		#	#print $id_agentes{$_}[0].";".$agentes{$_} ."\n";
@@ -856,7 +871,7 @@ sub f_4_destino_llam_sospechosa
 
 
     if ($file eq 1){
- 		open (SAL,">$ENV{'REPODIR'}/estad_".$fecha.".csv");
+ 		open (SAL,">estad_".$fecha.".csv");
 
  		print SAL "Destinos internacionales con mayor cantidad de llamadas sospechosas:\n";
  		foreach (@rank_dest_inter){
@@ -926,7 +941,7 @@ sub f_5_ranking_umbrales
 
 
     if ($file eq 1){
- 		open (SAL,">$ENV{'REPODIR'}/estad_".$fecha.".csv");
+ 		open (SAL,">estad_".$fecha.".csv");
 
  		foreach (@rank_umbrales){
  			if ($umbrales{$_} > 1){

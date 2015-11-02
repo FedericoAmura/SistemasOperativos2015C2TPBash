@@ -314,7 +314,7 @@ function levantarValoresDelCNFG(){
 function verificarInstalacionCompleta(){
 
 	imprimirConfiguracion
-	echo "Desea modificar la instalacion? (Si/No)"
+	echo "Desea ejecutar de nuevo la instalacion? (Si/No)"
 	read INPUT_USUARIO
 	
 	# Validar Si el usuario desea continuar. 
