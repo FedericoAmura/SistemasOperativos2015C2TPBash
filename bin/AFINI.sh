@@ -99,7 +99,7 @@ function instalacionCompleta {
 	fi
 
 	if [ $instalacionOk -ne 0 ]; then
-		echo "Instalación Incompleta. Por favor, vuelta a realizar la instalación e intente nuevamente."
+		echo "Instalación Incompleta. Por favor, vuelta a realizar la instalación ejecutando el siguiente comando AFINSTAL - start"
 		GraLog AFINI EF "Instalación incompleta."
 		return 1
 	fi
