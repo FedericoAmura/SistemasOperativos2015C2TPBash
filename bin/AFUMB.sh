@@ -153,7 +153,7 @@ validarNumeroLineaB() {
 
 			fi
 		else
-			GraLog AFUMB WAR "Linea B invalido: $NUMLINEA"
+			
 			echo 1
 			return
 		fi
@@ -162,9 +162,12 @@ validarNumeroLineaB() {
 
 validarCodPais() {
 	
-	EXISTE_COD_AREA_PAIS=$(grep -w "$1" "$MAE_COD_PAIS") 
-	COD_AREA_PAIS_ENC=$(echo "$EXISTE_COD_AREA_PAIS" | cut -d ';' -f1)
-	if [ "$COD_AREA_PAIS" != "$COD_AREA_PAIS_ENC" ] 
+	#GraLog AFUMB WAR "COD_AREA_PAIS: $1"	
+	EXISTE_COD_AREA_PAIS=$(grep -w  "$1" "$MAE_COD_PAIS") 
+	#COD_AREA_PAIS_ENC=$(echo "$EXISTE_COD_AREA_PAIS" | cut -d ';' -f1)
+	#COD_AREA_PAIS_ENC=$(echo "$EXISTE_COD_AREA_PAIS" | cut -d ';' -f1)
+	#GraLog AFUMB WAR "EXISTE_COD_AREA_PAIS: $EXISTE_COD_AREA_PAIS"
+	if [ -z "$EXISTE_COD_AREA_PAIS" ] 
 	then
 		GraLog AFUMB WAR "Codigo pais invalido: $COD_AREA_PAIS"
 		echo 1
@@ -173,10 +176,11 @@ validarCodPais() {
 	echo 0
 }
 
+
 validarTiempoConversacion() {
 
 	TIEMPO=$(echo "$1" | cut -d';' -f3)
-	if [ $TIEMPO -lt 0 ]
+	if [ $TIEMPO -lt 0 ] || [ -z $TIEMPO ]
 	then
 		GraLog AFUMB WAR "Tiempo de conversacion invalido: $TIEMPO"
 		echo 1
@@ -272,6 +276,36 @@ determinarTipoLlamada() {
 	fi
 }
 
+validarFecha() {
+	reg=$1
+	campoFecha=$(echo "$reg" | cut -d';' -f2)
+	fecha=$(echo "$campoFecha" | cut -c 1-10)
+	dia=${fecha:0:2}
+	#GraLog AFUMB WAR "dia: $dia"
+	mes=${fecha:3:2}
+	#GraLog AFUMB WAR "mes: $mes"
+	anio=${fecha:6:4}
+	#GraLog AFUMB WAR "anio: $anio"
+	if [ $dia -gt 31 ] || [ $dia -lt 1 ] ; then
+		GraLog AFUMB WAR "Fecha invalida: $campoFecha"		
+		echo 1
+     		return 
+ 	fi
+	
+	if [ $mes -gt 12 ] || [ $mes -lt 1 ] ; then
+		GraLog AFUMB WAR "Fecha invalida: $campoFecha"
+     		echo 1
+    	 	return 
+  	fi
+	if [ $anio -gt 2015 ] || [ $anio -lt 1900 ]
+	then
+		GraLog AFUMB WAR "Fecha invalida: $campoFecha"
+     		echo 1
+    	 	return  
+	fi
+	echo 0
+}
+
 validarRegistro() {
 
 	#valido agente
@@ -280,49 +314,59 @@ validarRegistro() {
 	validaAgente=$(validarAgente $agente) 
 	if [ $validaAgente -eq 0 ]
 	then	
-		#valido area
-		area=$(echo "$reg" | cut -d';' -f4)
-		validaArea=$(validarArea $area)
-		if [ $validaArea -eq 0 ]
+		#valido fecha
+		validaFecha=$(validarFecha "$reg")
+		if [ $validaFecha -eq 0 ]
 		then
+
+			#valido el tiempo de conversacion
+			validaTiempoConv=$(validarTiempoConversacion "$reg")	
+			if [ $validaTiempoConv -eq 0 ]
+			then					
+				#valido area
+				area=$(echo "$reg" | cut -d';' -f4)
+				validaArea=$(validarArea $area)
+				if [ $validaArea -eq 0 ]
+				then
 			
-			#valido numero linea A
-			numerolinea=$(echo "$reg" | cut -d';' -f5)
-			validaNumeroLineaA=$(validarNumeroLineaA $area $numerolinea)
-			if [ $validaNumeroLineaA -eq 0 ]
-			then
-		
-				#valido el numero linea B
-				validaNumeroLineaB=$(validarNumeroLineaB "$reg")
-				if [ $validaNumeroLineaB -eq 0 ]
-				then	
-					#valido el tiempo de conversacion
-					validaTiempoConv=$(validarTiempoConversacion "$reg")	
-					if [ $validaTiempoConv -eq 0 ]
+					#valido numero linea A
+					numerolinea=$(echo "$reg" | cut -d';' -f5)
+					validaNumeroLineaA=$(validarNumeroLineaA $area $numerolinea)
+					if [ $validaNumeroLineaA -eq 0 ]
 					then
-							
-						echo 0
-						return
+		
+						#valido el numero linea B
+						validaNumeroLineaB=$(validarNumeroLineaB "$reg")
+						if [ $validaNumeroLineaB -eq 0 ]
+						then	
+							echo 0
+							return
+						else
+							GraLog AFUMB WAR "Regisro invalido: $reg"
+							echo 1
+							return
+						fi 		
+				
 					else
-						GraLog AFUMB WAR "Registro invalido: $reg"
+						GraLog AFUMB WAR "Regisro invalido: $reg"
 						echo 1
 						return
-					fi
+					fi 		
 				else
 					GraLog AFUMB WAR "Regisro invalido: $reg"
 					echo 1
 					return
-				fi 		
-				
+				fi
 			else
 				GraLog AFUMB WAR "Regisro invalido: $reg"
 				echo 1
 				return
-			fi 		
+			fi
 		else
 			GraLog AFUMB WAR "Regisro invalido: $reg"
 			echo 1
 			return
+
 		fi
 	else
 		GraLog AFUMB WAR "Regisro invalido: $reg"
@@ -379,6 +423,7 @@ function determinarLlamadasSospechosas(){
 
 	ID_CENTRAL=$(echo "$ARCHIVO" | cut -d '_' -f 1)
 	FECHA_ARCHIVO=$(echo "$ARCHIVO" | cut -d '_' -f 2)
+	FECHA_ARCHIVO=$(echo "$FECHA_ARCHIVO" | cut -d '.' -f1)
 
 	# Notacion UM: umbral			
 	#	   CO: codigo
@@ -439,7 +484,7 @@ function determinarLlamadasSospechosas(){
 				#if [ "$UM_ESTADO" = "Activo" ] && [ $UM_CO_AREA_ORIGEN = $LL_NU_AREA ] && [ $UM_NU_ORIGEN = $LL_NU_LINEA_A ] && [ -z $UM_CO_DESTINO  ] || [ $UM_CO_DESTINO = $LL_CO_PAIS_B ]  && [ $UM_TOPE -lt $LL_TIEMPO_CONVERSACION ]
 				if [ "$UM_ESTADO" = "Activo" ] && [ "$UM_CO_AREA_ORIGEN" = "$LL_NU_AREA" ] && [ "$UM_NU_ORIGEN" = "$LL_NU_LINEA_A" ] && [ -z "$UM_CO_DESTINO" ] || [ "$UM_CO_DESTINO" = "$LL_CO_PAIS_B" ] && [ $UM_TOPE -lt $LL_TIEMPO_CONVERSACION ]; then 							
 					# Guardo la llamada como sospechosa.					
-					echo $ID_CENTRAL";"$LL_ID_AGENTE";"$UM_ID";"$UM_TI_LLAMADA";"$LL_FECHA";"$LL_TIEMPO_CONVERSACION";"$LL_NU_AREA";"$LL_NU_LINEA_A";"$LL_CO_PAIS_B";"$LL_CO_AREA_B";"$LL_NU_LINEA_B";"$FECHA_ARCHIVO>> $DIRECTORIO_PROC/$OFICINA"_"$ANIOLLAMADA$MESLLAMADA
+					echo $ID_CENTRAL";"$LL_ID_AGENTE";"$UM_ID";"$UM_TI_LLAMADA";"$LL_FECHA";"$LL_TIEMPO_CONVERSACION";"$LL_NU_AREA";"$LL_NU_LINEA_A";"$LL_CO_PAIS_B";"$LL_CO_AREA_B";"$LL_NU_LINEA_B";"$FECHA_ARCHIVO>> $DIRECTORIO_PROC/$OFICINA"_"$ANIOLLAMADA$MESLLAMADA".csv"
 					CANT_LLAM_SOSPECHOSAS=$(($CANT_LLAM_SOSPECHOSAS+1))
 
 				else # No es una llamada sospechosa
@@ -449,7 +494,7 @@ function determinarLlamadasSospechosas(){
 				#echo " $UM_ESTADO = Inactivo  $UM_CO_AREA_ORIGEN = $LL_NU_AREA $UM_NU_ORIGEN = $LL_NU_LINEA_A $UM_CO_DESTINO = $LL_CO_PAIS_B  $UM_CO_DESTINO  $UM_TOPE -lt $LL_TIEMPO_CONVERSACION "
 				if [ "$UM_ESTADO" = "Activo" ] && [ "$UM_CO_AREA_ORIGEN" = "$LL_NU_AREA" ] && [ "$UM_NU_ORIGEN" = "$LL_NU_LINEA_A" ] && [ -z "$UM_CO_DESTINO" ] || [ "$UM_CO_DESTINO" = "$LL_CO_PAIS_B" ] && [ $UM_TOPE -lt $LL_TIEMPO_CONVERSACION ]; then
 					# Guardo la llamada como sospechosa.
-					echo $ID_CENTRAL";"$LL_ID_AGENTE";"$UM_ID";"$UM_TI_LLAMADA";"$LL_FECHA";"$LL_TIEMPO_CONVERSACION";"$LL_NU_AREA";"$LL_NU_LINEA_A";"$LL_CO_PAIS_B";"$LL_CO_AREA_B";"$LL_NU_LINEA_B";"$FECHA_ARCHIVO>> $DIRECTORIO_PROC/$OFICINA"_"$ANIOLLAMADA$MESLLAMADA
+					echo $ID_CENTRAL";"$LL_ID_AGENTE";"$UM_ID";"$UM_TI_LLAMADA";"$LL_FECHA";"$LL_TIEMPO_CONVERSACION";"$LL_NU_AREA";"$LL_NU_LINEA_A";"$LL_CO_PAIS_B";"$LL_CO_AREA_B";"$LL_NU_LINEA_B";"$FECHA_ARCHIVO>> $DIRECTORIO_PROC/$OFICINA"_"$ANIOLLAMADA$MESLLAMADA".csv"
 					CANT_LLAM_SOSPECHOSAS=$(($CANT_LLAM_SOSPECHOSAS+1))
 				else # No es una llamada sospechosa
 					CANT_LLAM_NO_SOSPECHOSAS=$(($CANT_LLAM_NO_SOSPECHOSAS+1))	
