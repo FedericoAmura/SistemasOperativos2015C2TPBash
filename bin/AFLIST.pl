@@ -338,34 +338,6 @@ sub definir_aniomes
 	return @filtros;
 }
 
-sub filtrarPorAnioMes
-{
-	my @filtrar = @_;
-	my @periodosIngresados;
-	my @filtros;
-	my $input = '';
-	print "Ingrese los aniomeses que quiere incluir en su reporte.\n";
-	print "Si no ingresa ninguno, se incluiran todos.\n";
-	print "Para terminar, ingrese 0.\n";
-	while ($input ne "0")
-	{
-		$input = <STDIN>;
-		chomp($input);
-		if ( $input ne "0" ){
-			if (&validarFecha($input) > 0){
-				push(@periodosIngresados, $input);
-			}			
-		}
-	}
-
-	foreach (@filtrar){
-		if (&archivoCorrespondeAPeriodoIngresado($_, @periodosIngresados)){
-			push(@filtros, $_);
-		}
-	}
-	return @filtros;	
-}
-
 sub definir_subllamadas_origen
 {
 	my @retval;
@@ -555,22 +527,22 @@ while ($input ne '0')
             
                 if ($input_opt ne "3") {
 	                if ($input=="1") {
-						f_1_central_cantidad_llam_sosp($input_opt);
-	                    print "Presione una tecla para continuar...\n";
-	                    $input_opt = <STDIN>;  
-	                    chomp($input_opt);					
-					}elsif ($input=="2") {
-						f_2_ofi_cantidad_llam_sosp($input_opt);
-						print "Presione una tecla para continuar...\n";
-	                    $input_opt = <STDIN>;  
-	                    chomp($input_opt);
-					}elsif ($input=="3") {
-						f_3_agente_cantidad_llam_sosp($input_opt);
-					    print "Presione una tecla para continuar...\n";
-	                    $input_opt = <STDIN>;  
-	                    chomp($input_opt);				   				     
-					} 
-				}
+				f_1_central_cantidad_llam_sosp($input_opt);
+				print "Presione una tecla para continuar...\n";
+				$input_opt = <STDIN>;  
+				chomp($input_opt);					
+			}elsif ($input=="2") {
+				f_2_ofi_cantidad_llam_sosp($input_opt);
+				print "Presione una tecla para continuar...\n";
+				$input_opt = <STDIN>;  
+				chomp($input_opt);
+			}elsif ($input=="3") {
+				f_3_agente_cantidad_llam_sosp($input_opt);
+				print "Presione una tecla para continuar...\n";
+				$input_opt = <STDIN>;  
+				chomp($input_opt);				   				     
+			} 
+		}
 						
             print "valor input $input input_opt $input_opt\n";
             #presione_tecla_para_continuar();
@@ -619,7 +591,7 @@ sub f_1_central_cantidad_llam_sosp
 
 	# El usuario puede ingresar uno ó  más períodos
 	#my @archivos_a_procesar = &definir_aniomes(@archivos);
-	my @archivos_a_procesar = &filtrarPorAnioMes(@archivos);
+	my @archivos_a_procesar = &filtrar_aniomes(@archivos);
 	#my @input_periodos_validos;
 	#foreach (@input_periodos){
 	#	if (&validarFecha($_) > 0){
@@ -696,7 +668,7 @@ sub f_2_ofi_cantidad_llam_sosp
 	#	}
 	#}
 	
-	my @archivos_a_procesar = &filtrarPorAnioMes(@archivos);	
+	my @archivos_a_procesar = &filtrar_aniomes(@archivos);	
 
     foreach (@archivos_a_procesar){
 	 	#next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
@@ -765,7 +737,7 @@ sub f_3_agente_cantidad_llam_sosp
 	#	}
 	#}
 	my @archivos = &getArchivosDir("$ENV{'PROCDIR'}");
-	my @archivos_a_procesar = &filtrarPorAnioMes(@archivos);
+	my @archivos_a_procesar = &filtrar_aniomes(@archivos);
 
     foreach (@archivos_a_procesar){
 	 	#next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
@@ -833,7 +805,7 @@ sub f_4_destino_llam_sospechosa
 	#}
 	my @archivos = &getArchivosDir("$ENV{'PROCDIR'}");
 	
-	my @archivos_a_procesar = &filtrarPorAnioMes(@archivos);
+	my @archivos_a_procesar = &filtrar_aniomes(@archivos);
 
     foreach (@archivos_a_procesar){
 	 	#next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
@@ -919,7 +891,7 @@ sub f_5_ranking_umbrales
 	#}
 	my @archivos = &getArchivosDir("$ENV{'PROCDIR'}");
 
-	my @archivos_a_procesar = &filtrarPorAnioMes(@archivos);
+	my @archivos_a_procesar = &filtrar_aniomes(@archivos);
 
     foreach (@archivos_a_procesar){
 	 	#next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
