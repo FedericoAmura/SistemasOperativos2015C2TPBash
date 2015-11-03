@@ -589,19 +589,9 @@ sub f_1_central_cantidad_llam_sosp
 
 	my @archivos = &getArchivosDir("$ENV{'PROCDIR'}");
 
-	# El usuario puede ingresar uno ó  más períodos
-	#my @archivos_a_procesar = &definir_aniomes(@archivos);
 	my @archivos_a_procesar = &filtrar_aniomes(@archivos);
-	#my @input_periodos_validos;
-	#foreach (@input_periodos){
-	#	if (&validarFecha($_) > 0){
-	#		push (@input_periodos_validos, $_);
-	#	}
-	#}
-	
 
     foreach (@archivos_a_procesar){
-	 	#next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
 	 	print "procesando...". $_ ."\n";
 	 	sleep 1;
 
@@ -624,9 +614,10 @@ sub f_1_central_cantidad_llam_sosp
     my @rank_centrales = sort { $centrales{$b} <=> $centrales{$a} } keys %centrales;
     my %id_centrales = &cargarCodigosDeCentrales();
 
+    print "ID_Central;Cantidad\n";
     # Se graba o se imprime
     if ($file eq 1){
- 		open (SAL,">estad_".$fecha.".csv");
+ 		open (SAL,">$ENV{'REPODIR'}/estad_".$fecha.".csv");
 
  		foreach (@rank_centrales){
  			print SAL $id_centrales{$_}.";".$centrales{$_}."\n";
@@ -659,19 +650,9 @@ sub f_2_ofi_cantidad_llam_sosp
 
 	my @archivos = &getArchivosDir("$ENV{'PROCDIR'}");
 	
-	# El usuario puede ingresar uno ó  más períodos
-	#my @input_periodos = &definir_aniomes;
-	#my @input_periodos_validos;
-	#foreach (@input_periodos){
-	#	if (&validarFecha($_) > 0){
-	#		push @input_periodos_validos, $_;
-	#	}
-	#}
-	
 	my @archivos_a_procesar = &filtrar_aniomes(@archivos);	
 
     foreach (@archivos_a_procesar){
-	 	#next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
 	 	print "procesando...". $_ ."\n";
 		sleep 1;
 
@@ -694,11 +675,12 @@ sub f_2_ofi_cantidad_llam_sosp
     }#foreach
     print "\n";
 
-    my $fecha = getDate;
+    my $fecha = &getDate;
     my @rank_oficinas = sort { $oficinas{$b} <=> $oficinas{$a} } keys %oficinas;
     
+    print "ID_Oficina;Cantidad\n";
     if ($file eq 1){
- 		open (SAL,">estad_".$fecha.".csv");
+ 		open (SAL,">$ENV{'REPODIR'}/estad_".$fecha.".csv");
 
  		foreach (@rank_oficinas){
  			print SAL $_.";".$oficinas{$_}."\n";
@@ -728,20 +710,12 @@ sub f_3_agente_cantidad_llam_sosp
 		print "con filtro por cantidad de segundos\n";
 	}
 
-	# El usuario puede ingresar uno ó  más períodos
-	#my @input_periodos = &definir_aniomes;
-	#my @input_periodos_validos;
-	#foreach (@input_periodos){
-	#	if (&validarFecha($_) > 0){
-	#		push (@input_periodos_validos, $_);
-	#	}
-	#}
 	my @archivos = &getArchivosDir("$ENV{'PROCDIR'}");
 	my @archivos_a_procesar = &filtrar_aniomes(@archivos);
 
     foreach (@archivos_a_procesar){
-	 	#next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
 	 	print "procesando...". $_ ."\n";
+	 	sleep 1;
 
 		open (ENT,"<$ENV{'PROCDIR'}/".$_) || die "Error: No se pudo abrir $ENV{'PROCDIR'}/".$_ ."\n";
 	    while (my $linea = <ENT>){
@@ -762,25 +736,19 @@ sub f_3_agente_cantidad_llam_sosp
     my @rank_agentes = sort { $agentes{$b} <=> $agentes{$a} } keys %agentes;
     my %id_agentes = &cargarCodigosDeAgentes();
 
-    #foreach (@rank_agentes){
-    #print $rank_agentes[0]."\n";
-    #print $id_agentes{$rank_agentes[0]}[0]."\n";
-    #}
-
+    print "ID_Agente;Cantidad;ID_Oficina;e-mail\n";
     if ($file eq 1){
- 		open (SAL,">estad_".$fecha.".csv");
+ 		open (SAL,">$ENV{'REPODIR'}/estad_".$fecha.".csv");
 
     	foreach my $k (@rank_agentes){
-		#	#print $id_agentes{$_}[0].";".$agentes{$_} ."\n";
+			print $k.";".$agentes{$k}.";". $id_agentes{$k}[3].";". $id_agentes{$k}[4]."\n";
 			print SAL $k.";".$agentes{$k}.";". $id_agentes{$k}[3].";". $id_agentes{$k}[4]."\n";			
  		}
  		print "se genero estad_".$fecha.".csv\n";
 	    close (SAL);
     }else{
     	foreach my $k (@rank_agentes){
-		#	#print $id_agentes{$_}[0].";".$agentes{$_} ."\n";
-			print $k.";".$agentes{$k}.";". $id_agentes{$k}[3].";". $id_agentes{$k}[4];			
-			print "\n";
+			print $k.";".$agentes{$k}.";". $id_agentes{$k}[3].";". $id_agentes{$k}[4]."\n";			
  		}
     }		
 	
@@ -795,20 +763,11 @@ sub f_4_destino_llam_sospechosa
 	print "llamando..f_4_destino_llam_sosp\n";
 	print "Destino con mayor cantidad de llamadas sospechosas\n";
 
-	# El usuario puede ingresar uno ó  más períodos
-	#my @input_periodos = &definir_aniomes;
-	#my @input_periodos_validos;
-	#foreach (@input_periodos){
-	#	if (&validarFecha($_) > 0){
-	#		push (@input_periodos_validos, $_);
-	#	}
-	#}
 	my @archivos = &getArchivosDir("$ENV{'PROCDIR'}");
 	
 	my @archivos_a_procesar = &filtrar_aniomes(@archivos);
 
     foreach (@archivos_a_procesar){
-	 	#next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
 	 	print "procesando...". $_ ."\n";
 		sleep 1;
 
@@ -843,15 +802,19 @@ sub f_4_destino_llam_sospechosa
 
 
     if ($file eq 1){
- 		open (SAL,">estad_".$fecha.".csv");
+ 		open (SAL,">$ENV{'REPODIR'}/estad_".$fecha.".csv");
 
  		print SAL "Destinos internacionales con mayor cantidad de llamadas sospechosas:\n";
+ 		print "Destinos internacionales con mayor cantidad de llamadas sospechosas:\n";
+ 		print "CodigoPais;NombrePais;Cantidad\n";
  		foreach (@rank_dest_inter){
  			print SAL $_.";".$id_dest_paises{$_}.";".$destinosInter{$_}."\n";
  			print $_.";".$id_dest_paises{$_}.";".$destinosInter{$_}."\n";
  		}
-
+ 		print "\n";
  		print SAL "Destinos nacionales con mayor cantidad de llamadas sospechosas:\n";
+ 		print "Destinos nacionales con mayor cantidad de llamadas sospechosas:\n";
+ 		print "CodigoArea;NombreArea;Cantidad\n";
  		foreach (@rank_dest_nac){
  			print SAL $_.";".$id_dest_regiones{$_}.";".$destinosNac{$_}."\n";
  			print $_.";".$id_dest_regiones{$_}.";".$destinosNac{$_}."\n";
@@ -862,11 +825,13 @@ sub f_4_destino_llam_sospechosa
     }else{
 
 		print "Destinos internacionales con mayor cantidad de llamadas sospechosas:\n";
+		print "CodigoPais;NombrePais;Cantidad\n";
 		foreach (@rank_dest_inter){
 			print $_.";".$id_dest_paises{$_}.";".$destinosInter{$_}."\n";
 		}
 		print "\n";
 		print "Destinos nacionales con mayor cantidad de llamadas sospechosas:\n";
+		print "CodigoArea;NombreArea;Cantidad\n";
 		foreach (@rank_dest_nac){
 			print $_.";".$id_dest_regiones{$_}.";".$destinosNac{$_}."\n";
 		}
@@ -881,20 +846,11 @@ sub f_5_ranking_umbrales
 	print "llamando..f_5_ranking_umbrales\n";
 	print "Umbrales con mayor cantidad de llamadas sospechosas\n";
 
-	# El usuario puede ingresar uno ó  más períodos
-	#my @input_periodos = &definir_aniomes;
-	#my @input_periodos_validos;
-	#foreach (@input_periodos){
-	#	if (&validarFecha($_) > 0){
-	#		push (@input_periodos_validos, $_);
-	#	}
-	#}
 	my @archivos = &getArchivosDir("$ENV{'PROCDIR'}");
 
 	my @archivos_a_procesar = &filtrar_aniomes(@archivos);
 
     foreach (@archivos_a_procesar){
-	 	#next if ( not &archivoCorrespondeAPeriodoIngresado($_, @input_periodos_validos));
 	 	print "procesando...". $_ ."\n";
 	 	sleep 1;
 
@@ -911,9 +867,9 @@ sub f_5_ranking_umbrales
     my $fecha = &getDate;
     my @rank_umbrales = sort { $umbrales{$b} <=> $umbrales{$a} } keys %umbrales;
 
-
+    print "ID_Umbral;Cantidad\n";
     if ($file eq 1){
- 		open (SAL,">estad_".$fecha.".csv");
+ 		open (SAL,">$ENV{'REPODIR'}/estad_".$fecha.".csv");
 
  		foreach (@rank_umbrales){
  			if ($umbrales{$_} > 1){

@@ -383,7 +383,7 @@ function arrancarAFREC {
 		if [ $arrancar == 'no' ]; then
 			echo "El Usuario no desea arrancar AFREC."
 			GraLog AFINI INFO "El usuario $USER no desea iniciar AFREC en este momento."
-			echo "Si desea arrancar AFREC, en otro momento, ejecute el siguiente comando: \". ARRANCAR.sh\" desde el directorio donde se encuentran los ejecutables."
+			echo "Si desea arrancar AFREC, en otro momento, ejecute el siguiente comando: \"./ARRANCAR.sh &\" desde el directorio donde se encuentran los ejecutables."
 			#exit
 		else
 			echo "Opción ingresada inválida. Intente nuevamente (si-no)."
