@@ -80,7 +80,7 @@ validarNumeroLineaA() {
 	linea_ok=$(validarLineaA $longArea $longlinea)
 	if [ $linea_ok -ne 0 ]
 	then 
-		GraLog AFUMB WAR "Linea A invalido: $1"	
+		GraLog AFUMB WAR "Linea A invalido: $2"	
 		echo 1
 		return
 	fi
@@ -103,13 +103,13 @@ validarNumeroLineaB() {
 			then
 				#Como la llamada es DDI no tiene codigo de area
 				#valido la linea
-				VALIDA_LINEA=$(echo "$NUMLINEA" | egrep '^[0-9]*')
+				VALIDA_LINEA=$(echo "$NUMLINEA" | grep -o '[0123456789]*')
 				if [ $VALIDA_LINEA -eq $NUMLINEA ]
 				then
 					echo 0
 					return
 				else
-					GraLog AFUMB WAR "Formato linea invalido: $NUMLINEA"
+					GraLog AFUMB WAR "Formato linea B invalido: $NUMLINEA"
 					echo 1
 					return
 				fi
@@ -180,7 +180,13 @@ validarCodPais() {
 validarTiempoConversacion() {
 
 	TIEMPO=$(echo "$1" | cut -d';' -f3)
-	if [ $TIEMPO -lt 0 ] || [ -z $TIEMPO ]
+	if [ -z $TIEMPO ]
+	then
+	    	GraLog AFUMB WAR "Tiempo de conversacion invalido: $TIEMPO"
+		echo 1
+		return
+	fi
+	if [ $TIEMPO -lt 0 ]
 	then
 		GraLog AFUMB WAR "Tiempo de conversacion invalido: $TIEMPO"
 		echo 1
@@ -199,8 +205,6 @@ validarLineaA() {
 		#linea 8 digitos
 		if [ $2 -ne 8 ]
 		then
-			#linea invalida
-			GraLog AFUMB WAR "linea invalida: $2"
 			echo 1
 			return
 		fi
@@ -210,8 +214,7 @@ validarLineaA() {
 			#linea 7 digitos
 			if [ $2 -ne 7 ]
 			then
-				#linea invalida
-				GraLog AFUMB WAR "linea invalida: $2"
+		
 				echo 1
 				return
 			fi
@@ -249,30 +252,38 @@ determinarTipoLlamada() {
 		fi
 	else
 		LINEA_A=$(echo "$REGISTRO" | cut -d';' -f5)
-		COD_AREA_A=$(echo "$REGISTRO" | cut -d';' -f4)
-		COD_AREA_B=$(echo "$REGISTRO" | cut -d';' -f7)
-		LONG_AREA=${#COD_AREA_A}
-		LONG_LINEA=${#LINEA_A}
-		LINEA_A_OK=$(validarLineaA $LONG_AREA $LONG_LINEA)	
-		if [ $COD_AREA_A -ne $COD_AREA_B ] && [ $LINEA_A_OK -eq 0 ]
+		VALIDA_LINEA=$(echo "$LINEA_A" | grep -o '[0123456789]*')
+		if [ "$VALIDA_LINEA" = "$LINEA_A" ]
 		then
-			#tipo de llamada DDN
-			echo "DDN"
-			return
-		else
-			if [ $COD_AREA_A -eq $COD_AREA_B ] && [ $LINEA_A_OK -eq 0 ]
+			COD_AREA_A=$(echo "$REGISTRO" | cut -d';' -f4)
+			COD_AREA_B=$(echo "$REGISTRO" | cut -d';' -f7)
+			LONG_AREA=${#COD_AREA_A}
+			LONG_LINEA=${#LINEA_A}
+			LINEA_A_OK=$(validarLineaA $LONG_AREA $LONG_LINEA)	
+			if [ $COD_AREA_A -ne $COD_AREA_B ] && [ $LINEA_A_OK -eq 0 ]
 			then
-				#tipo de llamada local				
-				echo "LOC"
+				#tipo de llamada DDN
+				echo "DDN"
 				return
 			else
-				#tipo de llamada invalida
-				GraLog AFUMB WAR "Tipo de llamada invalido"
-				echo "INV"
-				return
+				if [ $COD_AREA_A -eq $COD_AREA_B ] && [ $LINEA_A_OK -eq 0 ]
+				then
+					#tipo de llamada local				
+					echo "LOC"
+					return
+				else
+					#tipo de llamada invalida
+					GraLog AFUMB WAR "Tipo de llamada invalido"
+					echo "INV"
+					return
+				fi
 			fi
+		else
+			GraLog AFUMB WAR "Formato linea A invalido: $LINEA_A"
+			echo 1
+			return
 		fi
-	
+		
 	fi
 }
 
@@ -339,6 +350,7 @@ validarRegistro() {
 						validaNumeroLineaB=$(validarNumeroLineaB "$reg")
 						if [ $validaNumeroLineaB -eq 0 ]
 						then	
+							
 							echo 0
 							return
 						else
