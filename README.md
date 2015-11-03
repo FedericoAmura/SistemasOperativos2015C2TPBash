@@ -38,23 +38,22 @@ Instrucciones de inicialización de ambiente
   1. Abrir la terminal y dirigirse al directorio donde se encuentran los 
      ejecutables.
 
-  2. Ejecutar . AFINI.sh
-
+  2. Ejecutar
+		>. AFINI.sh
 
   ------------------------------------------------------------------------------
 
 
-  Instrucciones para arrancar y detener el Demonio
+  Instrucciones para arrancar y detener el Demonio manualmente
 ===============================================================================  
-# Agregar como arrancar desde ARRANCAR.sh
-
-      Ejecutar
-          bash ARRANCAR.sh
-
-
+	En caso de no inicializar el demonio al inicializar el ambiente (al ejecutar AFINI.sh) 
+	tiene disponible los siguientes comandos.
       
-      detener un proceso
-      bash  DETENER.sh ARRANCAR.sh
+      Para iniciar el demonio en background, ejecutar:
+        >./ARRANCAR.sh & 
+      
+      Para detener el demonio, ejecutar:
+		>./DETENER.sh ARRANCAR.sh
 
   ------------------------------------------------------------------------------
 
