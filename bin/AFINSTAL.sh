@@ -59,10 +59,10 @@ SWITCH_VERSION="$(dpkg --status libswitch-perl | grep ^Version | cut -c 10)"
 
 function setPath(){
 
-	echo "Ingrese los siguientes directorios a utilizar por el programa. Si no ingresa ningun valor, se tomara el valor default mostrado entre parentesis."
+	echo -e "## Ingrese los siguientes directorios a utilizar por el programa. Si no ingresa ningun valor, se tomara el valor default mostrado entre parentesis. \n"
 	GraLog AFINSTAL INFO "Inicio configuracion variables."
 
-	echo "Cambie, o deje vacio para utilizar el default, el directorio de instalación de los ejecutables ($DEFAULT_BINDIR):"
+	echo -e "\t# Cambie, o deje vacio para utilizar el default, el directorio de instalación de los ejecutables ($DEFAULT_BINDIR):"
 	echo -n "$GRUPO/"
 	read INPUT_USUARIO
 	if [ "$INPUT_USUARIO" == "" ]
@@ -73,7 +73,7 @@ function setPath(){
 	fi
 	GraLog AFINSTAL INFO "Configuracion BINDIR: $BINDIR"
 
-	echo "Cambie, o deje vacio para utilizar el default, el directorio para maestros y tablas ($DEFAULT_MAEDIR):"
+	echo -e "\t# Cambie, o deje vacio para utilizar el default, el directorio para maestros y tablas ($DEFAULT_MAEDIR):"
 	read MAEDIR
 	if [ "$MAEDIR" == "" ]
 	then
@@ -81,7 +81,7 @@ function setPath(){
 	fi
 	GraLog AFINSTAL INFO "Configuracion MAEDIR: $MAEDIR"
 
-	echo "Cambie, o deje vacio para utilizar el default, el directorio de recepción de archivos de llamadas ($DEFAULT_NOVEDIR):"
+	echo -e "\t# Cambie, o deje vacio para utilizar el default, el directorio de recepción de archivos de llamadas ($DEFAULT_NOVEDIR):"
 	read NOVEDIR
 	if [ "$NOVEDIR" == "" ]
 	then
@@ -89,7 +89,7 @@ function setPath(){
 	fi
 	GraLog AFINSTAL INFO "Configuracion NOVEDIR: $NOVEDIR"
 
-	echo "Cambie, o deje vacio para utilizar el default, el directorio de grabación de los archivos de llamadas aceptadas ($DEFAULT_ACEPDIR):"
+	echo -e "\t# Cambie, o deje vacio para utilizar el default, el directorio de grabación de los archivos de llamadas aceptadas ($DEFAULT_ACEPDIR):"
 	read ACEPDIR
 	if [ "$ACEPDIR" == "" ]
 	then
@@ -97,7 +97,7 @@ function setPath(){
 	fi
 	GraLog AFINSTAL INFO "Configuracion ACEPDIR: $ACEPDIR"
 
-	echo "Cambie, o deje vacio para utilizar el default, el directorio de grabación de los registros de llamadas sospechosas ($DEFAULT_PROCDIR):"
+	echo -e "\t# Cambie, o deje vacio para utilizar el default, el directorio de grabación de los registros de llamadas sospechosas ($DEFAULT_PROCDIR):"
 	read PROCDIR
 	if [ "$PROCDIR" == "" ]
 	then
@@ -105,7 +105,7 @@ function setPath(){
 	fi
 	GraLog AFINSTAL INFO "Configuracion PROCDIR: $PROCDIR"
 
-	echo "Cambie, o deje vacio para utilizar el default, el directorio de grabación de los reportes ($DEFAULT_REPODIR):"
+	echo -e "\t# Cambie, o deje vacio para utilizar el default, el directorio de grabación de los reportes ($DEFAULT_REPODIR):"
 	read REPODIR
 	if [ "$REPODIR" == "" ]
 	then
@@ -113,7 +113,7 @@ function setPath(){
 	fi
 	GraLog AFINSTAL INFO "Configuracion REPODIR: $REPODIR"
 
-	echo "Cambie, o deje vacio para utilizar el default, el directorio para los archivos de log ($DEFAULT_LOGDIR):"
+	echo -e "\t# Cambie, o deje vacio para utilizar el default, el directorio para los archivos de log ($DEFAULT_LOGDIR):"
 	read LOGDIR
 	if [ "$LOGDIR" == "" ]
 	then
@@ -121,7 +121,7 @@ function setPath(){
 	fi
 	GraLog AFINSTAL INFO "Configuracion LOGDIR: $LOGDIR"
 
-	echo "Cambie, o deje vacio para utilizar el default, el directorio de grabación de Archivos rechazados ($DEFAULT_RECHDIR):"
+	echo -e "\t# Cambie, o deje vacio para utilizar el default, el directorio de grabación de Archivos rechazados ($DEFAULT_RECHDIR):"
 	read RECHDIR
 	if [ "$RECHDIR" == "" ]
 	then
@@ -129,7 +129,7 @@ function setPath(){
 	fi
 	GraLog AFINSTAL INFO "Configuracion RECHDIR: $RECHDIR"
 
-	echo "Cambie, o deje vacio para utilizar el default, el espacio mínimo libre para la recepción de archivos de llamadas en Mbytes ($DEFAULT_DATASIZE):"
+	echo -e "\t# Cambie, o deje vacio para utilizar el default, el espacio mínimo libre para la recepción de archivos de llamadas en Mbytes ($DEFAULT_DATASIZE):"
 	read DATASIZE
 	if [ "$DATASIZE" == "" ]
 	then
@@ -137,7 +137,7 @@ function setPath(){
 	fi
 	GraLog AFINSTAL INFO "Configuracion DATASIZE: $DATASIZE"
 
-	echo "Cambie, o deje vacio para utilizar el default, el tamaño máximo para cada archivo de log en Kbytes ($DEFAULT_LOGSIZE):"
+	echo -e "\t# Cambie, o deje vacio para utilizar el default, el tamaño máximo para cada archivo de log en Kbytes ($DEFAULT_LOGSIZE):"
 	read LOGSIZE
 	if [ "$LOGSIZE" == "" ]
 	then
@@ -145,7 +145,7 @@ function setPath(){
 	fi
 	GraLog AFINSTAL INFO "Configuracion LOGSIZE: $LOGSIZE"
 
-	echo "Cambie, o deje vacio para utilizar el default, el nombre para la extensión de los archivos de log ($DEFAULT_LOGEXT):"
+	echo -e "\t# Cambie, o deje vacio para utilizar el default, el nombre para la extensión de los archivos de log ($DEFAULT_LOGEXT):"
 	read LOGEXT
 	if [ "$LOGEXT" == "" ]
 	then
@@ -417,11 +417,14 @@ then
 	read INPUT_USUARIO
 	
 	# Validar Si el usuario desea continuar. 
-	usuarioContinuar $INPUT_USUARIO "Siguiente..."
+	
+	usuarioContinuar $INPUT_USUARIO "---------------------------------------------------------------\n"
 
 	# Definir el arbol de directorios
+	echo -e "Step[1/2]: DEFINICION DE DIRECTORIOS: \n"
 	setPath
 
+	echo -e "Step[2/2]: DETALLES DE INSTALACION: \n"
 	# Mostrar como quedo configurada la instalacion.
 	imprimirConfiguracion
 
@@ -431,7 +434,7 @@ then
 	read INPUT_USUARIO		
 	
 	# Validar Si el Usuario desea continuar
-	usuarioContinuar $INPUT_USUARIO ""
+	usuarioContinuar $INPUT_USUARIO "---------------------------------------------------------------\n"
 	
 	#Confirmar inicio de instalacion
 	GraLog AFINSTAL INFO "Iniciar instalacion?."
@@ -449,7 +452,10 @@ then
 else
 	if [ "$CMD_INSTALL" == "--help" ] || [ "$CMD_INSTALL" == "-h" ]
 	then
-		echo "TODO aca van las cosas del help y otras yerbas"
+		echo "Commandos:"
+		echo -e "\t -h [help]"
+		echo -e "\t --help"
+		echo -e "\t -start"
 	else
 		echo "Ingrese el parametro \"-start\" para inicializar la instalacion."
 		echo "O el parametro \"-h\" o \"--help\" para ver la ayuda."

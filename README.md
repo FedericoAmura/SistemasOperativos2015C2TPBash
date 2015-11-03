@@ -10,17 +10,11 @@ Instrucciones de instalacion
      
   2. Abrir una terminal y diregirse a "{installHome}/bin" y ejecutar:
 
-       ./AFINSTALL.sh
+       >./AFINSTALL.sh -start
 
        para iniciar la instalacion.
 
-  3. [OPCIONAL] Modificar su PATH de ambiente de modo de instalar AFRA-J
-  	  desde cualquier directorio #Completar 
-
-  4. 
-  
-  5.
-
+  Nota: Durante la instalacion podra definir directorios propios del sistema AFRA-J.      
   ------------------------------------------------------------------------------
 
 Instrucciones de inicialización de ambiente
@@ -34,6 +28,8 @@ Instrucciones de inicialización de ambiente
       previamente.
     - El usuario tiene la opción de arrancar el Demonio, desde este comando, si es que lo desea.
 
+  Pasos:
+  ------
 
   1. Abrir la terminal y dirigirse al directorio donde se encuentran los 
      ejecutables.
