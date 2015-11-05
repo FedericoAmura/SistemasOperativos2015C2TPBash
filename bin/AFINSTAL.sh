@@ -13,7 +13,6 @@
 #0: Todo ok
 #1: Paquete ya instalado
 #2: Instalacion abortada por el usuario
-#3: No hay suficiente espacio en disco para completar la instalacion
 
 ############################# sources ###############################
 
@@ -130,11 +129,16 @@ function setPath(){
 	GraLog AFINSTAL INFO "Configuracion RECHDIR: $RECHDIR"
 
 	echo -e "\t# Cambie, o deje vacio para utilizar el default, el espacio mínimo libre para la recepción de archivos de llamadas en Mbytes ($DEFAULT_DATASIZE):"
-	read DATASIZE
-	if [ "$DATASIZE" == "" ]
-	then
-		DATASIZE=$DEFAULT_DATASIZE
-	fi
+	ESPACIO_SUFICIENTE="0"
+	while [ "$ESPACIO_SUFICIENTE" == "0" ]
+	do
+		read DATASIZE
+		if [ "$DATASIZE" == "" ]
+		then
+			DATASIZE=$DEFAULT_DATASIZE
+		fi
+		verificarEspacioEnDisco
+	done
 	GraLog AFINSTAL INFO "Configuracion DATASIZE: $DATASIZE"
 
 	echo -e "\t# Cambie, o deje vacio para utilizar el default, el tamaño máximo para cada archivo de log en Kbytes ($DEFAULT_LOGSIZE):"
@@ -168,7 +172,6 @@ function instalacion(){
 	echo "-Directorios creados"
 	GraLog AFINSTAL INFO "Directorios creados"
 	echo "PWD: $PWD"
-	verificarEspacioEnDisco
 	generateFileConfiguracion
 	moverFiles
 
@@ -324,15 +327,20 @@ function verificarInstalacionCompleta(){
 #verificar si hay suficiente espacio en disco para las novedades
 #
 function verificarEspacioEnDisco(){
-	ESPACIO_NOVEDIR="$(df -h -k --block-size=MB $NOVEDIR | awk 'NR==2{print$4}' | sed s/MB$//)"
+	NOVEDIR_MAXIMO=$NOVEDIR
+	while test ! -e $NOVEDIR_MAXIMO; do
+	  NOVEDIR_MAXIMO=$(dirname $NOVEDIR_MAXIMO)
+	done
+	ESPACIO_NOVEDIR="$(df -h -k --block-size=MB $NOVEDIR_MAXIMO | awk 'NR==2{print$4}' | sed s/MB$//)"
 	if [ "$ESPACIO_NOVEDIR" -lt "$DATASIZE" ]
 	then
 		echo "No hay suficiente espacio en disco para poder completar la instalacion con esa configuracion"
-		echo "Libere espacio en el disco y vuelva a intentarlo"
-		GraLog AFINSTAL ERR "No hay suficiente espacio en disco para recibir novedades"
-		exit 3
+		echo "Ingrese un nuevo tamano maximo menor."
+		GraLog AFINSTAL ERR "No hay $DATASIZE MB de espacio para el directorio $NOVEDIR."
+	else
+		ESPACIO_SUFICIENTE="1"
+		GraLog AFINSTAL INFO "Verificado $DATASIZE MB de espacio en el directorio $NOVEDIR: OK"
 	fi
-	GraLog AFINSTAL INFO "Verificado espacio en disco: OK"
 }
 
 # verificar si Perl esta instaldo en el SO.
